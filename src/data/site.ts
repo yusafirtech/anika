@@ -1,6 +1,7 @@
 export const navLinks = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
+  { label: "Team", href: "/team" },
   { label: "Business", href: "/business" },
   { label: "Projects", href: "/projects" },
   { label: "Export", href: "/export" },
@@ -21,6 +22,7 @@ export const footerColumns = [
     title: "Company",
     links: [
       { label: "About Us", href: "/about" },
+      { label: "Our Team", href: "/team" },
       { label: "Mission & Vision", href: "/about#mission" },
       { label: "Business", href: "/business" },
       { label: "Projects", href: "/projects" },

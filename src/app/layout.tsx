@@ -25,7 +25,11 @@ export const metadata: Metadata = {
   description:
     "ANIKA TRADING & CO. is a Bangladesh-based diversified business company operating across construction, government supply, distribution, import & trading, and international export.",
   icons: {
-    icon: "/images/anika-official-logo.png",
+    icon: [
+      { url: "/images/anika-official-logo.png", type: "image/png" },
+    ],
+    shortcut: "/images/anika-official-logo.png",
+    apple: "/images/anika-official-logo.png",
   },
   openGraph: {
     title: "ANIKA TRADING & CO.",
@@ -33,6 +37,21 @@ export const metadata: Metadata = {
       "Building. Supplying. Exporting. Connecting. A diversified Bangladesh-based business company across construction, supply and international trade.",
     siteName: "ANIKA TRADING & CO.",
     type: "website",
+    images: [
+      {
+        url: "/images/anika-official-logo.png",
+        width: 512,
+        height: 512,
+        alt: "ANIKA TRADING & CO. Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "ANIKA TRADING & CO.",
+    description:
+      "Building. Supplying. Exporting. Connecting. A diversified Bangladesh-based business company.",
+    images: ["/images/anika-official-logo.png"],
   },
 };
 
