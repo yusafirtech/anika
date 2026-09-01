@@ -73,14 +73,14 @@ export default function HomeHero() {
           One Company &middot; Multiple Sectors &middot; One Connected Business
         </motion.p>
 
-        <h1 className="mt-6 max-w-4xl font-display text-[13vw] font-medium leading-[0.98] text-white sm:text-[9vw] md:text-[6.2vw] lg:text-[80px]">
+        <h1 className="mt-6 max-w-4xl px-2 font-display text-[2.35rem] font-medium leading-[1.05] text-white sm:text-[3.4rem] sm:leading-[1] md:text-[6.2vw] md:leading-[0.98] lg:text-[80px]">
           {["Building.", "Supplying.", "Exporting.", "Connecting."].map((word, i) => (
             <motion.span
               key={word}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 + i * 0.12, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="mr-3 inline-block last:mr-0"
+              className="block md:inline-block md:mr-3 md:last:mr-0"
             >
               {word}
             </motion.span>

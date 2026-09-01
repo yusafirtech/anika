@@ -20,19 +20,28 @@ export default function BusinessNav() {
               <a
                 href={`#${v.id}`}
                 onMouseEnter={() => setHovered(v.id)}
-                className="group flex items-center justify-between py-5 md:py-7"
+                className="group flex items-center justify-between gap-4 py-4 md:py-7"
               >
-                <span className="flex items-baseline gap-5">
+                <span className="flex min-w-0 items-center gap-4 md:items-baseline md:gap-5">
+                  <span className="relative hidden h-12 w-12 shrink-0 overflow-hidden rounded-lg sm:block md:hidden">
+                    <Image
+                      src={v.image}
+                      alt=""
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
+                  </span>
                   <span className="font-display text-sm tracking-widest text-white/35">
                     {v.index}
                   </span>
-                  <span className="font-display text-[20px] font-medium text-white transition-transform duration-300 group-hover:translate-x-2 md:text-[28px]">
+                  <span className="truncate font-display text-[17px] font-medium text-white transition-transform duration-300 group-hover:translate-x-2 sm:text-[20px] md:text-[28px]">
                     {v.title}
                   </span>
                 </span>
                 <span
                   aria-hidden
-                  className="text-lg text-white/30 transition-all duration-300 group-hover:translate-x-1 group-hover:text-teal-light"
+                  className="shrink-0 text-lg text-white/30 transition-all duration-300 group-hover:translate-x-1 group-hover:text-teal-light"
                 >
                   &rarr;
                 </span>

@@ -19,7 +19,7 @@ export default function CoreValues() {
           </p>
         </Reveal>
 
-        <div className="mt-10 flex flex-col items-center gap-1 md:mt-14 md:gap-2">
+        <div className="mt-10 flex flex-col items-center gap-1 overflow-hidden px-2 md:mt-14 md:gap-2">
           {coreValues.map((value, i) => (
             <Reveal key={value.id} delay={i * 0.05}>
               <button
@@ -27,7 +27,7 @@ export default function CoreValues() {
                 onFocus={() => setActiveId(value.id)}
                 onClick={() => setActiveId(value.id)}
                 className={cn(
-                  "font-display text-[11vw] font-medium leading-[1.05] tracking-tight transition-all duration-300 sm:text-[8vw] md:text-[64px]",
+                  "max-w-full break-words text-center font-display text-[8.5vw] font-medium leading-[1.1] tracking-tight transition-all duration-300 sm:text-[7vw] md:text-[64px] md:leading-[1.05]",
                   value.id === activeId ? "brand-gradient-text" : "text-navy-deeper/15 hover:text-navy-deeper/30"
                 )}
               >

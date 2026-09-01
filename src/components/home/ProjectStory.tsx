@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { homeProjects } from "@/data/home";
 import ProjectStoryItem from "./ProjectStoryItem";
+import ProjectStoryMobile from "./ProjectStoryMobile";
 
 export default function ProjectStory() {
   return (
@@ -11,12 +12,18 @@ export default function ProjectStory() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-navy/60">
           From Capability to Execution
         </p>
-        <h2 className="mt-3 max-w-2xl font-display text-[32px] font-medium leading-tight text-navy-deeper md:text-[44px]">
+        <h2 className="mt-3 max-w-2xl font-display text-[28px] font-medium leading-tight text-navy-deeper md:text-[44px]">
           What ANIKA Has Actually Worked On
         </h2>
       </div>
 
-      <div className="relative mt-6">
+      {/* Mobile: simple stacked cards, no scroll-jacking */}
+      <div className="md:hidden">
+        <ProjectStoryMobile />
+      </div>
+
+      {/* Desktop: cascading sticky-stack effect */}
+      <div className="relative mt-6 hidden md:block">
         {homeProjects.map((project, i) => (
           <ProjectStoryItem
             key={project.id}
@@ -28,7 +35,7 @@ export default function ProjectStory() {
         ))}
       </div>
 
-      <div className="mx-auto mt-4 max-w-6xl px-5 text-center md:px-8">
+      <div className="mx-auto mt-10 max-w-6xl px-5 text-center md:mt-4 md:px-8">
         <Link
           href="/projects"
           className="inline-flex items-center gap-2 rounded-full border border-navy/20 px-6 py-3 text-sm font-semibold text-navy transition-colors hover:bg-navy hover:text-white"

@@ -63,7 +63,7 @@ export default async function ProjectDetailPage({
       <section className="bg-paper py-16 md:py-24">
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-12 px-6 md:grid-cols-[0.8fr_1.2fr] md:px-8">
           <Reveal>
-            <div className="sticky top-28 flex flex-col gap-6">
+            <div className="static flex flex-col gap-6 md:sticky md:top-28">
               <div>
                 <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">Year</span>
                 <span className="text-sm text-ink/70">{project.year}</span>
