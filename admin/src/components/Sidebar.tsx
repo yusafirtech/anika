@@ -16,6 +16,13 @@ import {
   ChevronRight,
   Shield,
   Layers,
+  Home,
+  Info,
+  Building2,
+  FolderKanban,
+  Globe2,
+  PhoneCall,
+  Compass,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -56,6 +63,55 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Dashboard',
           to: '/',
           icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      label: 'Website Pages (Full CMS)',
+      items: [
+        {
+          label: 'Homepage',
+          to: '/pages/home',
+          icon: Home,
+          badge: 'Dynamic',
+          badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
+        },
+        {
+          label: 'About Page',
+          to: '/pages/about',
+          icon: Info,
+        },
+        {
+          label: 'Business Page',
+          to: '/pages/business',
+          icon: Building2,
+        },
+        {
+          label: 'Projects Page',
+          to: '/pages/projects',
+          icon: FolderKanban,
+        },
+        {
+          label: 'Export Division',
+          to: '/pages/export',
+          icon: Globe2,
+          badge: 'Galleries',
+          badgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
+        },
+        {
+          label: 'Leadership & Team',
+          to: '/pages/team',
+          icon: Users,
+        },
+        {
+          label: 'Contact Page',
+          to: '/pages/contact',
+          icon: PhoneCall,
+        },
+        {
+          label: 'Header & Footer',
+          to: '/pages/site',
+          icon: Compass,
         },
       ],
     },

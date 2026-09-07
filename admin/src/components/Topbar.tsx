@@ -15,6 +15,14 @@ interface TopbarProps {
 
 const BREADCRUMB_MAP: Record<string, { group: string; title: string }> = {
   '/': { group: 'Overview', title: 'Operational Dashboard' },
+  '/pages/home': { group: 'Website Pages (Full CMS)', title: 'Homepage Editor' },
+  '/pages/about': { group: 'Website Pages (Full CMS)', title: 'About Us Page Editor' },
+  '/pages/business': { group: 'Website Pages (Full CMS)', title: 'Business Page & Verticals Editor' },
+  '/pages/projects': { group: 'Website Pages (Full CMS)', title: 'Projects Portfolio Editor' },
+  '/pages/export': { group: 'Website Pages (Full CMS)', title: 'Export Division & Multi-Image Products' },
+  '/pages/team': { group: 'Website Pages (Full CMS)', title: 'Leadership & Team Page Editor' },
+  '/pages/contact': { group: 'Website Pages (Full CMS)', title: 'Contact Page & Inquiry Routing' },
+  '/pages/site': { group: 'Website Pages (Full CMS)', title: 'Global Header & Footer Settings' },
   '/products': { group: 'Content Management', title: 'Export & Trade Products' },
   '/projects': { group: 'Content Management', title: 'Construction & Engineering Projects' },
   '/hero': { group: 'Content Management', title: 'Homepage Hero Slides' },

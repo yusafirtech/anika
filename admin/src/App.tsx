@@ -19,6 +19,16 @@ import {
 } from './pages/EntityCrudPages';
 import { SettingsPage } from './pages/SettingsPage';
 
+// Page Content Managers (Full CMS)
+import { HomePageManager } from './pages/managers/HomePageManager';
+import { AboutPageManager } from './pages/managers/AboutPageManager';
+import { BusinessPageManager } from './pages/managers/BusinessPageManager';
+import { ProjectsPageManager } from './pages/managers/ProjectsPageManager';
+import { ExportPageManager } from './pages/managers/ExportPageManager';
+import { TeamPageManager } from './pages/managers/TeamPageManager';
+import { ContactPageManager } from './pages/managers/ContactPageManager';
+import { SiteGlobalManager } from './pages/managers/SiteGlobalManager';
+
 export const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -42,6 +52,72 @@ export const App: React.FC = () => {
               element={
                 <PermissionGuard resource="dashboard" action="view">
                   <AdminDashboard />
+                </PermissionGuard>
+              }
+            />
+
+            {/* Website Pages Managers (Full CMS) */}
+            <Route
+              path="pages/home"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <HomePageManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="pages/about"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <AboutPageManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="pages/business"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <BusinessPageManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="pages/projects"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <ProjectsPageManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="pages/export"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <ExportPageManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="pages/team"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <TeamPageManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="pages/contact"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <ContactPageManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="pages/site"
+              element={
+                <PermissionGuard resource="pages" action="view">
+                  <SiteGlobalManager />
                 </PermissionGuard>
               }
             />

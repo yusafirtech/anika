@@ -14,6 +14,7 @@ interface AuthContextType {
 const DEFAULT_PERMISSIONS: RolePermissions = {
   admin: {
     dashboard: ['view', 'create', 'edit', 'delete'],
+    pages: ['view', 'create', 'edit', 'delete'],
     products: ['view', 'create', 'edit', 'delete'],
     projects: ['view', 'create', 'edit', 'delete'],
     leads: ['view', 'create', 'edit', 'delete'],
@@ -25,6 +26,7 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   },
   manager: {
     dashboard: ['view'],
+    pages: ['view', 'create', 'edit', 'delete'],
     products: ['view', 'create', 'edit', 'delete'],
     projects: ['view', 'create', 'edit', 'delete'],
     leads: ['view', 'edit', 'delete'],
@@ -36,6 +38,7 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   },
   editor: {
     dashboard: ['view'],
+    pages: ['view', 'create', 'edit'],
     products: ['view', 'create', 'edit'],
     projects: ['view', 'create', 'edit'],
     leads: ['view'],
@@ -47,6 +50,7 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   },
   viewer: {
     dashboard: ['view'],
+    pages: ['view'],
     products: ['view'],
     projects: ['view'],
     leads: ['view'],
