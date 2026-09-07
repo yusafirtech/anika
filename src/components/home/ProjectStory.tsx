@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { homeProjects } from "@/data/home";
-import ProjectStoryItem from "./ProjectStoryItem";
+import ProjectStoryDesktop from "./ProjectStoryDesktop";
 import ProjectStoryMobile from "./ProjectStoryMobile";
 
 export default function ProjectStory() {
@@ -22,17 +22,9 @@ export default function ProjectStory() {
         <ProjectStoryMobile />
       </div>
 
-      {/* Desktop: cascading sticky-stack effect */}
-      <div className="relative mt-6 hidden md:block">
-        {homeProjects.map((project, i) => (
-          <ProjectStoryItem
-            key={project.id}
-            project={project}
-            index={i}
-            total={homeProjects.length}
-            top={80 + i * 14}
-          />
-        ))}
+      {/* Desktop: automatic swiper */}
+      <div className="hidden md:block">
+        <ProjectStoryDesktop />
       </div>
 
       <div className="mx-auto mt-10 max-w-6xl px-5 text-center md:mt-4 md:px-8">

@@ -23,6 +23,7 @@ export type ExportProduct = {
   moq: string;
   summary: string;
   image: string;
+  images: string[];
   specifications: { label: string; value: string }[];
 };
 
@@ -37,6 +38,12 @@ export const exportProducts: ExportProduct[] = [
     summary:
       "Frozen shrimp sourced and processed for export, packed to preserve quality through international shipment.",
     image: "/images/story-seafood-closeup.jpg",
+    images: [
+      "/images/story-seafood-closeup.jpg",
+      "/images/story-seafood.jpg",
+      "/images/trade-detail.jpg",
+      "/images/story-international-trade.jpg",
+    ],
     specifications: [
       { label: "Product category", value: "Seafood" },
       { label: "Origin", value: "Bangladesh" },
@@ -56,6 +63,12 @@ export const exportProducts: ExportProduct[] = [
     summary:
       "Fresh and frozen fish supply, processed and packaged to export-ready condition.",
     image: "/images/story-seafood.jpg",
+    images: [
+      "/images/story-seafood.jpg",
+      "/images/story-seafood-closeup.jpg",
+      "/images/trade-detail.jpg",
+      "/images/hero-port-supply-route.jpg",
+    ],
     specifications: [
       { label: "Product category", value: "Frozen Fish" },
       { label: "Origin", value: "Bangladesh" },
@@ -74,6 +87,12 @@ export const exportProducts: ExportProduct[] = [
     summary:
       "Fresh vegetables sourced, graded and packed for both regional and international buyers.",
     image: "/images/story-vegetable-market.jpg",
+    images: [
+      "/images/story-vegetable-market.jpg",
+      "/images/story-agriculture-origin.jpg",
+      "/images/trade-detail.jpg",
+      "/images/story-global-connection.jpg",
+    ],
     specifications: [
       { label: "Product category", value: "Vegetables" },
       { label: "Origin", value: "Bangladesh" },
@@ -92,6 +111,12 @@ export const exportProducts: ExportProduct[] = [
     summary:
       "Bangladesh-origin agricultural produce, sourced and prepared to meet export specifications.",
     image: "/images/story-agriculture-origin.jpg",
+    images: [
+      "/images/story-agriculture-origin.jpg",
+      "/images/story-vegetable-market.jpg",
+      "/images/trade-detail.jpg",
+      "/images/story-global-connection.jpg",
+    ],
     specifications: [
       { label: "Product category", value: "Agricultural Products" },
       { label: "Origin", value: "Bangladesh" },

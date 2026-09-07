@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { exportProducts, getProductBySlug } from "@/data/export";
 import Reveal from "@/components/ui/Reveal";
 
+import ProductGallery from "@/components/export/ProductGallery";
+
 export function generateStaticParams() {
   return exportProducts.map((p) => ({ slug: p.slug }));
 }
@@ -29,19 +31,14 @@ export default async function ProductDetailPage({
   const product = getProductBySlug(slug);
   if (!product) notFound();
 
+  const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
+
   return (
     <section className="bg-paper pb-24 pt-28 md:pt-36">
       <div className="mx-auto max-w-5xl px-6 md:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16">
-          <Reveal className="relative h-[42vh] w-full overflow-hidden rounded-2xl md:h-[55vh]">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              sizes="(min-width: 768px) 45vw, 90vw"
-              className="object-cover"
-            />
+          <Reveal>
+            <ProductGallery images={productImages} productName={product.name} />
           </Reveal>
 
           <Reveal delay={0.1}>
