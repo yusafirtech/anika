@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BusinessPageContent } from '../../types';
-import { mockDb } from '../../api';
+import { mockDb, backendApi } from '../../api';
+import { ImageUploadButton } from '../../components/ImageUploadButton';
 import {
   Save,
   CheckCircle2,
@@ -19,6 +20,13 @@ export const BusinessPageManager: React.FC = () => {
   const [selectedVerticalIdx, setSelectedVerticalIdx] = useState<number>(0);
   const [newCapability, setNewCapability] = useState('');
   const [toast, setToast] = useState(false);
+
+  // Fetch latest content from MySQL on mount
+  useEffect(() => {
+    backendApi.pages.get<BusinessPageContent>('business', content).then((data) => {
+      if (data) setContent(data);
+    });
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -359,13 +367,19 @@ export const BusinessPageManager: React.FC = () => {
                     <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                       Image Path / URL
                     </label>
-                    <input
-                      type="text"
-                      value={activeVertical.image}
-                      onChange={(e) => handleVerticalChange(selectedVerticalIdx, 'image', e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
-                      placeholder="/images/story-construction-site.jpg"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={activeVertical.image}
+                        onChange={(e) => handleVerticalChange(selectedVerticalIdx, 'image', e.target.value)}
+                        className="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                        placeholder="/images/story-construction-site.jpg"
+                      />
+                      <ImageUploadButton
+                        onImageUploaded={(url) => handleVerticalChange(selectedVerticalIdx, 'image', url)}
+                        label="Upload Image"
+                      />
+                    </div>
                   </div>
 
                   <div>

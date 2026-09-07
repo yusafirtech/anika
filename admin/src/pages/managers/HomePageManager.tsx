@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HomePageContent } from '../../types';
-import { mockDb } from '../../api';
+import { mockDb, backendApi } from '../../api';
+import { ImageUploadButton } from '../../components/ImageUploadButton';
 import {
   Save,
   CheckCircle2,
@@ -18,6 +19,13 @@ export const HomePageManager: React.FC = () => {
   const [content, setContent] = useState<HomePageContent>(() => mockDb.getHomePage());
   const [activeTab, setActiveTab] = useState<'hero' | 'sectors' | 'business' | 'why' | 'cta'>('hero');
   const [toast, setToast] = useState(false);
+
+  // Fetch latest content from MySQL on mount
+  useEffect(() => {
+    backendApi.pages.get<HomePageContent>('home', content).then((data) => {
+      if (data) setContent(data);
+    });
+  }, []);
 
   // Draft keyword input for hero
   const [newKeyword, setNewKeyword] = useState('');
@@ -219,6 +227,14 @@ export const HomePageManager: React.FC = () => {
                       })
                     }
                     className="flex-1 rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                  <ImageUploadButton
+                    onImageUploaded={(url) =>
+                      setContent({
+                        ...content,
+                        hero: { ...content.hero, bgImage: url },
+                      })
+                    }
                   />
                 </div>
                 {content.hero.bgImage && (
@@ -672,6 +688,11 @@ export const HomePageManager: React.FC = () => {
                       setContent({ ...content, cta: { ...content.cta, bgImage: e.target.value } })
                     }
                     className="flex-1 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                  <ImageUploadButton
+                    onImageUploaded={(url) =>
+                      setContent({ ...content, cta: { ...content.cta, bgImage: url } })
+                    }
                   />
                   {content.cta.bgImage && (
                     <div className="h-12 w-20 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">

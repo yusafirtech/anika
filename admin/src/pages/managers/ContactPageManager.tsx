@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ContactPageContent } from '../../types';
-import { mockDb } from '../../api';
+import { mockDb, backendApi } from '../../api';
+import { ImageUploadButton } from '../../components/ImageUploadButton';
 import {
   Save,
   CheckCircle2,
@@ -20,6 +21,13 @@ export const ContactPageManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'coordinates' | 'form' | 'hero'>('coordinates');
   const [newSector, setNewSector] = useState('');
   const [toast, setToast] = useState(false);
+
+  // Fetch latest content from MySQL on mount
+  useEffect(() => {
+    backendApi.pages.get<ContactPageContent>('contact', content).then((data) => {
+      if (data) setContent(data);
+    });
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -342,12 +350,18 @@ export const ContactPageManager: React.FC = () => {
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Background Image Path / URL
               </label>
-              <input
-                type="text"
-                value={content.hero.bgImage}
-                onChange={(e) => handleHeroChange('bgImage', e.target.value)}
-                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={content.hero.bgImage}
+                  onChange={(e) => handleHeroChange('bgImage', e.target.value)}
+                  className="flex-1 px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                />
+                <ImageUploadButton
+                  onImageUploaded={(url) => handleHeroChange('bgImage', url)}
+                  label="Upload Banner"
+                />
+              </div>
             </div>
 
             <div className="md:col-span-2">

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExportPageContent } from '../../types';
-import { mockDb } from '../../api';
+import { mockDb, backendApi } from '../../api';
+import { ImageUploadButton } from '../../components/ImageUploadButton';
 import {
   Save,
   CheckCircle2,
@@ -24,6 +25,13 @@ export const ExportPageManager: React.FC = () => {
   const [newSpecLabel, setNewSpecLabel] = useState('');
   const [newSpecVal, setNewSpecVal] = useState('');
   const [toast, setToast] = useState(false);
+
+  // Fetch latest content from MySQL on mount
+  useEffect(() => {
+    backendApi.pages.get<ExportPageContent>('export', content).then((data) => {
+      if (data) setContent(data);
+    });
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -427,12 +435,18 @@ export const ExportPageManager: React.FC = () => {
                     <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                       Primary Cover Image Path / URL
                     </label>
-                    <input
-                      type="text"
-                      value={activeProduct.image}
-                      onChange={(e) => handleProductChange(selectedProductIdx, 'image', e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={activeProduct.image}
+                        onChange={(e) => handleProductChange(selectedProductIdx, 'image', e.target.value)}
+                        className="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                      />
+                      <ImageUploadButton
+                        onImageUploaded={(url) => handleProductChange(selectedProductIdx, 'image', url)}
+                        label="Upload Cover"
+                      />
+                    </div>
                   </div>
 
                   <div className="md:col-span-2">
@@ -465,7 +479,7 @@ export const ExportPageManager: React.FC = () => {
                   </div>
 
                   {/* Add Image Input */}
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <input
                       type="text"
                       value={newGalleryUrl}
@@ -477,7 +491,7 @@ export const ExportPageManager: React.FC = () => {
                         }
                       }}
                       placeholder="Enter photo path or URL (e.g. /images/story-seafood-closeup.jpg)..."
-                      className="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                      className="flex-1 min-w-[200px] px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
                     />
                     <button
                       type="button"
@@ -485,8 +499,21 @@ export const ExportPageManager: React.FC = () => {
                       className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      Add to Gallery
+                      Add URL
                     </button>
+                    <ImageUploadButton
+                      onImageUploaded={(url) => {
+                        const current = activeProduct;
+                        const existing = current.images || [current.image];
+                        const updated = [...content.products];
+                        updated[selectedProductIdx] = {
+                          ...current,
+                          images: [...existing, url],
+                        };
+                        setContent({ ...content, products: updated });
+                      }}
+                      label="Upload to Gallery"
+                    />
                   </div>
 
                   {/* Gallery Visual Grid */}

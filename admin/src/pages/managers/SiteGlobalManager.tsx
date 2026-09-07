@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SiteGlobalContent } from '../../types';
-import { mockDb } from '../../api';
+import { mockDb, backendApi } from '../../api';
 import {
   Save,
   CheckCircle2,
@@ -23,6 +23,13 @@ export const SiteGlobalManager: React.FC = () => {
   const [newNavHref, setNewNavHref] = useState('');
   const [newColTitle, setNewColTitle] = useState('');
   const [toast, setToast] = useState(false);
+
+  // Fetch latest content from MySQL on mount
+  useEffect(() => {
+    backendApi.pages.get<SiteGlobalContent>('site', content).then((data) => {
+      if (data) setContent(data);
+    });
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();

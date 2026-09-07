@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AboutPageContent } from '../../types';
-import { mockDb } from '../../api';
+import { mockDb, backendApi } from '../../api';
+import { ImageUploadButton } from '../../components/ImageUploadButton';
 import {
   Save,
   CheckCircle2,
@@ -15,6 +16,13 @@ export const AboutPageManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'intro' | 'timeline' | 'mission' | 'values' | 'philosophy'>('intro');
   const [toast, setToast] = useState(false);
   const [newPillar, setNewPillar] = useState('');
+
+  // Fetch latest content from MySQL on mount
+  useEffect(() => {
+    backendApi.pages.get<AboutPageContent>('about', content).then((data) => {
+      if (data) setContent(data);
+    });
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -220,6 +228,14 @@ export const AboutPageManager: React.FC = () => {
                     }
                     className="flex-1 rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
                   />
+                  <ImageUploadButton
+                    onImageUploaded={(url) =>
+                      setContent({
+                        ...content,
+                        intro: { ...content.intro, image: url },
+                      })
+                    }
+                  />
                   {content.intro.image && (
                     <div className="h-12 w-20 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">
                       <img src={content.intro.image} alt="Preview" className="h-full w-full object-cover" />
@@ -330,6 +346,9 @@ export const AboutPageManager: React.FC = () => {
                           value={stage.image}
                           onChange={(e) => handleTimelineChange(idx, 'image', e.target.value)}
                           className="flex-1 rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                        />
+                        <ImageUploadButton
+                          onImageUploaded={(url) => handleTimelineChange(idx, 'image', url)}
                         />
                         {stage.image && (
                           <div className="h-10 w-16 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">
@@ -596,6 +615,14 @@ export const AboutPageManager: React.FC = () => {
                       })
                     }
                     className="flex-1 rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                  <ImageUploadButton
+                    onImageUploaded={(url) =>
+                      setContent({
+                        ...content,
+                        philosophy: { ...content.philosophy, image: url },
+                      })
+                    }
                   />
                   {content.philosophy.image && (
                     <div className="h-12 w-20 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">

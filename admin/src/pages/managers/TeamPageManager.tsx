@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TeamPageContent } from '../../types';
-import { mockDb } from '../../api';
+import { mockDb, backendApi } from '../../api';
+import { ImageUploadButton } from '../../components/ImageUploadButton';
 import {
   Save,
   CheckCircle2,
@@ -21,6 +22,13 @@ export const TeamPageManager: React.FC = () => {
   const [newExpertiseTag, setNewExpertiseTag] = useState('');
   const [newDept, setNewDept] = useState('');
   const [toast, setToast] = useState(false);
+
+  // Fetch latest content from MySQL on mount
+  useEffect(() => {
+    backendApi.pages.get<TeamPageContent>('team', content).then((data) => {
+      if (data) setContent(data);
+    });
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -352,13 +360,19 @@ export const TeamPageManager: React.FC = () => {
                     <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                       Portrait Photography URL / Path
                     </label>
-                    <input
-                      type="text"
-                      value={activeMember.image || ''}
-                      onChange={(e) => handleMemberChange(selectedMemberIdx, 'image', e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
-                      placeholder="/images/team-ceo.jpg"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={activeMember.image || ''}
+                        onChange={(e) => handleMemberChange(selectedMemberIdx, 'image', e.target.value)}
+                        className="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                        placeholder="/images/team-ceo.jpg"
+                      />
+                      <ImageUploadButton
+                        onImageUploaded={(url) => handleMemberChange(selectedMemberIdx, 'image', url)}
+                        label="Upload Portrait"
+                      />
+                    </div>
                   </div>
 
                   <div className="md:col-span-2">

@@ -832,31 +832,184 @@ function setStored<T>(key: string, value: T): void {
   localStorage.setItem(`anika_admin_${key}`, JSON.stringify(value));
 }
 
+// ----------------------------------------------------
+// FULL PRODUCTION BACKEND API INTEGRATION (MySQL)
+// ----------------------------------------------------
+export const backendApi = {
+  // 1. Pages CMS Management (MySQL `pages_content`)
+  pages: {
+    get: async <T>(pageKey: string, fallback: T): Promise<T> => {
+      try {
+        const res = await apiClient.get(`/pages/${pageKey}`);
+        if (res.data && res.data.content) {
+          setStored(`page_${pageKey}`, res.data.content);
+          return res.data.content as T;
+        }
+        return getStored(`page_${pageKey}`, fallback);
+      } catch (err) {
+        console.warn(`[Backend API] Page '${pageKey}' fetch failed, using local cache:`, err);
+        return getStored(`page_${pageKey}`, fallback);
+      }
+    },
+    save: async <T>(pageKey: string, content: T): Promise<boolean> => {
+      setStored(`page_${pageKey}`, content);
+      try {
+        await apiClient.put(`/pages/${pageKey}`, { content });
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Page '${pageKey}' save failed, stored in local cache:`, err);
+        return false;
+      }
+    },
+  },
+
+  // 2. Database Media Uploads (MySQL `media_uploads` LONGBLOB)
+  upload: {
+    uploadImage: async (file: File): Promise<{ url: string; filename: string; id: number }> => {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await apiClient.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      // The backend returns url e.g. /api/media/img-123.jpg.
+      // Prepend host if relative so it displays anywhere
+      const relativeUrl = res.data.url;
+      const fullUrl = relativeUrl.startsWith('http')
+        ? relativeUrl
+        : `http://localhost:5000${relativeUrl}`;
+
+      return {
+        url: fullUrl,
+        filename: res.data.filename,
+        id: res.data.id,
+      };
+    },
+    list: async (): Promise<any[]> => {
+      try {
+        const res = await apiClient.get('/media');
+        return res.data.media || [];
+      } catch (err) {
+        console.warn('[Backend API] Failed to list media:', err);
+        return [];
+      }
+    },
+  },
+
+  // 3. Trade Leads (MySQL `leads`)
+  leads: {
+    getAll: async (params?: { status?: string; sector?: string; search?: string }): Promise<LeadApplication[]> => {
+      try {
+        const res = await apiClient.get('/leads', { params });
+        if (res.data && res.data.leads) {
+          setStored('leads', res.data.leads);
+          return res.data.leads;
+        }
+        return getStored('leads', INITIAL_LEADS);
+      } catch (err) {
+        return getStored('leads', INITIAL_LEADS);
+      }
+    },
+    update: async (id: string, updates: { status?: string; notes?: string }): Promise<boolean> => {
+      try {
+        await apiClient.patch(`/leads/${id}`, updates);
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to update lead ${id}:`, err);
+        return false;
+      }
+    },
+    delete: async (id: string): Promise<boolean> => {
+      try {
+        await apiClient.delete(`/leads/${id}`);
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to delete lead ${id}:`, err);
+        return false;
+      }
+    },
+  },
+
+  // 4. Admin Users & RBAC (MySQL `users`)
+  users: {
+    getAll: async (): Promise<User[]> => {
+      try {
+        const res = await apiClient.get('/users');
+        if (res.data && res.data.users) {
+          setStored('users', res.data.users);
+          return res.data.users;
+        }
+        return getStored('users', INITIAL_USERS);
+      } catch (err) {
+        return getStored('users', INITIAL_USERS);
+      }
+    },
+    create: async (userData: Partial<User> & { password?: string }): Promise<any> => {
+      const res = await apiClient.post('/users', userData);
+      return res.data;
+    },
+    update: async (id: string, updates: Partial<User>): Promise<any> => {
+      const res = await apiClient.patch(`/users/${id}`, updates);
+      return res.data;
+    },
+    delete: async (id: string): Promise<any> => {
+      const res = await apiClient.delete(`/users/${id}`);
+      return res.data;
+    },
+  },
+};
+
+// Seamless hybrid database: Local fast cache + instant MySQL synchronization
 export const mockDb = {
   // Page Content Managers
   getHomePage: (): HomePageContent => getStored('page_home', INITIAL_HOMEPAGE),
-  saveHomePage: (content: HomePageContent) => setStored('page_home', content),
+  saveHomePage: (content: HomePageContent) => {
+    setStored('page_home', content);
+    backendApi.pages.save('home', content);
+  },
 
   getAboutPage: (): AboutPageContent => getStored('page_about', INITIAL_ABOUTPAGE),
-  saveAboutPage: (content: AboutPageContent) => setStored('page_about', content),
+  saveAboutPage: (content: AboutPageContent) => {
+    setStored('page_about', content);
+    backendApi.pages.save('about', content);
+  },
 
   getBusinessPage: (): BusinessPageContent => getStored('page_business', INITIAL_BUSINESSPAGE),
-  saveBusinessPage: (content: BusinessPageContent) => setStored('page_business', content),
+  saveBusinessPage: (content: BusinessPageContent) => {
+    setStored('page_business', content);
+    backendApi.pages.save('business', content);
+  },
 
   getProjectsPage: (): ProjectsPageContent => getStored('page_projects', INITIAL_PROJECTSPAGE),
-  saveProjectsPage: (content: ProjectsPageContent) => setStored('page_projects', content),
+  saveProjectsPage: (content: ProjectsPageContent) => {
+    setStored('page_projects', content);
+    backendApi.pages.save('projects', content);
+  },
 
   getExportPage: (): ExportPageContent => getStored('page_export', INITIAL_EXPORTPAGE),
-  saveExportPage: (content: ExportPageContent) => setStored('page_export', content),
+  saveExportPage: (content: ExportPageContent) => {
+    setStored('page_export', content);
+    backendApi.pages.save('export', content);
+  },
 
   getTeamPage: (): TeamPageContent => getStored('page_team', INITIAL_TEAMPAGE),
-  saveTeamPage: (content: TeamPageContent) => setStored('page_team', content),
+  saveTeamPage: (content: TeamPageContent) => {
+    setStored('page_team', content);
+    backendApi.pages.save('team', content);
+  },
 
   getContactPage: (): ContactPageContent => getStored('page_contact', INITIAL_CONTACTPAGE),
-  saveContactPage: (content: ContactPageContent) => setStored('page_contact', content),
+  saveContactPage: (content: ContactPageContent) => {
+    setStored('page_contact', content);
+    backendApi.pages.save('contact', content);
+  },
 
   getSiteGlobal: (): SiteGlobalContent => getStored('site_global', INITIAL_SITEGLOBAL),
-  saveSiteGlobal: (content: SiteGlobalContent) => setStored('site_global', content),
+  saveSiteGlobal: (content: SiteGlobalContent) => {
+    setStored('site_global', content);
+    backendApi.pages.save('site', content);
+  },
 
   // Operational & Generic
   getLeads: (): LeadApplication[] => getStored('leads', INITIAL_LEADS),
