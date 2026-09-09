@@ -1,8 +1,13 @@
 import Image from "next/image";
-import { sectorStories } from "@/data/home";
+import { sectorStories as defaultSectorStories, type SectorStory } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
+import { resolveImageUrl } from "@/lib/cms";
 
-export default function SectorStoryMobile() {
+export default function SectorStoryMobile({
+  sectorStories = defaultSectorStories,
+}: {
+  sectorStories?: SectorStory[];
+}) {
   return (
     <section className="bg-navy-deeper px-5 py-16">
       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
@@ -20,7 +25,7 @@ export default function SectorStoryMobile() {
             </h3>
             <div className="relative mt-4 h-[42vh] w-full overflow-hidden rounded-2xl">
               <Image
-                src={s.image}
+                src={resolveImageUrl(s.image)}
                 alt={s.title}
                 fill
                 sizes="100vw"

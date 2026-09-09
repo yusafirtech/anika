@@ -3,12 +3,16 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { exportProducts } from "@/data/export";
+import { exportProducts as defaultExportProducts, type ExportProduct } from "@/data/export";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
 
-const categories = ["All", ...Array.from(new Set(exportProducts.map((p) => p.category)))];
-
-export default function ProductCatalogue() {
+export default function ProductCatalogue({
+  products: exportProducts = defaultExportProducts,
+}: {
+  products?: ExportProduct[];
+}) {
+  const categories = ["All", ...Array.from(new Set(exportProducts.map((p) => p.category)))];
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState("");
 
@@ -18,7 +22,7 @@ export default function ProductCatalogue() {
       const matchesQuery = p.name.toLowerCase().includes(query.toLowerCase());
       return matchesCategory && matchesQuery;
     });
-  }, [category, query]);
+  }, [category, query, exportProducts]);
 
   return (
     <section className="bg-paper pb-28 pt-8">
@@ -61,7 +65,7 @@ export default function ProductCatalogue() {
               >
                 <div className="relative h-[32vh] w-full overflow-hidden rounded-2xl">
                   <Image
-                    src={product.image}
+                    src={resolveImageUrl(product.image)}
                     alt={product.name}
                     fill
                     sizes="(min-width: 768px) 32vw, 90vw"

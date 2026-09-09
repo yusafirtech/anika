@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, UserRole } from '../types';
-import { mockDb } from '../api';
+import { backendApi } from '../api';
+import { ImageUploadButton } from '../components/ImageUploadButton';
 import {
   Shield,
   UserPlus,
@@ -10,44 +11,89 @@ import {
   XCircle,
   X,
   Lock,
+  Loader2,
 } from 'lucide-react';
 
 export const UserManager: React.FC = () => {
-  const [users, setUsers] = useState<User[]>(() => mockDb.getUsers());
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [password, setPassword] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    let cancelled = false;
+    backendApi.users.getAll().then((data) => {
+      if (!cancelled) {
+        setUsers(data);
+        setIsLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser) return;
+    setFormError(null);
 
-    let updated: User[];
-    if (users.some((u) => u.id === editingUser.id)) {
-      updated = users.map((u) => (u.id === editingUser.id ? editingUser : u));
-    } else {
-      updated = [
-        ...users,
-        {
-          ...editingUser,
-          id: `usr-${Date.now()}`,
-          lastActive: 'Never',
-        },
-      ];
+    const isNewUser = !editingUser.id;
+
+    if (isNewUser && !password) {
+      setFormError('A password is required to provision a new account.');
+      return;
     }
-    setUsers(updated);
-    mockDb.saveUsers(updated);
-    setIsModalOpen(false);
-    setEditingUser(null);
+    if (!editingUser.username.trim()) {
+      setFormError('A username is required.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (isNewUser) {
+        const res = await backendApi.users.create({
+          username: editingUser.username,
+          name: editingUser.name,
+          email: editingUser.email,
+          password,
+          role: editingUser.role,
+          department: editingUser.department,
+          avatar: editingUser.avatar,
+        });
+        setUsers([...users, res.user]);
+      } else {
+        await backendApi.users.update(editingUser.id, {
+          username: editingUser.username,
+          name: editingUser.name,
+          email: editingUser.email,
+          role: editingUser.role,
+          department: editingUser.department,
+          status: editingUser.status,
+          avatar: editingUser.avatar,
+          ...(password ? { password } : {}),
+        });
+        setUsers(users.map((u) => (u.id === editingUser.id ? editingUser : u)));
+      }
+      setIsModalOpen(false);
+      setEditingUser(null);
+      setPassword('');
+    } catch (err: any) {
+      setFormError(err?.response?.data?.error || 'Failed to save user account.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleToggleStatus = (id: string) => {
-    const updated = users.map((u) =>
-      u.id === id
-        ? { ...u, status: u.status === 'active' ? ('inactive' as const) : ('active' as const) }
-        : u
-    );
-    setUsers(updated);
-    mockDb.saveUsers(updated);
+    const target = users.find((u) => u.id === id);
+    if (!target) return;
+    const newStatus = target.status === 'active' ? ('inactive' as const) : ('active' as const);
+    setUsers(users.map((u) => (u.id === id ? { ...u, status: newStatus } : u)));
+    backendApi.users.update(id, { status: newStatus });
   };
 
   const handleDelete = (id: string) => {
@@ -56,10 +102,17 @@ export const UserManager: React.FC = () => {
       return;
     }
     if (!confirm('Are you sure you want to revoke this user account?')) return;
-    const updated = users.filter((u) => u.id !== id);
-    setUsers(updated);
-    mockDb.saveUsers(updated);
+    setUsers(users.filter((u) => u.id !== id));
+    backendApi.users.delete(id);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 w-full items-center justify-center text-slate-400">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -77,12 +130,15 @@ export const UserManager: React.FC = () => {
           onClick={() => {
             setEditingUser({
               id: '',
+              username: '',
               name: '',
               email: '',
               role: 'editor',
               department: 'Operations',
               status: 'active',
             });
+            setPassword('');
+            setFormError(null);
             setIsModalOpen(true);
           }}
           className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500 transition-all"
@@ -151,7 +207,7 @@ export const UserManager: React.FC = () => {
                       </div>
                       <div>
                         <span className="font-bold text-slate-900 block text-sm">{u.name}</span>
-                        <span className="text-slate-500 text-xs">{u.email}</span>
+                        <span className="text-slate-500 text-xs">@{u.username} &middot; {u.email}</span>
                       </div>
                     </div>
                   </td>
@@ -198,6 +254,8 @@ export const UserManager: React.FC = () => {
                       <button
                         onClick={() => {
                           setEditingUser(u);
+                          setPassword('');
+                          setFormError(null);
                           setIsModalOpen(true);
                         }}
                         className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition-colors"
@@ -250,16 +308,29 @@ export const UserManager: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Corporate Email</label>
-                <input
-                  type="email"
-                  required
-                  value={editingUser.email}
-                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                  placeholder="user@anikatrading.com"
-                  className="w-full rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Username</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingUser.username}
+                    onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
+                    placeholder="e.g. tanwar"
+                    className="w-full rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Corporate Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={editingUser.email}
+                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                    placeholder="user@anikatrading.com"
+                    className="w-full rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -290,15 +361,58 @@ export const UserManager: React.FC = () => {
                 </div>
               </div>
 
+              {!editingUser.id ? (
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Temporary Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Assign a temporary sign-in password"
+                    className="w-full rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <label className="font-semibold text-slate-700">Reset Password (Optional)</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Leave blank to keep current password"
+                    className="w-full rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+              )}
+
+              {formError && (
+                <p className="rounded-lg bg-rose-50 px-3 py-2 text-[11px] font-semibold text-rose-700 border border-rose-200">
+                  {formError}
+                </p>
+              )}
+
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Avatar Image URL (Optional)</label>
-                <input
-                  type="text"
-                  value={editingUser.avatar || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, avatar: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                />
+                <label className="font-semibold text-slate-700">Avatar Image (Optional)</label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <ImageUploadButton
+                    label="Upload from Device"
+                    currentUrl={editingUser.avatar}
+                    onImageUploaded={(url) => setEditingUser({ ...editingUser, avatar: url })}
+                  />
+                  <input
+                    type="text"
+                    value={editingUser.avatar || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, avatar: e.target.value })}
+                    placeholder="https://..."
+                    className="flex-1 min-w-[160px] rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+                {editingUser.avatar && (
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-100 mt-1">
+                    <img src={editingUser.avatar} alt="Avatar preview" className="h-full w-full object-cover" />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2 pt-2">
@@ -329,9 +443,10 @@ export const UserManager: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-teal-600 px-5 py-2 font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500"
+                  disabled={isSaving}
+                  className="rounded-xl bg-teal-600 px-5 py-2 font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500 disabled:opacity-60"
                 >
-                  Save User
+                  {isSaving ? 'Saving...' : 'Save User'}
                 </button>
               </div>
             </form>

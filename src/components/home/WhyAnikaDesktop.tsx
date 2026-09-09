@@ -3,16 +3,20 @@
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { whyReasons } from "@/data/home";
+import { whyReasons as defaultWhyReasons, type WhyReason } from "@/data/home";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
 
 const SLIDE_DURATION = 4500; // 4.5 seconds per reason
 
-export default function WhyAnikaDesktop() {
+export default function WhyAnikaDesktop({
+  whyReasons = defaultWhyReasons,
+}: {
+  whyReasons?: WhyReason[];
+}) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const count = whyReasons.length;
-  const current = whyReasons[active];
 
   const goToSlide = useCallback((index: number) => {
     setActive(index);
@@ -58,7 +62,7 @@ export default function WhyAnikaDesktop() {
                     className="absolute inset-0"
                   >
                     <Image
-                      src={reason.image}
+                      src={resolveImageUrl(reason.image)}
                       alt={reason.title}
                       fill
                       sizes="50vw"

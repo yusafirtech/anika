@@ -2,7 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 
-export default function ExportHero() {
+type ExportHeroProps = {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+};
+
+export default function ExportHero({
+  eyebrow = "International B2B",
+  heading = "Export From Bangladesh",
+  description = "Connecting Bangladesh-origin products with international buyers.",
+}: ExportHeroProps) {
   return (
     <section className="relative flex h-[80vh] min-h-[560px] w-full items-center overflow-hidden bg-navy-deeper">
       <Image
@@ -18,17 +28,17 @@ export default function ExportHero() {
       <div className="relative z-10 mx-auto max-w-3xl px-6 md:px-8">
         <Reveal>
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
-            International B2B
+            {eyebrow}
           </p>
         </Reveal>
         <Reveal delay={0.08}>
           <h1 className="mt-5 font-display text-[38px] font-medium leading-[1.05] text-white md:text-[56px]">
-            Export From Bangladesh
+            {heading}
           </h1>
         </Reveal>
         <Reveal delay={0.16}>
           <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/65 md:text-base">
-            Connecting Bangladesh-origin products with international buyers.
+            {description}
           </p>
         </Reveal>
         <Reveal delay={0.24}>

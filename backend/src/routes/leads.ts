@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../db/connection.js';
+import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
-// GET /api/leads - List and filter leads
-router.get('/', async (req: Request, res: Response) => {
+// GET /api/leads - List and filter leads (admin panel only)
+router.get('/', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { status, sector, search } = req.query;
     const pool = getPool();
@@ -37,7 +38,8 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/leads - Create new lead
+// POST /api/leads - Create new lead. Intentionally public/unauthenticated —
+// this is the endpoint the public site's contact form submits to.
 router.post('/', async (req: Request, res: Response) => {
   try {
     const { name, company, email, phone, sector, budget, message } = req.body;
@@ -66,7 +68,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PATCH /api/leads/:id - Update lead status or notes
-router.patch('/:id', async (req: Request, res: Response) => {
+router.patch('/:id', authenticateToken, requireRole(['admin', 'manager']), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status, notes } = req.body;
@@ -99,7 +101,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/leads/:id - Delete lead
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', authenticateToken, requireRole(['admin', 'manager']), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const pool = getPool();

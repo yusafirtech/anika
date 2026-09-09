@@ -2,11 +2,17 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { coreValues } from "@/data/about";
+import { coreValues as defaultCoreValues } from "@/data/about";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
 
-export default function CoreValues() {
+type CoreValue = { id: string; label: string; description: string };
+
+export default function CoreValues({
+  coreValues = defaultCoreValues,
+}: {
+  coreValues?: CoreValue[];
+}) {
   const [activeId, setActiveId] = useState(coreValues[0].id);
   const active = coreValues.find((v) => v.id === activeId)!;
 

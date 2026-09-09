@@ -1,8 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
-import { footerColumns, companyInfo } from "@/data/site";
+import { footerColumns as defaultFooterColumns, companyInfo as defaultCompanyInfo } from "@/data/site";
 
-export default function Footer() {
+type FooterColumn = { title: string; links: { label: string; href: string }[] };
+type CompanyInfo = { name: string; address: string; phone: string; email: string };
+
+export default function Footer({
+  footerColumns = defaultFooterColumns,
+  companyInfo = defaultCompanyInfo,
+}: {
+  footerColumns?: FooterColumn[];
+  companyInfo?: CompanyInfo;
+}) {
+  const contactColumn: FooterColumn = {
+    title: "Contact",
+    links: [
+      { label: companyInfo.address, href: "/contact" },
+      { label: companyInfo.phone, href: "/contact" },
+      { label: companyInfo.email, href: "/contact" },
+    ],
+  };
+
   return (
     <footer className="bg-navy-deeper text-white/70">
       <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
@@ -27,7 +45,7 @@ export default function Footer() {
             <div className="brand-gradient-line mt-6 w-16" />
           </div>
 
-          {footerColumns.map((col) => (
+          {[...footerColumns, contactColumn].map((col) => (
             <div key={col.title}>
               <h4 className="text-[12px] font-semibold uppercase tracking-[0.15em] text-white/40">
                 {col.title}

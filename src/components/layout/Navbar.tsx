@@ -5,10 +5,12 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { navLinks } from "@/data/site";
+import { navLinks as defaultNavLinks } from "@/data/site";
 import { cn } from "@/lib/utils";
 
-export default function Navbar() {
+type NavLink = { label: string; href: string };
+
+export default function Navbar({ navLinks = defaultNavLinks }: { navLinks?: NavLink[] }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -21,9 +23,14 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
+  // Close the mobile menu on navigation. Adjusted during render (rather than
+  // in an effect) per https://react.dev/learn/you-might-not-need-an-effect
+  // so it takes effect in the same render pass instead of an extra one.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   const solid = scrolled || !isHome || open;
 

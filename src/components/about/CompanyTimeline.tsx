@@ -1,7 +1,9 @@
 import CompanyTimelineDesktop from "./CompanyTimelineDesktop";
 import CompanyTimelineMobile from "./CompanyTimelineMobile";
 
-export default function CompanyTimeline() {
+type TimelineStage = { id: string; label: string; title: string; description: string; image: string };
+
+export default function CompanyTimeline({ timeline }: { timeline?: TimelineStage[] }) {
   return (
     <section className="bg-navy-deeper pb-16 md:pb-0">
       <div className="mx-auto max-w-6xl px-6 pt-20 md:px-8">
@@ -14,10 +16,10 @@ export default function CompanyTimeline() {
       </div>
 
       <div className="md:hidden">
-        <CompanyTimelineMobile />
+        <CompanyTimelineMobile timeline={timeline} />
       </div>
       <div className="hidden md:block">
-        <CompanyTimelineDesktop />
+        <CompanyTimelineDesktop timeline={timeline} />
       </div>
     </section>
   );

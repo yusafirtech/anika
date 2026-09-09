@@ -4,16 +4,23 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { projects } from "@/data/projects";
+import { projects as defaultProjects } from "@/data/projects";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
+import type { ProjectsPageContent } from "@/types/cms";
 
-const categories = ["All", ...Array.from(new Set(projects.map((p) => p.category)))];
+type ProjectItem = ProjectsPageContent["projects"][number];
 
-export default function ProjectsGrid() {
+export default function ProjectsGrid({
+  projects = defaultProjects,
+}: {
+  projects?: ProjectItem[];
+}) {
+  const categories = ["All", ...Array.from(new Set(projects.map((p) => p.category)))];
   const [filter, setFilter] = useState("All");
   const filtered = useMemo(
     () => (filter === "All" ? projects : projects.filter((p) => p.category === filter)),
-    [filter]
+    [filter, projects]
   );
 
   return (
@@ -58,7 +65,7 @@ export default function ProjectsGrid() {
                     )}
                   >
                     <Image
-                      src={project.image}
+                      src={resolveImageUrl(project.image)}
                       alt={project.name}
                       fill
                       sizes="(min-width: 768px) 45vw, 90vw"

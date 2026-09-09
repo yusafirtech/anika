@@ -1,7 +1,13 @@
 import Reveal from "@/components/ui/Reveal";
-import { exportProcess } from "@/data/export";
+import { exportProcess as defaultExportProcess } from "@/data/export";
 
-export default function ExportProcess() {
+type ProcessStep = { step: string; description: string };
+
+export default function ExportProcess({
+  process: exportProcess = defaultExportProcess,
+}: {
+  process?: ProcessStep[];
+}) {
   return (
     <section className="bg-mist py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-8">

@@ -1,32 +1,20 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { UserRole } from '../types';
-import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Lock, User as UserIcon, ArrowRight, AlertTriangle } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, loginError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('admin@anikatrading.com');
-  const [password, setPassword] = useState('password123');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('admin');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const from = (location.state as any)?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, selectedRole);
-    if (success) {
-      navigate(from, { replace: true });
-    }
-  };
-
-  const handleQuickDemoLogin = async (role: UserRole) => {
-    setSelectedRole(role);
-    const demoEmail = `${role}@anikatrading.com`;
-    setEmail(demoEmail);
-    const success = await login(demoEmail, role);
+    const success = await login(username, password);
     if (success) {
       navigate(from, { replace: true });
     }
@@ -54,14 +42,17 @@ export const LoginPage: React.FC = () => {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="mt-8 space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="font-semibold text-slate-700">Corporate Email</label>
+            <label className="font-semibold text-slate-700">Username</label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <UserIcon className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
-                type="email"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="username"
+                autoFocus
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="admin"
                 className="w-full rounded-xl bg-slate-50 pl-10 pr-4 py-2.5 text-slate-800 placeholder-slate-400 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
@@ -74,6 +65,7 @@ export const LoginPage: React.FC = () => {
               <input
                 type="password"
                 required
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl bg-slate-50 pl-10 pr-4 py-2.5 text-slate-800 placeholder-slate-400 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
@@ -81,19 +73,12 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-1.5 pt-1">
-            <label className="font-semibold text-slate-700">Role Clearance Simulation</label>
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-              className="w-full rounded-xl bg-slate-50 px-3 py-2 text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-            >
-              <option value="admin">Administrator (Unrestricted Access)</option>
-              <option value="manager">Operations Manager (Full Content/Leads, Read-only Users)</option>
-              <option value="editor">Content Editor (Edit Products &amp; Hero, Restricted Settings)</option>
-              <option value="viewer">Viewer (Read-only Compliance)</option>
-            </select>
-          </div>
+          {loginError && (
+            <div className="flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2.5 text-rose-700 border border-rose-200">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>{loginError}</span>
+            </div>
+          )}
 
           <button
             type="submit"
@@ -104,39 +89,6 @@ export const LoginPage: React.FC = () => {
             <ArrowRight className="h-4 w-4" />
           </button>
         </form>
-
-        {/* Quick Demo Switcher */}
-        <div className="mt-8 border-t border-slate-100 pt-5">
-          <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2 text-center">
-            Quick 1-Click Role Switcher for Testing
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => handleQuickDemoLogin('admin')}
-              className="rounded-lg bg-rose-50 p-2 text-[11px] font-semibold text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors"
-            >
-              ⚡ Login as Admin
-            </button>
-            <button
-              onClick={() => handleQuickDemoLogin('manager')}
-              className="rounded-lg bg-amber-50 p-2 text-[11px] font-semibold text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
-            >
-              ⚡ Login as Manager
-            </button>
-            <button
-              onClick={() => handleQuickDemoLogin('editor')}
-              className="rounded-lg bg-teal-50 p-2 text-[11px] font-semibold text-teal-700 border border-teal-200 hover:bg-teal-100 transition-colors"
-            >
-              ⚡ Login as Editor
-            </button>
-            <button
-              onClick={() => handleQuickDemoLogin('viewer')}
-              className="rounded-lg bg-slate-100 p-2 text-[11px] font-semibold text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors"
-            >
-              ⚡ Login as Viewer
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

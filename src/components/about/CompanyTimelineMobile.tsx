@@ -1,9 +1,16 @@
 import Image from "next/image";
-import { timelineStages } from "@/data/about";
+import { timelineStages as defaultTimelineStages } from "@/data/about";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
 
-export default function CompanyTimelineMobile() {
+type TimelineStage = { id: string; label: string; title: string; description: string; image: string };
+
+export default function CompanyTimelineMobile({
+  timeline: timelineStages = defaultTimelineStages,
+}: {
+  timeline?: TimelineStage[];
+}) {
   return (
     <div className="relative mt-10 px-5">
       <div className="relative flex flex-col gap-10">
@@ -24,7 +31,7 @@ export default function CompanyTimelineMobile() {
             </h3>
             <div className="relative mt-3 h-[26vh] w-full overflow-hidden rounded-2xl">
               <Image
-                src={s.image}
+                src={resolveImageUrl(s.image)}
                 alt={s.title}
                 fill
                 sizes="100vw"

@@ -8,15 +8,10 @@ import { Layout } from './components/Layout';
 // Pages
 import { AdminDashboard } from './pages/AdminDashboard';
 import { LoginPage } from './pages/LoginPage';
-import { HeroSectionManager } from './pages/HeroSectionManager';
 import { LeadApplicationsManager } from './pages/LeadApplicationsManager';
 import { UserManager } from './pages/UserManager';
-import {
-  ExportProductsPage,
-  ProjectsPage,
-  TeamPage,
-  PartnersPage,
-} from './pages/EntityCrudPages';
+import { PartnersPage } from './pages/EntityCrudPages';
+import { ClientManager } from './pages/ClientManager';
 import { SettingsPage } from './pages/SettingsPage';
 
 // Page Content Managers (Full CMS)
@@ -124,38 +119,6 @@ export const App: React.FC = () => {
 
             {/* Content Management Modules */}
             <Route
-              path="products"
-              element={
-                <PermissionGuard resource="products" action="view">
-                  <ExportProductsPage />
-                </PermissionGuard>
-              }
-            />
-            <Route
-              path="projects"
-              element={
-                <PermissionGuard resource="projects" action="view">
-                  <ProjectsPage />
-                </PermissionGuard>
-              }
-            />
-            <Route
-              path="hero"
-              element={
-                <PermissionGuard resource="hero" action="view">
-                  <HeroSectionManager />
-                </PermissionGuard>
-              }
-            />
-            <Route
-              path="team"
-              element={
-                <PermissionGuard resource="team" action="view">
-                  <TeamPage />
-                </PermissionGuard>
-              }
-            />
-            <Route
               path="partners"
               element={
                 <PermissionGuard resource="partners" action="view">
@@ -170,6 +133,14 @@ export const App: React.FC = () => {
               element={
                 <PermissionGuard resource="leads" action="view">
                   <LeadApplicationsManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="clients"
+              element={
+                <PermissionGuard resource="clients" action="view">
+                  <ClientManager />
                 </PermissionGuard>
               }
             />

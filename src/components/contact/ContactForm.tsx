@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const helpOptions = [
+const defaultHelpOptions = [
   "Construction Project",
   "Government Supply",
   "Private Supply",
@@ -15,18 +15,50 @@ const helpOptions = [
   "General Inquiry",
 ];
 
+const defaultSuccessMessage = "Thanks for reaching out. The ANIKA team will get back to you shortly.";
+
 type Status = "idle" | "loading" | "success" | "error";
 
-export default function ContactForm() {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+type ContactFormProps = {
+  inquirySectors?: string[];
+  successMessage?: string;
+};
+
+export default function ContactForm({
+  inquirySectors: helpOptions = defaultHelpOptions,
+  successMessage = defaultSuccessMessage,
+}: ContactFormProps) {
   const [status, setStatus] = useState<Status>("idle");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
-    // Frontend-only mock submission. Wire this up to a real endpoint
-    // (e.g. /api/inquiries) when the backend is ready.
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    setStatus("success");
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch(`${API_URL}/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.get("name"),
+          company: data.get("company"),
+          email: data.get("email"),
+          phone: data.get("phone"),
+          sector: data.get("sector") || "General",
+          message: data.get("message"),
+        }),
+      });
+
+      if (!res.ok) throw new Error("Inquiry submission failed");
+      form.reset();
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
   }
 
   if (status === "success") {
@@ -43,7 +75,7 @@ export default function ContactForm() {
           Message Sent
         </h3>
         <p className="mt-2 max-w-xs text-sm leading-relaxed text-ink/55">
-          Thanks for reaching out. The ANIKA team will get back to you shortly.
+          {successMessage}
         </p>
         <button
           onClick={() => setStatus("idle")}
@@ -60,6 +92,7 @@ export default function ContactForm() {
       <label className="block text-[13px] font-semibold text-ink/70">
         What can we help you with?
         <select
+          name="sector"
           required
           defaultValue=""
           className="mt-2 w-full rounded-lg border border-black/15 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-navy/50"
@@ -87,6 +120,7 @@ export default function ContactForm() {
       <label className="mt-5 block text-[13px] font-semibold text-ink/70">
         Message
         <textarea
+          name="message"
           required
           rows={5}
           className="mt-2 w-full resize-none rounded-lg border border-black/15 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-navy/50"

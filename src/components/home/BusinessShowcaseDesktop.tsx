@@ -4,11 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { businessShowcase } from "@/data/home";
+import { businessShowcase as defaultBusinessShowcase, type BusinessShowcaseItem } from "@/data/home";
+import { resolveImageUrl } from "@/lib/cms";
 
 const SLIDE_DURATION = 5500; // 5.5s per slide
 
-export default function BusinessShowcaseDesktop() {
+export default function BusinessShowcaseDesktop({
+  businessShowcase = defaultBusinessShowcase,
+}: {
+  businessShowcase?: BusinessShowcaseItem[];
+}) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -177,7 +182,7 @@ export default function BusinessShowcaseDesktop() {
                       className="absolute inset-0"
                     >
                       <Image
-                        src={b.image}
+                        src={resolveImageUrl(b.image)}
                         alt={b.title}
                         fill
                         sizes="45vw"

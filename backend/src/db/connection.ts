@@ -54,6 +54,10 @@ export async function initializeDatabase(): Promise<mysql.Pool> {
     idleTimeout: 60000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0,
+    // Return DATE/DATETIME/TIMESTAMP columns as plain strings instead of JS
+    // Date objects — otherwise JSON-serializing a Date silently shifts it to
+    // UTC, which can display as the wrong calendar day.
+    dateStrings: true,
   });
 
   return pool;

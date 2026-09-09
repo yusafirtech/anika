@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {
   LeadApplication,
-  HeroSlide,
+  ClientItem,
   User,
   HomePageContent,
   AboutPageContent,
@@ -14,6 +14,11 @@ import {
 } from './types';
 
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Origin (scheme + host + port) the backend server is reachable at, used to
+// resolve relative media URLs (e.g. /api/media/xyz.jpg) returned by the upload
+// endpoint into absolute URLs that work anywhere the admin panel is loaded.
+const apiOrigin = import.meta.env.VITE_API_ORIGIN || baseURL.replace(/\/api\/?$/, '');
 
 export const apiClient = axios.create({
   baseURL,
@@ -760,34 +765,10 @@ const INITIAL_LEADS: LeadApplication[] = [
   },
 ];
 
-const INITIAL_HERO: HeroSlide[] = [
-  {
-    id: 'hero-1',
-    title: 'Building. Supplying. Exporting. Connecting.',
-    subtitle: 'ANIKA TRADING & CO. connects Bangladesh capabilities with projects, supply chains and international markets.',
-    badgeText: 'One Company · Multiple Sectors · One Connected Business',
-    bgImage: '/images/hero-port-supply-route.jpg',
-    ctaText: 'START A CONVERSATION',
-    ctaLink: '/contact',
-    active: true,
-    order: 1,
-  },
-  {
-    id: 'hero-2',
-    title: 'Global Grade Seafood & Agricultural Export',
-    subtitle: 'Certified processing, cold chain discipline, and direct B2B supply lines from origin to international ports.',
-    badgeText: 'International B2B Supply',
-    bgImage: '/images/story-seafood.jpg',
-    ctaText: 'EXPLORE EXPORT',
-    ctaLink: '/export',
-    active: true,
-    order: 2,
-  },
-];
-
 const INITIAL_USERS: User[] = [
   {
     id: 'usr-1',
+    username: 'admin',
     name: 'Managing Director',
     email: 'admin@anikatrading.com',
     role: 'admin',
@@ -797,6 +778,7 @@ const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr-2',
+    username: 'manager',
     name: 'Operations Manager',
     email: 'operations@anikatrading.com',
     role: 'manager',
@@ -806,6 +788,7 @@ const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr-3',
+    username: 'editor',
     name: 'Content & Media Editor',
     email: 'editor@anikatrading.com',
     role: 'editor',
@@ -836,6 +819,14 @@ function setStored<T>(key: string, value: T): void {
 // FULL PRODUCTION BACKEND API INTEGRATION (MySQL)
 // ----------------------------------------------------
 export const backendApi = {
+  // 0. Authentication (MySQL `users`, JWT-backed sessions)
+  auth: {
+    login: async (username: string, password: string): Promise<{ token: string; user: User }> => {
+      const res = await apiClient.post('/auth/login', { username, password });
+      return res.data;
+    },
+  },
+
   // 1. Pages CMS Management (MySQL `pages_content`)
   pages: {
     get: async <T>(pageKey: string, fallback: T): Promise<T> => {
@@ -878,7 +869,7 @@ export const backendApi = {
       const relativeUrl = res.data.url;
       const fullUrl = relativeUrl.startsWith('http')
         ? relativeUrl
-        : `http://localhost:5000${relativeUrl}`;
+        : `${apiOrigin}${relativeUrl}`;
 
       return {
         url: fullUrl,
@@ -903,8 +894,13 @@ export const backendApi = {
       try {
         const res = await apiClient.get('/leads', { params });
         if (res.data && res.data.leads) {
-          setStored('leads', res.data.leads);
-          return res.data.leads;
+          // Normalize raw MySQL snake_case rows (created_at) to the frontend's camelCase shape
+          const normalized: LeadApplication[] = res.data.leads.map((row: any) => ({
+            ...row,
+            createdAt: row.createdAt || row.created_at,
+          }));
+          setStored('leads', normalized);
+          return normalized;
         }
         return getStored('leads', INITIAL_LEADS);
       } catch (err) {
@@ -931,14 +927,46 @@ export const backendApi = {
     },
   },
 
-  // 4. Admin Users & RBAC (MySQL `users`)
+  // 4. Generic Content Collections (MySQL `content_collections`) — Hero, Products, Projects, Team, Partners
+  collections: {
+    get: async <T>(key: string, fallback: T[]): Promise<T[]> => {
+      try {
+        const res = await apiClient.get(`/collections/${key}`);
+        if (res.data && Array.isArray(res.data.items)) {
+          setStored(`collection_${key}`, res.data.items);
+          return res.data.items as T[];
+        }
+        return getStored(`collection_${key}`, fallback);
+      } catch (err) {
+        console.warn(`[Backend API] Collection '${key}' fetch failed, using local cache:`, err);
+        return getStored(`collection_${key}`, fallback);
+      }
+    },
+    save: async <T>(key: string, items: T[]): Promise<boolean> => {
+      setStored(`collection_${key}`, items);
+      try {
+        await apiClient.put(`/collections/${key}`, { items });
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Collection '${key}' save failed, stored in local cache:`, err);
+        return false;
+      }
+    },
+  },
+
+  // 5. Admin Users & RBAC (MySQL `users`)
   users: {
     getAll: async (): Promise<User[]> => {
       try {
         const res = await apiClient.get('/users');
         if (res.data && res.data.users) {
-          setStored('users', res.data.users);
-          return res.data.users;
+          // Normalize raw MySQL snake_case rows (last_active) to the frontend's camelCase shape
+          const normalized: User[] = res.data.users.map((row: any) => ({
+            ...row,
+            lastActive: row.lastActive || row.last_active,
+          }));
+          setStored('users', normalized);
+          return normalized;
         }
         return getStored('users', INITIAL_USERS);
       } catch (err) {
@@ -949,12 +977,48 @@ export const backendApi = {
       const res = await apiClient.post('/users', userData);
       return res.data;
     },
-    update: async (id: string, updates: Partial<User>): Promise<any> => {
+    update: async (id: string, updates: Partial<User> & { password?: string }): Promise<any> => {
       const res = await apiClient.patch(`/users/${id}`, updates);
+      return res.data;
+    },
+    updateSelf: async (updates: {
+      name?: string;
+      username?: string;
+      avatar?: string;
+      currentPassword?: string;
+      newPassword?: string;
+    }): Promise<{ success: boolean; user: User }> => {
+      const res = await apiClient.patch('/users/me', updates);
       return res.data;
     },
     delete: async (id: string): Promise<any> => {
       const res = await apiClient.delete(`/users/${id}`);
+      return res.data;
+    },
+  },
+
+  // 6. Client Management (MySQL `clients`)
+  clients: {
+    getAll: async (params?: { status?: string; sector?: string; search?: string }): Promise<ClientItem[]> => {
+      const res = await apiClient.get('/clients', { params });
+      const rows = (res.data && res.data.clients) || [];
+      // Normalize raw MySQL snake_case rows to the frontend's camelCase shape
+      return rows.map((row: any) => ({
+        ...row,
+        contactPerson: row.contactPerson ?? row.contact_person,
+        clientSince: row.clientSince ?? row.client_since,
+      }));
+    },
+    create: async (clientData: Partial<ClientItem>): Promise<{ success: boolean; client: ClientItem }> => {
+      const res = await apiClient.post('/clients', clientData);
+      return res.data;
+    },
+    update: async (id: string, updates: Partial<ClientItem>): Promise<{ success: boolean; client: ClientItem }> => {
+      const res = await apiClient.patch(`/clients/${id}`, updates);
+      return res.data;
+    },
+    delete: async (id: string): Promise<any> => {
+      const res = await apiClient.delete(`/clients/${id}`);
       return res.data;
     },
   },
@@ -1014,13 +1078,4 @@ export const mockDb = {
   // Operational & Generic
   getLeads: (): LeadApplication[] => getStored('leads', INITIAL_LEADS),
   saveLeads: (leads: LeadApplication[]) => setStored('leads', leads),
-
-  getHero: (): HeroSlide[] => getStored('hero', INITIAL_HERO),
-  saveHero: (slides: HeroSlide[]) => setStored('hero', slides),
-
-  getUsers: (): User[] => getStored('users', INITIAL_USERS),
-  saveUsers: (users: User[]) => setStored('users', users),
-
-  getCollection: <T>(name: string, fallback: T[]): T[] => getStored(name, fallback),
-  saveCollection: <T>(name: string, data: T[]) => setStored(name, data),
 };

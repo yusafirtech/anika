@@ -12,22 +12,36 @@ import pagesRouter from './routes/pages.js';
 import mediaRouter from './routes/media.js';
 import leadsRouter from './routes/leads.js';
 import usersRouter from './routes/users.js';
+import collectionsRouter from './routes/collections.js';
+import clientsRouter from './routes/clients.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 // Middleware
 app.use(morgan('dev'));
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow any localhost port or configured origins
-      if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      // Allow requests with no origin (e.g. server-to-server, curl, mobile apps)
+      // plus any origin explicitly whitelisted via CORS_ORIGIN in .env,
+      // and any localhost/127.0.0.1 origin for local development.
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive during development
+        callback(new Error(`Origin '${origin}' is not allowed by CORS policy`));
       }
     },
     credentials: true,
@@ -43,6 +57,8 @@ app.use('/api/pages', pagesRouter);
 app.use('/api', mediaRouter); // Mounts /api/upload and /api/media/*
 app.use('/api/leads', leadsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/collections', collectionsRouter);
+app.use('/api/clients', clientsRouter);
 
 // Health Check Endpoint
 app.get('/api/health', async (_req: Request, res: Response) => {
@@ -76,6 +92,8 @@ app.get('/', (_req: Request, res: Response) => {
       '/api/media/:filename',
       '/api/leads',
       '/api/users',
+      '/api/collections/:key',
+      '/api/clients',
     ],
   });
 });

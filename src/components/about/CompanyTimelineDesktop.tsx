@@ -3,11 +3,18 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { timelineStages } from "@/data/about";
+import { timelineStages as defaultTimelineStages } from "@/data/about";
 import { useStickyIndex } from "@/lib/useStickyIndex";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
 
-export default function CompanyTimelineDesktop() {
+type TimelineStage = { id: string; label: string; title: string; description: string; image: string };
+
+export default function CompanyTimelineDesktop({
+  timeline: timelineStages = defaultTimelineStages,
+}: {
+  timeline?: TimelineStage[];
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const count = timelineStages.length;
   const { active, progress } = useStickyIndex(ref, count);
@@ -74,7 +81,7 @@ export default function CompanyTimelineDesktop() {
                 className="absolute inset-0"
               >
                 <Image
-                  src={current.image}
+                  src={resolveImageUrl(current.image)}
                   alt={current.title}
                   fill
                   sizes="40vw"

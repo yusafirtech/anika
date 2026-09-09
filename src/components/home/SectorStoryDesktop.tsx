@@ -3,11 +3,16 @@
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { sectorStories } from "@/data/home";
+import { sectorStories as defaultSectorStories, type SectorStory } from "@/data/home";
+import { resolveImageUrl } from "@/lib/cms";
 
 const SLIDE_DURATION = 5000; // 5 seconds per slide
 
-export default function SectorStoryDesktop() {
+export default function SectorStoryDesktop({
+  sectorStories = defaultSectorStories,
+}: {
+  sectorStories?: SectorStory[];
+}) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -160,7 +165,7 @@ export default function SectorStoryDesktop() {
                     className="absolute inset-0"
                   >
                     <Image
-                      src={s.image}
+                      src={resolveImageUrl(s.image)}
                       alt={s.title}
                       fill
                       sizes="55vw"

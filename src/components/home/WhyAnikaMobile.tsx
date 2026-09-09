@@ -3,11 +3,16 @@
 import { useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { whyReasons } from "@/data/home";
+import { whyReasons as defaultWhyReasons, type WhyReason } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
 
-export default function WhyAnikaMobile() {
+export default function WhyAnikaMobile({
+  whyReasons = defaultWhyReasons,
+}: {
+  whyReasons?: WhyReason[];
+}) {
   const [openId, setOpenId] = useState(whyReasons[0].id);
 
   return (
@@ -63,7 +68,7 @@ export default function WhyAnikaMobile() {
                       <div className="pb-5">
                         <div className="relative h-[30vh] w-full overflow-hidden rounded-2xl">
                           <Image
-                            src={reason.image}
+                            src={resolveImageUrl(reason.image)}
                             alt={reason.title}
                             fill
                             sizes="100vw"

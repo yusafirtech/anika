@@ -1,9 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { businessShowcase } from "@/data/home";
+import { businessShowcase as defaultBusinessShowcase, type BusinessShowcaseItem } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
+import { resolveImageUrl } from "@/lib/cms";
 
-export default function BusinessShowcaseMobile() {
+export default function BusinessShowcaseMobile({
+  businessShowcase = defaultBusinessShowcase,
+}: {
+  businessShowcase?: BusinessShowcaseItem[];
+}) {
   return (
     <section className="bg-paper px-5 py-16">
       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-navy/60">
@@ -18,7 +23,7 @@ export default function BusinessShowcaseMobile() {
           <Reveal key={b.id} y={20}>
             <div className="relative h-[34vh] w-full overflow-hidden rounded-2xl">
               <Image
-                src={b.image}
+                src={resolveImageUrl(b.image)}
                 alt={b.title}
                 fill
                 sizes="100vw"

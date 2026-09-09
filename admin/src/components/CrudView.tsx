@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { FieldDef } from '../types';
+import { ImageUploadButton } from './ImageUploadButton';
 import {
   Search,
   Plus,
@@ -412,13 +413,18 @@ export function CrudView<T extends { id: string }>({
                     </label>
                   ) : field.type === 'image' ? (
                     <div className="space-y-2">
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <ImageUploadButton
+                          label="Upload from Device"
+                          currentUrl={formData[field.key]}
+                          onImageUploaded={(url) => handleFormChange(field.key, url)}
+                        />
                         <input
                           type="text"
                           value={formData[field.key] || ''}
-                          placeholder="Paste image URL (e.g. /images/... or https://...)"
+                          placeholder="or paste image URL (e.g. /images/... or https://...)"
                           onChange={(e) => handleFormChange(field.key, e.target.value)}
-                          className="flex-1 rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                          className="flex-1 min-w-[160px] rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
                         />
                       </div>
                       {formData[field.key] && (

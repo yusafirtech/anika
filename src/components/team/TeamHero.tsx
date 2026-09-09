@@ -1,6 +1,28 @@
 ﻿import Reveal from "@/components/ui/Reveal";
 
-export default function TeamHero() {
+type TeamHeroProps = {
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+};
+
+function renderHeading(heading: string) {
+  const idx = heading.toUpperCase().indexOf("ANIKA");
+  if (idx === -1) return heading;
+  return (
+    <>
+      {heading.slice(0, idx)}
+      <span className="brand-gradient-text">{heading.slice(idx, idx + 5)}</span>
+      {heading.slice(idx + 5)}
+    </>
+  );
+}
+
+export default function TeamHero({
+  eyebrow = "Our People",
+  heading = "The Team Behind ANIKA",
+  description = "ANIKA TRADING & CO. is built on people who understand their sectors deeply. Each team member brings domain-specific expertise — from construction and government procurement to international trade and finance — contributing to a company that operates with precision across multiple industries.",
+}: TeamHeroProps) {
   return (
     <section className="relative bg-navy-deeper overflow-hidden">
       {/* Decorative gradient orbs */}
@@ -23,21 +45,17 @@ export default function TeamHero() {
       <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-36 md:pb-32 md:pt-44 md:px-8">
         <Reveal>
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
-            Our People
+            {eyebrow}
           </p>
         </Reveal>
         <Reveal delay={0.08}>
           <h1 className="mt-5 max-w-2xl font-display text-[38px] font-medium leading-[1.07] text-white md:text-[58px]">
-            The Team Behind{" "}
-            <span className="brand-gradient-text">ANIKA</span>
+            {renderHeading(heading)}
           </h1>
         </Reveal>
         <Reveal delay={0.16}>
           <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/55">
-            ANIKA TRADING & CO. is built on people who understand their sectors deeply.
-            Each team member brings domain-specific expertise — from construction and
-            government procurement to international trade and finance — contributing to
-            a company that operates with precision across multiple industries.
+            {description}
           </p>
         </Reveal>
         <Reveal delay={0.22}>

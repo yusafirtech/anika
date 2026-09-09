@@ -1,14 +1,25 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { exportProducts, getProductBySlug } from "@/data/export";
+import { exportProducts as defaultExportProducts } from "@/data/export";
 import Reveal from "@/components/ui/Reveal";
+import { getPageContent, resolveImageUrl } from "@/lib/cms";
+import type { ExportPageContent } from "@/types/cms";
 
 import ProductGallery from "@/components/export/ProductGallery";
 
+async function getAllProducts() {
+  const content = await getPageContent<ExportPageContent>("export", {
+    intro: { eyebrow: "", heading: "", description: "" },
+    categories: [],
+    process: [],
+    products: defaultExportProducts,
+  });
+  return content.products;
+}
+
 export function generateStaticParams() {
-  return exportProducts.map((p) => ({ slug: p.slug }));
+  return defaultExportProducts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -17,7 +28,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const products = await getAllProducts();
+  const product = products.find((p) => p.slug === slug);
   if (!product) return {};
   return { title: product.name, description: product.summary };
 }
@@ -28,10 +40,13 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const products = await getAllProducts();
+  const product = products.find((p) => p.slug === slug);
   if (!product) notFound();
 
-  const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
+  const productImages = (
+    product.images && product.images.length > 0 ? product.images : [product.image]
+  ).map(resolveImageUrl);
 
   return (
     <section className="bg-paper pb-24 pt-28 md:pt-36">

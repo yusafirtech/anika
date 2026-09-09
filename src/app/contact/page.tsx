@@ -3,6 +3,8 @@ import Image from "next/image";
 import Reveal from "@/components/ui/Reveal";
 import ContactForm from "@/components/contact/ContactForm";
 import { companyInfo } from "@/data/site";
+import { getPageContent, resolveImageUrl } from "@/lib/cms";
+import type { ContactPageContent } from "@/types/cms";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -10,19 +12,52 @@ export const metadata: Metadata = {
     "Start a conversation with ANIKA TRADING & CO. about a project, supply requirement, product inquiry or partnership.",
 };
 
-const infoBlocks = [
-  { label: "Head Office", value: companyInfo.address },
-  { label: "Phone", value: companyInfo.phone },
-  { label: "Email", value: companyInfo.email },
-  { label: "WhatsApp", value: companyInfo.whatsapp },
-];
+const DEFAULT_CONTACT_CONTENT: ContactPageContent = {
+  hero: {
+    eyebrow: "Get In Touch",
+    heading: "Let’s Start a Conversation",
+    bgImage: "/images/trade-detail.jpg",
+  },
+  intro: {
+    text: "Whether you’re exploring a construction project, a government or private supply requirement, an import or export inquiry, or a business partnership — reach out and the ANIKA team will get back to you.",
+  },
+  coordinates: {
+    address: companyInfo.address,
+    phone: companyInfo.phone,
+    email: companyInfo.email,
+    whatsapp: companyInfo.whatsapp,
+  },
+  formSettings: {
+    inquirySectors: [
+      "Construction Project",
+      "Government Supply",
+      "Private Supply",
+      "Distribution",
+      "Import",
+      "Export",
+      "Product Inquiry",
+      "Partnership",
+      "General Inquiry",
+    ],
+    successMessage: "Thanks for reaching out. The ANIKA team will get back to you shortly.",
+  },
+};
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const content = await getPageContent<ContactPageContent>("contact", DEFAULT_CONTACT_CONTENT);
+
+  const infoBlocks = [
+    { label: "Head Office", value: content.coordinates.address },
+    { label: "Phone", value: content.coordinates.phone },
+    { label: "Email", value: content.coordinates.email },
+    { label: "WhatsApp", value: content.coordinates.whatsapp },
+  ];
+
   return (
     <section className="relative bg-paper pt-24 md:pt-28">
       <div className="relative h-[36vh] w-full overflow-hidden md:h-[44vh]">
         <Image
-          src="/images/trade-detail.jpg"
+          src={resolveImageUrl(content.hero.bgImage)}
           alt="ANIKA business operations"
           fill
           priority
@@ -34,10 +69,10 @@ export default function ContactPage() {
           <div className="mx-auto w-full max-w-6xl">
             <Reveal>
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
-                Get In Touch
+                {content.hero.eyebrow}
               </p>
               <h1 className="mt-4 max-w-lg font-display text-[32px] font-medium leading-tight text-white md:text-[46px]">
-                Let&rsquo;s Start a Conversation
+                {content.hero.heading}
               </h1>
             </Reveal>
           </div>
@@ -49,10 +84,7 @@ export default function ContactPage() {
           <div>
             <Reveal>
               <p className="max-w-sm text-[15px] leading-relaxed text-ink/60">
-                Whether you&rsquo;re exploring a construction project,
-                a government or private supply requirement, an import or
-                export inquiry, or a business partnership — reach out and
-                the ANIKA team will get back to you.
+                {content.intro.text}
               </p>
             </Reveal>
 
@@ -71,7 +103,10 @@ export default function ContactPage() {
           </div>
 
           <Reveal delay={0.1}>
-            <ContactForm />
+            <ContactForm
+              inquirySectors={content.formSettings.inquirySectors}
+              successMessage={content.formSettings.successMessage}
+            />
           </Reveal>
         </div>
       </div>

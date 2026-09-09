@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, UserRole, PermissionResource, PermissionAction, RolePermissions } from '../types';
+import { backendApi } from '../api';
 
 interface AuthContextType {
   user: User | null;
   role: UserRole | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, role?: UserRole) => Promise<boolean>;
+  loginError: string | null;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
+  updateCurrentUser: (user: User) => void;
   hasPermission: (resource: PermissionResource, action: PermissionAction) => boolean;
 }
 
@@ -15,11 +18,8 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   admin: {
     dashboard: ['view', 'create', 'edit', 'delete'],
     pages: ['view', 'create', 'edit', 'delete'],
-    products: ['view', 'create', 'edit', 'delete'],
-    projects: ['view', 'create', 'edit', 'delete'],
     leads: ['view', 'create', 'edit', 'delete'],
-    hero: ['view', 'create', 'edit', 'delete'],
-    team: ['view', 'create', 'edit', 'delete'],
+    clients: ['view', 'create', 'edit', 'delete'],
     partners: ['view', 'create', 'edit', 'delete'],
     users: ['view', 'create', 'edit', 'delete'],
     settings: ['view', 'create', 'edit', 'delete'],
@@ -27,11 +27,8 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   manager: {
     dashboard: ['view'],
     pages: ['view', 'create', 'edit', 'delete'],
-    products: ['view', 'create', 'edit', 'delete'],
-    projects: ['view', 'create', 'edit', 'delete'],
     leads: ['view', 'edit', 'delete'],
-    hero: ['view', 'create', 'edit'],
-    team: ['view', 'create', 'edit'],
+    clients: ['view', 'create', 'edit', 'delete'],
     partners: ['view', 'create', 'edit', 'delete'],
     users: ['view'],
     settings: ['view'],
@@ -39,11 +36,8 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   editor: {
     dashboard: ['view'],
     pages: ['view', 'create', 'edit'],
-    products: ['view', 'create', 'edit'],
-    projects: ['view', 'create', 'edit'],
     leads: ['view'],
-    hero: ['view', 'create', 'edit'],
-    team: ['view', 'edit'],
+    clients: ['view', 'edit'],
     partners: ['view', 'edit'],
     users: [],
     settings: [],
@@ -51,11 +45,8 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   viewer: {
     dashboard: ['view'],
     pages: ['view'],
-    products: ['view'],
-    projects: ['view'],
     leads: ['view'],
-    hero: ['view'],
-    team: ['view'],
+    clients: ['view'],
     partners: ['view'],
     users: [],
     settings: [],
@@ -64,19 +55,10 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEFAULT_ADMIN_USER: User = {
-  id: 'usr-admin-1',
-  name: 'Managing Director',
-  email: 'admin@anikatrading.com',
-  role: 'admin',
-  department: 'Executive Leadership',
-  status: 'active',
-  lastActive: 'Just now',
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -84,11 +66,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const storedUser = localStorage.getItem('authUser');
       if (storedToken && storedUser) {
         setUser(JSON.parse(storedUser));
-      } else {
-        // Automatically provide default admin session for demo preview if empty
-        setUser(DEFAULT_ADMIN_USER);
-        localStorage.setItem('accessToken', 'demo-token-anika-trading');
-        localStorage.setItem('authUser', JSON.stringify(DEFAULT_ADMIN_USER));
       }
     } catch (e) {
       console.error('Auth initialization error', e);
@@ -97,32 +74,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = async (email: string, customRole: UserRole = 'admin'): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    // Simulate auth latency
-    await new Promise((resolve) => setTimeout(resolve, 400));
-
-    const authenticatedUser: User = {
-      id: `usr-${Date.now()}`,
-      name: email.split('@')[0].replace('.', ' ').toUpperCase(),
-      email,
-      role: customRole,
-      department: customRole === 'admin' ? 'Executive Board' : 'Operations',
-      status: 'active',
-      lastActive: 'Just now',
-    };
-
-    setUser(authenticatedUser);
-    localStorage.setItem('accessToken', `token-${Date.now()}`);
-    localStorage.setItem('authUser', JSON.stringify(authenticatedUser));
-    setIsLoading(false);
-    return true;
+    setLoginError(null);
+    try {
+      const { token, user: authenticatedUser } = await backendApi.auth.login(username, password);
+      setUser(authenticatedUser);
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('authUser', JSON.stringify(authenticatedUser));
+      return true;
+    } catch (err: any) {
+      setLoginError(err?.response?.data?.error || 'Invalid username or password.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('authUser');
     setUser(null);
+  };
+
+  // Called after a successful self-service profile/password update so the
+  // rest of the app (topbar, sidebar, etc.) reflects the change immediately.
+  const updateCurrentUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('authUser', JSON.stringify(updatedUser));
   };
 
   const hasPermission = useCallback(
@@ -142,8 +121,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: user ? user.role : null,
         isAuthenticated: !!user,
         isLoading,
+        loginError,
         login,
         logout,
+        updateCurrentUser,
         hasPermission,
       }}
     >

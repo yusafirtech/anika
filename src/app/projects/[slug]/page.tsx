@@ -2,11 +2,21 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProjectBySlug, getRelatedProjects, projects } from "@/data/projects";
+import { projects as defaultProjects } from "@/data/projects";
 import Reveal from "@/components/ui/Reveal";
+import { getPageContent, resolveImageUrl } from "@/lib/cms";
+import type { ProjectsPageContent } from "@/types/cms";
+
+async function getAllProjects() {
+  const content = await getPageContent<ProjectsPageContent>("projects", {
+    intro: { eyebrow: "", heading: "", description: "" },
+    projects: defaultProjects,
+  });
+  return content.projects;
+}
 
 export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }));
+  return defaultProjects.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -15,7 +25,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const projects = await getAllProjects();
+  const project = projects.find((p) => p.slug === slug);
   if (!project) return {};
   return {
     title: project.name,
@@ -29,16 +40,20 @@ export default async function ProjectDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const projects = await getAllProjects();
+  const project = projects.find((p) => p.slug === slug);
   if (!project) notFound();
 
-  const related = getRelatedProjects(slug);
+  const related =
+    projects.filter((p) => p.slug !== slug && p.category === project.category).slice(0, 2).length > 0
+      ? projects.filter((p) => p.slug !== slug && p.category === project.category).slice(0, 2)
+      : projects.filter((p) => p.slug !== slug).slice(0, 2);
 
   return (
     <>
       <section className="relative h-[62vh] w-full overflow-hidden bg-navy-deeper md:h-[75vh]">
         <Image
-          src={project.image}
+          src={resolveImageUrl(project.image)}
           alt={project.name}
           fill
           priority
@@ -128,7 +143,7 @@ export default async function ProjectDetailPage({
               </h2>
               <div className="relative mt-4 h-[42vh] w-full overflow-hidden rounded-2xl">
                 <Image
-                  src={project.image}
+                  src={resolveImageUrl(project.image)}
                   alt={project.name}
                   fill
                   sizes="(min-width: 768px) 60vw, 90vw"
@@ -154,7 +169,7 @@ export default async function ProjectDetailPage({
                 <Link key={p.slug} href={`/projects/${p.slug}`} className="group">
                   <div className="relative h-[30vh] w-full overflow-hidden rounded-2xl">
                     <Image
-                      src={p.image}
+                      src={resolveImageUrl(p.image)}
                       alt={p.name}
                       fill
                       sizes="(min-width: 768px) 40vw, 90vw"

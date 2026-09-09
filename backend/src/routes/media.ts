@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { getPool } from '../db/connection.js';
+import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -21,8 +22,8 @@ const upload = multer({
   },
 });
 
-// POST /api/upload - Upload file directly into MySQL database LONGBLOB
-router.post('/upload', upload.single('image'), async (req: Request, res: Response) => {
+// POST /api/upload - Upload file directly into MySQL database LONGBLOB (admin panel only)
+router.post('/upload', authenticateToken, requireRole(['admin', 'manager', 'editor']), upload.single('image'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       res.status(400).json({ error: 'No image file uploaded' });
@@ -64,7 +65,8 @@ router.post('/upload', upload.single('image'), async (req: Request, res: Respons
   }
 });
 
-// GET /api/media/:filename - Stream image binary data directly from MySQL LONGBLOB
+// GET /api/media/:filename - Stream image binary data directly from MySQL LONGBLOB.
+// Intentionally public/unauthenticated — this is what serves images to the live website.
 router.get('/media/:filename', async (req: Request, res: Response) => {
   try {
     const { filename } = req.params;
@@ -93,8 +95,8 @@ router.get('/media/:filename', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/media - List all uploaded images stored in MySQL
-router.get('/media', async (_req: Request, res: Response) => {
+// GET /api/media - List all uploaded images stored in MySQL (admin panel only)
+router.get('/media', authenticateToken, async (_req: Request, res: Response) => {
   try {
     const pool = getPool();
     const [rows]: any = await pool.query(
@@ -108,8 +110,8 @@ router.get('/media', async (_req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/media/:id - Remove image from MySQL
-router.delete('/media/:id', async (req: Request, res: Response) => {
+// DELETE /api/media/:id - Remove image from MySQL (admin panel only)
+router.delete('/media/:id', authenticateToken, requireRole(['admin', 'manager', 'editor']), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const pool = getPool();

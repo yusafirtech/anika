@@ -2,6 +2,7 @@ export type UserRole = 'admin' | 'manager' | 'editor' | 'viewer';
 
 export interface User {
   id: string;
+  username: string;
   name: string;
   email: string;
   avatar?: string;
@@ -16,11 +17,8 @@ export type PermissionAction = 'view' | 'create' | 'edit' | 'delete';
 export type PermissionResource =
   | 'dashboard'
   | 'pages'
-  | 'products'
-  | 'projects'
   | 'leads'
-  | 'hero'
-  | 'team'
+  | 'clients'
   | 'partners'
   | 'users'
   | 'settings';
@@ -55,54 +53,18 @@ export interface LeadApplication {
   createdAt: string;
 }
 
-export interface HeroSlide {
-  id: string;
-  title: string;
-  subtitle: string;
-  badgeText: string;
-  bgImage: string;
-  ctaText: string;
-  ctaLink: string;
-  active: boolean;
-  order: number;
-}
-
-export interface ProductItem {
+export interface ClientItem {
   id: string;
   name: string;
-  category: 'Seafood' | 'Agriculture' | 'Industrial' | 'Materials';
-  origin: string;
-  packaging: string;
-  status: 'In Stock' | 'Seasonal' | 'On Order';
-  featured: boolean;
-  image: string;
-  images?: string[];
-  description: string;
-  tags: string[];
-}
-
-export interface ProjectItem {
-  id: string;
-  name: string;
-  category: 'Construction' | 'Infrastructure' | 'Supply' | 'Engineering';
-  location: string;
-  status: 'Ongoing' | 'Completed' | 'In Planning';
-  client: string;
-  image: string;
-  description: string;
-  completionDate?: string;
-}
-
-export interface TeamMemberItem {
-  id: string;
-  name: string;
-  role: string;
-  department: string;
-  email: string;
-  image: string | null;
-  bio: string;
-  order: number;
-  expertise?: string[];
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  sector?: string;
+  status: 'Active' | 'Inactive' | 'Prospect';
+  logo?: string;
+  clientSince?: string;
+  notes?: string;
 }
 
 export interface PartnerItem {

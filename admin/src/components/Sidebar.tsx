@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { mockDb } from '../api';
 import {
   LayoutDashboard,
-  Package,
   Briefcase,
   FileText,
   Users,
@@ -15,7 +14,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Layers,
   Home,
   Info,
   Building2,
@@ -119,27 +117,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Content Management',
       items: [
         {
-          label: 'Export Catalog',
-          to: '/products',
-          icon: Package,
-          badge: '24 items',
-        },
-        {
-          label: 'Projects',
-          to: '/projects',
-          icon: Briefcase,
-        },
-        {
-          label: 'Hero Slides',
-          to: '/hero',
-          icon: Layers,
-        },
-        {
-          label: 'Corporate Team',
-          to: '/team',
-          icon: Users,
-        },
-        {
           label: 'Global Partners',
           to: '/partners',
           icon: Handshake,
@@ -155,6 +132,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: FileText,
           badge: pendingLeadsCount > 0 ? `${pendingLeadsCount} new` : undefined,
           badgeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+        },
+        {
+          label: 'Clients',
+          to: '/clients',
+          icon: Briefcase,
         },
       ],
     },

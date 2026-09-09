@@ -759,6 +759,7 @@ const INITIAL_SITEGLOBAL = {
         { label: 'Mission & Vision', href: '/about#mission' },
         { label: 'Business', href: '/business' },
         { label: 'Projects', href: '/projects' },
+        { label: 'Partners', href: '/partners' },
       ],
     },
     {
@@ -811,6 +812,27 @@ const INITIAL_LEADS = [
   },
 ];
 
+const INITIAL_PARTNER_ITEMS = [
+  {
+    id: 'part-1',
+    name: 'Gulf Horizon Trading Group',
+    category: 'Buyer',
+    country: 'United Arab Emirates',
+    partnershipYear: 2021,
+    status: 'Active',
+    logo: '/images/story-business-network.jpg',
+  },
+  {
+    id: 'part-2',
+    name: 'Rotterdam Fresh Cargo B.V.',
+    category: 'Logistics Partner',
+    country: 'Netherlands',
+    partnershipYear: 2023,
+    status: 'Active',
+    logo: '/images/story-global-connection.jpg',
+  },
+];
+
 export async function seedInitialData(): Promise<void> {
   const pool = getPool();
   console.log('[MySQL] Checking if initial seed data is required...');
@@ -848,11 +870,12 @@ export async function seedInitialData(): Promise<void> {
     const managerHash = await bcrypt.hash('manager123', 10);
 
     await pool.query(
-      `INSERT INTO users (id, name, email, password_hash, role, department, status, last_active) VALUES
-       (?, ?, ?, ?, ?, ?, ?, ?),
-       (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (id, username, name, email, password_hash, role, department, status, last_active) VALUES
+       (?, ?, ?, ?, ?, ?, ?, ?, ?),
+       (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         'usr-1',
+        'admin',
         'Managing Director',
         'admin@anikatrading.com',
         adminHash,
@@ -862,6 +885,7 @@ export async function seedInitialData(): Promise<void> {
         'Just now',
 
         'usr-2',
+        'manager',
         'Operations Manager',
         'operations@anikatrading.com',
         managerHash,
@@ -897,6 +921,59 @@ export async function seedInitialData(): Promise<void> {
       );
     }
     console.log('[MySQL Seed] Seeded initial trade leads.');
+  }
+
+  // 4. Seed generic content collections (Partners)
+  const collectionEntries: [string, any[]][] = [['partners', INITIAL_PARTNER_ITEMS]];
+
+  for (const [key, items] of collectionEntries) {
+    const [rows]: any = await pool.query(
+      'SELECT collection_key FROM content_collections WHERE collection_key = ? LIMIT 1',
+      [key]
+    );
+    if (!rows || rows.length === 0) {
+      await pool.query(
+        'INSERT INTO content_collections (collection_key, items) VALUES (?, ?)',
+        [key, JSON.stringify(items)]
+      );
+      console.log(`[MySQL Seed] Seeded collection: ${key}`);
+    }
+  }
+
+  // 5. Seed a couple of sample clients
+  const [clientRows]: any = await pool.query('SELECT id FROM clients LIMIT 1');
+  if (!clientRows || clientRows.length === 0) {
+    await pool.query(
+      `INSERT INTO clients (id, name, contact_person, email, phone, address, sector, status, logo, client_since, notes) VALUES
+       (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),
+       (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'client-1',
+        'Gulf Horizon Trading LLC',
+        'Tariq Al-Mansoor',
+        'tariq@gulfhorizon.ae',
+        '+971 4 882 1920',
+        'Dubai, United Arab Emirates',
+        'Seafood',
+        'Active',
+        null,
+        '2022-03-01',
+        'Recurring bulk shrimp buyer, quarterly containers.',
+
+        'client-2',
+        'EuroAsia Logistics BV',
+        'Marcus Vance',
+        'm.vance@euroasialog.nl',
+        '+31 20 592 3311',
+        'Rotterdam, Netherlands',
+        'Agriculture',
+        'Prospect',
+        null,
+        null,
+        'In discussion for a fresh vegetable freight contract.',
+      ]
+    );
+    console.log('[MySQL Seed] Seeded sample clients.');
   }
 
   console.log('[MySQL] Seeding complete.');

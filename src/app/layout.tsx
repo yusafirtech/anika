@@ -3,6 +3,9 @@ import { Inter, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { getPageContent } from "@/lib/cms";
+import type { SiteGlobalContent } from "@/types/cms";
+import { navLinks, footerColumns, companyInfo } from "@/data/site";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -36,16 +39,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const site = await getPageContent<SiteGlobalContent>("site", {
+    companyInfo,
+    navLinks,
+    footerColumns,
+  });
+
   return (
     <html
       lang="en"
       className={`${inter.variable} ${bricolage.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
-        <Navbar />
+        <Navbar navLinks={site.navLinks} />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <Footer footerColumns={site.footerColumns} companyInfo={site.companyInfo} />
       </body>
     </html>
   );

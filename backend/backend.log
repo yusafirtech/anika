@@ -1,0 +1,170 @@
+
+> anika-trading-backend@1.0.0 dev
+> tsx watch src/server.ts
+
+◇ injected env (8) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+----------------------------------------------------
+Starting ANIKA TRADING & CO. Backend Server...
+----------------------------------------------------
+[MySQL] Connecting to localhost:3306 as root...
+[MySQL] Database `anika_trading_db` verified or created.
+[MySQL] Running schema migrations...
+[MySQL] All tables verified and ready.
+[MySQL] Checking if initial seed data is required...
+[MySQL] Seeding complete.
+[Server] ANIKA backend running live at http://localhost:5000
+[Server] Health check: http://localhost:5000/api/health
+[Server] Database storage: MySQL 8.0 (LONGBLOB media support)
+----------------------------------------------------
+[0mGET / [32m200[0m 1.528 ms - 229[0m
+[0mGET /api/collections/hero [32m200[0m 1.583 ms - 801[0m
+[0mGET /api/collections/products [32m200[0m 0.871 ms - 1885[0m
+[0mGET /api/collections/products [32m200[0m 0.662 ms - 1885[0m
+[0mGET /api/collections/unknown [33m400[0m 0.258 ms - 40[0m
+[0mPUT /api/collections/hero [33m400[0m 1.347 ms - 56[0m
+[0mGET /api/collections/team [32m200[0m 0.746 ms - 820[0m
+[0mPUT /api/collections/team [32m200[0m 4.790 ms - 139[0m
+[0mGET /api/collections/team [32m200[0m 1.147 ms - 214[0m
+[0mPUT /api/collections/team [33m400[0m 0.322 ms - 56[0m
+[0mGET /api/collections/team [32m200[0m 0.638 ms - 214[0m
+[0mPUT /api/collections/team [32m200[0m 9.880 ms - 139[0m
+[0mGET /api/collections/team [32m200[0m 0.732 ms - 820[0m
+[0mPOST /api/leads [32m201[0m 10.648 ms - 89[0m
+[0mGET /api/leads [32m200[0m 1.038 ms - 1137[0m
+[0mPATCH /api/users/usr-2 [32m200[0m 0.852 ms - 48[0m
+[0mGET /api/users [32m200[0m 0.953 ms - 668[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.155 ms - 0[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.059 ms - 0[0m
+[0mGET /api/collections/hero [32m200[0m 0.658 ms - 801[0m
+[0mGET /api/collections/hero [36m304[0m 0.542 ms - -[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.079 ms - 0[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.056 ms - 0[0m
+[0mGET /api/collections/hero [36m304[0m 0.621 ms - -[0m
+[0mGET /api/collections/hero [36m304[0m 0.377 ms - -[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.083 ms - 0[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.048 ms - 0[0m
+[0mGET /api/collections/hero [36m304[0m 0.794 ms - -[0m
+[0mGET /api/collections/hero [36m304[0m 0.496 ms - -[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.070 ms - 0[0m
+[0mPUT /api/collections/hero [32m200[0m 27.201 ms - 139[0m
+[0mGET /api/collections/hero [32m200[0m 0.603 ms - 1064[0m
+[0mOPTIONS /api/collections/hero [32m204[0m 0.074 ms - 0[0m
+[0mPUT /api/collections/hero [32m200[0m 24.621 ms - 139[0m
+[0mGET /api/collections/hero [32m200[0m 0.628 ms - 801[0m
+[0mGET /api/collections/hero [32m200[0m 0.720 ms - 801[0m
+[0mOPTIONS /api/collections/products [32m204[0m 0.077 ms - 0[0m
+[0mOPTIONS /api/collections/products [32m204[0m 0.130 ms - 0[0m
+[0mGET /api/collections/products [32m200[0m 0.635 ms - 1885[0m
+[0mGET /api/collections/products [36m304[0m 0.454 ms - -[0m
+[0mOPTIONS /api/collections/products [32m204[0m 0.073 ms - 0[0m
+[0mPUT /api/collections/products [32m200[0m 28.237 ms - 147[0m
+[0mGET /api/collections/products [32m200[0m 0.771 ms - 2111[0m
+[0mOPTIONS /api/collections/products [32m204[0m 0.070 ms - 0[0m
+[0mPUT /api/collections/products [32m200[0m 3.719 ms - 147[0m
+[0mGET /api/collections/products [32m200[0m 0.620 ms - 1885[0m
+[0mOPTIONS /api/collections/projects [32m204[0m 0.070 ms - 0[0m
+[0mOPTIONS /api/collections/projects [32m204[0m 0.046 ms - 0[0m
+[0mGET /api/collections/projects [32m200[0m 0.553 ms - 1214[0m
+[0mGET /api/collections/projects [36m304[0m 0.378 ms - -[0m
+[0mOPTIONS /api/collections/team [32m204[0m 0.073 ms - 0[0m
+[0mOPTIONS /api/collections/team [32m204[0m 0.052 ms - 0[0m
+[0mGET /api/collections/team [32m200[0m 0.575 ms - 820[0m
+[0mGET /api/collections/team [36m304[0m 0.377 ms - -[0m
+[0mOPTIONS /api/collections/partners [32m204[0m 0.066 ms - 0[0m
+[0mOPTIONS /api/collections/partners [32m204[0m 0.048 ms - 0[0m
+[0mGET /api/collections/partners [32m200[0m 0.596 ms - 459[0m
+[0mGET /api/collections/partners [36m304[0m 0.497 ms - -[0m
+[0mOPTIONS /api/leads [32m204[0m 0.062 ms - 0[0m
+[0mOPTIONS /api/leads [32m204[0m 0.053 ms - 0[0m
+[0mGET /api/leads [32m200[0m 0.625 ms - 1137[0m
+[0mGET /api/leads [36m304[0m 0.510 ms - -[0m
+[0mOPTIONS /api/leads/lead-1788846092754 [32m204[0m 0.062 ms - 0[0m
+[0mPATCH /api/leads/lead-1788846092754 [32m200[0m 14.025 ms - 74[0m
+[0mGET /api/leads [32m200[0m 0.652 ms - 1138[0m
+[0mGET /api/leads [32m200[0m 0.670 ms - 1138[0m
+[0mDELETE /api/leads/lead-1788846092754 [32m200[0m 17.950 ms - 61[0m
+[0mGET /api/leads [32m200[0m 0.688 ms - 878[0m
+[0mOPTIONS /api/users [32m204[0m 0.068 ms - 0[0m
+[0mOPTIONS /api/users [32m204[0m 0.045 ms - 0[0m
+[0mGET /api/users [32m200[0m 0.966 ms - 668[0m
+[0mGET /api/users [36m304[0m 0.455 ms - -[0m
+[0mOPTIONS /api/users [32m204[0m 0.068 ms - 0[0m
+[0mPOST /api/users [32m201[0m 80.877 ms - 234[0m
+[0mGET /api/users [32m200[0m 0.656 ms - 893[0m
+[0mPOST /api/auth/login [32m200[0m 62.789 ms - 433[0m
+[0mPOST /api/auth/login [33m401[0m 48.177 ms - 37[0m
+[0mOPTIONS /api/collections/team [32m204[0m 0.068 ms - 0[0m
+[0mOPTIONS /api/collections/team [32m204[0m 0.052 ms - 0[0m
+[0mGET /api/collections/team [32m200[0m 0.692 ms - 820[0m
+[0mGET /api/collections/team [36m304[0m 0.528 ms - -[0m
+[0mOPTIONS /api/users/usr-1788846412608 [32m204[0m 0.064 ms - 0[0m
+[0mPATCH /api/users/usr-1788846412608 [32m200[0m 24.274 ms - 60[0m
+[0mOPTIONS /api/users [32m204[0m 0.180 ms - 0[0m
+[0mOPTIONS /api/users [32m204[0m 0.043 ms - 0[0m
+[0mGET /api/users [32m200[0m 0.641 ms - 897[0m
+[0mGET /api/users [36m304[0m 0.443 ms - -[0m
+[0mOPTIONS /api/users [32m204[0m 0.108 ms - 0[0m
+[0mOPTIONS /api/users [32m204[0m 0.053 ms - 0[0m
+[0mGET /api/users [36m304[0m 0.664 ms - -[0m
+[0mGET /api/users [36m304[0m 0.578 ms - -[0m
+[0mGET /api/users [32m200[0m 0.656 ms - 897[0m
+[0mGET /api/users [32m200[0m 0.591 ms - 897[0m
+[0mDELETE /api/users/usr-1788846412608 [32m200[0m 23.095 ms - 60[0m
+[0mGET /api/users [32m200[0m 0.580 ms - 668[0m
+[0mOPTIONS /api/leads [32m204[0m 0.070 ms - 0[0m
+[0mPOST /api/leads [32m201[0m 30.466 ms - 89[0m
+[0mGET /api/leads [32m200[0m 2.351 ms - 1170[0m
+[0mOPTIONS /api/leads [32m204[0m 0.061 ms - 0[0m
+[0mOPTIONS /api/leads [32m204[0m 0.039 ms - 0[0m
+[0mGET /api/leads [32m200[0m 0.707 ms - 1170[0m
+[0mGET /api/leads [36m304[0m 0.519 ms - -[0m
+[0mGET /api/leads [32m200[0m 2.836 ms - 1170[0m
+[0mDELETE /api/leads/lead-1788846592151 [32m200[0m 4.432 ms - 61[0m
+[0mGET /api/leads [32m200[0m 0.777 ms - 878[0m
+12:22:16 PM [tsx] change in ./src\routes\collections.ts Restarting...
+◇ injected env (8) from .env // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+----------------------------------------------------
+Starting ANIKA TRADING & CO. Backend Server...
+----------------------------------------------------
+[MySQL] Connecting to localhost:3306 as root...
+[MySQL] Database `anika_trading_db` verified or created.
+[MySQL] Running schema migrations...
+[MySQL] All tables verified and ready.
+[MySQL] Checking if initial seed data is required...
+[MySQL] Seeding complete.
+[Server] ANIKA backend running live at http://localhost:5000
+[Server] Health check: http://localhost:5000/api/health
+[Server] Database storage: MySQL 8.0 (LONGBLOB media support)
+----------------------------------------------------
+[0mGET /api/health [32m200[0m 5.334 ms - 142[0m
+[0mGET /api/collections/hero [32m200[0m 1.488 ms - 801[0m
+[0mGET /api/collections/products [32m200[0m 0.796 ms - 1885[0m
+[0mGET /api/collections/projects [32m200[0m 0.653 ms - 1214[0m
+[0mGET /api/collections/team [32m200[0m 0.673 ms - 820[0m
+[0mGET /api/collections/partners [32m200[0m 0.715 ms - 459[0m
+[0mGET /api/leads [32m200[0m 1.306 ms - 878[0m
+[0mGET /api/users [32m200[0m 0.949 ms - 668[0m
+[0mGET /api/pages/home [32m200[0m 1.208 ms - 6699[0m
+[0mGET /api/collections/hero [32m200[0m 0.846 ms - 801[0m
+[0mGET /api/collections/products [32m200[0m 0.656 ms - 1885[0m
+[0mGET /api/collections/projects [32m200[0m 0.696 ms - 1214[0m
+[0mGET /api/collections/team [32m200[0m 0.679 ms - 820[0m
+[0mGET /api/collections/partners [32m200[0m 0.940 ms - 459[0m
+[0mGET /api/leads [32m200[0m 0.707 ms - 878[0m
+[0mGET /api/users [32m200[0m 0.628 ms - 668[0m
+[0mOPTIONS /api/leads [32m204[0m 0.271 ms - 0[0m
+[0mPOST /api/leads [32m201[0m 19.843 ms - 89[0m
+[0mOPTIONS /api/leads [32m204[0m 0.082 ms - 0[0m
+[0mOPTIONS /api/leads [32m204[0m 0.120 ms - 0[0m
+[0mGET /api/leads [32m200[0m 0.669 ms - 1169[0m
+[0mGET /api/leads [36m304[0m 0.785 ms - -[0m
+[0mOPTIONS /api/leads/lead-1788849391009 [32m204[0m 0.084 ms - 0[0m
+[0mPATCH /api/leads/lead-1788849391009 [32m200[0m 0.965 ms - 74[0m
+[0mOPTIONS /api/leads [32m204[0m 0.085 ms - 0[0m
+[0mPOST /api/leads [32m201[0m 4.642 ms - 89[0m
+[0mOPTIONS /api/leads [32m204[0m 0.126 ms - 0[0m
+[0mOPTIONS /api/leads [32m204[0m 0.061 ms - 0[0m
+[0mGET /api/leads [32m200[0m 0.732 ms - 1449[0m
+[0mGET /api/leads [36m304[0m 0.619 ms - -[0m

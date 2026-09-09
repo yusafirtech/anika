@@ -390,13 +390,18 @@ export const HomePageManager: React.FC = () => {
                     </div>
 
                     <div className="space-y-1 md:col-span-2">
-                      <label className="text-xs font-semibold text-slate-700">Image URL</label>
-                      <div className="flex gap-3 items-center">
+                      <label className="text-xs font-semibold text-slate-700">Image</label>
+                      <div className="flex flex-wrap gap-3 items-center">
+                        <ImageUploadButton
+                          label="Upload from Device"
+                          currentUrl={story.image}
+                          onImageUploaded={(url) => handleSectorChange(idx, 'image', url)}
+                        />
                         <input
                           type="text"
                           value={story.image}
                           onChange={(e) => handleSectorChange(idx, 'image', e.target.value)}
-                          className="flex-1 rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                          className="flex-1 min-w-[160px] rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
                         />
                         {story.image && (
                           <div className="h-12 w-20 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">
@@ -503,13 +508,18 @@ export const HomePageManager: React.FC = () => {
                     </div>
 
                     <div className="space-y-1 md:col-span-2">
-                      <label className="text-xs font-semibold text-slate-700">Image URL</label>
-                      <div className="flex gap-3 items-center">
+                      <label className="text-xs font-semibold text-slate-700">Image</label>
+                      <div className="flex flex-wrap gap-3 items-center">
+                        <ImageUploadButton
+                          label="Upload from Device"
+                          currentUrl={item.image}
+                          onImageUploaded={(url) => handleBusinessChange(idx, 'image', url)}
+                        />
                         <input
                           type="text"
                           value={item.image}
                           onChange={(e) => handleBusinessChange(idx, 'image', e.target.value)}
-                          className="flex-1 rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                          className="flex-1 min-w-[160px] rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
                         />
                         {item.image && (
                           <div className="h-12 w-20 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">
@@ -564,12 +574,17 @@ export const HomePageManager: React.FC = () => {
 
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-700">Background Visual</label>
-                    <div className="flex gap-2 items-center">
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <ImageUploadButton
+                        label="Upload from Device"
+                        currentUrl={reason.image}
+                        onImageUploaded={(url) => handleWhyChange(idx, 'image', url)}
+                      />
                       <input
                         type="text"
                         value={reason.image}
                         onChange={(e) => handleWhyChange(idx, 'image', e.target.value)}
-                        className="flex-1 rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                        className="flex-1 min-w-[160px] rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
                       />
                       {reason.image && (
                         <div className="h-10 w-14 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">

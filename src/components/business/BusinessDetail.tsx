@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
 import type { BusinessVertical } from "@/data/business";
 
 function CapabilityList({ items }: { items: string[] }) {
@@ -42,7 +43,7 @@ export default function BusinessDetail({
       <section id={vertical.id} className="relative overflow-hidden bg-navy-deeper py-0">
         <div className="relative h-[70vh] w-full md:h-[80vh]">
           <Image
-            src={vertical.image}
+            src={resolveImageUrl(vertical.image)}
             alt={vertical.title}
             fill
             sizes="100vw"
@@ -94,7 +95,7 @@ export default function BusinessDetail({
         >
           <Reveal className={cn("relative h-[42vh] overflow-hidden rounded-2xl md:h-[52vh]", imageFirst && "md:order-1")}>
             <Image
-              src={vertical.image}
+              src={resolveImageUrl(vertical.image)}
               alt={vertical.title}
               fill
               sizes="(min-width: 768px) 45vw, 90vw"

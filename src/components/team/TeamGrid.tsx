@@ -3,9 +3,22 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { teamMembers, departments, type TeamMember } from "@/data/team";
+import { teamMembers as defaultTeamMembers, departments as defaultDepartments } from "@/data/team";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
+import type { TeamPageContent } from "@/types/cms";
+
+type TeamMember = TeamPageContent["members"][number] & { gradient: string };
+
+const AVATAR_GRADIENTS = [
+  "from-navy to-navy-dark",
+  "from-navy to-teal",
+  "from-teal to-violet",
+  "from-navy-dark to-navy",
+  "from-teal to-navy-dark",
+  "from-violet to-navy",
+];
 
 function MemberModal({
   member,
@@ -41,7 +54,7 @@ function MemberModal({
             <div className="relative h-56 w-full shrink-0 md:h-auto md:w-52">
               {member.image ? (
                 <Image
-                  src={member.image}
+                  src={resolveImageUrl(member.image)}
                   alt={member.name}
                   fill
                   sizes="(min-width: 768px) 208px, 100vw"
@@ -134,7 +147,7 @@ function MemberCard({
         <div className="relative h-72 w-full overflow-hidden">
           {member.image ? (
             <Image
-              src={member.image}
+              src={resolveImageUrl(member.image)}
               alt={member.name}
               fill
               sizes="(min-width: 768px) 33vw, 90vw"
@@ -205,7 +218,18 @@ function MemberCard({
   );
 }
 
-export default function TeamGrid() {
+export default function TeamGrid({
+  members,
+  departments = defaultDepartments,
+}: {
+  members?: TeamPageContent["members"];
+  departments?: string[];
+}) {
+  const teamMembers: TeamMember[] = (members ?? defaultTeamMembers).map((m, i) => ({
+    ...m,
+    gradient: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length],
+  }));
+
   const [active, setActive] = useState<TeamMember | null>(null);
   const [dept, setDept] = useState("All");
 

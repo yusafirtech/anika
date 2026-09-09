@@ -10,51 +10,32 @@ const JWT_SECRET = process.env.JWT_SECRET || 'anika_trading_super_secret_jwt_key
 // POST /api/auth/login
 router.post('/login', async (req: Request, res: Response) => {
   try {
-    const { email, password, role } = req.body;
-    if (!email) {
-      res.status(400).json({ error: 'Email is required' });
+    const { username, password } = req.body;
+    if (!username || !password) {
+      res.status(400).json({ error: 'Username and password are required' });
       return;
     }
 
     const pool = getPool();
-    const [rows]: any = await pool.query('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
+    const [rows]: any = await pool.query('SELECT * FROM users WHERE username = ? LIMIT 1', [username]);
+    const user = rows && rows[0];
 
-    let user = rows && rows[0];
+    if (!user || user.status !== 'active') {
+      res.status(401).json({ error: 'Invalid username or password' });
+      return;
+    }
 
-    // If user exists and password is provided, check password
-    if (user && password) {
-      const match = await bcrypt.compare(password, user.password_hash);
-      if (!match && password !== 'admin123' && password !== 'manager123') {
-        res.status(401).json({ error: 'Invalid email or password' });
-        return;
-      }
-    } else if (!user) {
-      // Demo / Quick fallback user creation for seamless admin testing
-      const defaultRole = role || 'admin';
-      const defaultName = email.split('@')[0].toUpperCase();
-      const defaultId = `usr-${Date.now()}`;
-      const defaultHash = await bcrypt.hash('admin123', 10);
-
-      await pool.query(
-        `INSERT INTO users (id, name, email, password_hash, role, department, status, last_active)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [defaultId, defaultName, email, defaultHash, defaultRole, 'Administration', 'active', 'Just now']
-      );
-
-      user = {
-        id: defaultId,
-        name: defaultName,
-        email,
-        role: defaultRole,
-        department: 'Administration',
-        status: 'active',
-      };
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) {
+      res.status(401).json({ error: 'Invalid username or password' });
+      return;
     }
 
     // Generate JWT token
     const token = jwt.sign(
       {
         id: user.id,
+        username: user.username,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -70,6 +51,7 @@ router.post('/login', async (req: Request, res: Response) => {
       token,
       user: {
         id: user.id,
+        username: user.username,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -88,7 +70,7 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res: Resp
   try {
     const pool = getPool();
     const [rows]: any = await pool.query(
-      'SELECT id, name, email, role, department, status, last_active FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, username, name, email, avatar, role, department, status, last_active FROM users WHERE id = ? LIMIT 1',
       [req.user?.id]
     );
 

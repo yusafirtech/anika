@@ -3,10 +3,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { businessVerticals } from "@/data/business";
+import { businessVerticals as defaultBusinessVerticals, type BusinessVertical } from "@/data/business";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/lib/cms";
 
-export default function BusinessNav() {
+export default function BusinessNav({
+  businessVerticals = defaultBusinessVerticals,
+}: {
+  businessVerticals?: BusinessVertical[];
+}) {
   const [hovered, setHovered] = useState<string | null>(null);
   const previewItem =
     businessVerticals.find((v) => v.id === hovered) ?? businessVerticals[0];
@@ -25,7 +30,7 @@ export default function BusinessNav() {
                 <span className="flex min-w-0 items-center gap-4 md:items-baseline md:gap-5">
                   <span className="relative hidden h-12 w-12 shrink-0 overflow-hidden rounded-lg sm:block md:hidden">
                     <Image
-                      src={v.image}
+                      src={resolveImageUrl(v.image)}
                       alt=""
                       fill
                       sizes="48px"
@@ -61,7 +66,7 @@ export default function BusinessNav() {
               className="absolute inset-0"
             >
               <Image
-                src={previewItem.image}
+                src={resolveImageUrl(previewItem.image)}
                 alt={previewItem.title}
                 fill
                 sizes="35vw"

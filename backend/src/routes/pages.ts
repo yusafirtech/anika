@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../db/connection.js';
+import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
+
+// GET routes below are intentionally public/unauthenticated — the live
+// website fetches page content on every request, unauthenticated.
 
 // GET /api/pages - List all pages
 router.get('/', async (_req: Request, res: Response) => {
@@ -46,7 +50,7 @@ router.get('/:pageKey', async (req: Request, res: Response) => {
 });
 
 // PUT /api/pages/:pageKey - Update specific page content
-router.put('/:pageKey', async (req: Request, res: Response) => {
+router.put('/:pageKey', authenticateToken, requireRole(['admin', 'manager', 'editor']), async (req: Request, res: Response) => {
   try {
     const { pageKey } = req.params;
     const { content } = req.body;

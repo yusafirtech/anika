@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { homeProjects } from "@/data/home";
 import ProjectStoryDesktop from "./ProjectStoryDesktop";
 import ProjectStoryMobile from "./ProjectStoryMobile";
 

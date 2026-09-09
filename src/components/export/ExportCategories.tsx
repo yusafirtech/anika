@@ -1,9 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
-import { exportCategories } from "@/data/export";
+import { exportCategories as defaultExportCategories } from "@/data/export";
+import { resolveImageUrl } from "@/lib/cms";
 
-export default function ExportCategories() {
+type ExportCategory = { id: string; label: string; image: string };
+
+export default function ExportCategories({
+  categories: exportCategories = defaultExportCategories,
+}: {
+  categories?: ExportCategory[];
+}) {
   return (
     <section id="categories" className="bg-paper py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-8">
@@ -24,7 +31,7 @@ export default function ExportCategories() {
                 className="group relative block h-[26vh] overflow-hidden rounded-2xl md:h-[34vh]"
               >
                 <Image
-                  src={cat.image}
+                  src={resolveImageUrl(cat.image)}
                   alt={cat.label}
                   fill
                   sizes="(min-width: 768px) 24vw, 45vw"
