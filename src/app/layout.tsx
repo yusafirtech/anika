@@ -3,6 +3,7 @@ import { Inter, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import MaintenanceBanner from "@/components/layout/MaintenanceBanner";
 import { getPageContent } from "@/lib/cms";
 import type { SiteGlobalContent } from "@/types/cms";
 import { navLinks, footerColumns, companyInfo } from "@/data/site";
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Navbar navLinks={site.navLinks} />
         <main className="flex-1">{children}</main>
         <Footer footerColumns={site.footerColumns} companyInfo={site.companyInfo} />
+        <MaintenanceBanner />
       </body>
     </html>
   );
