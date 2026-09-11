@@ -3,7 +3,7 @@ import Image from "next/image";
 import Reveal from "@/components/ui/Reveal";
 import ContactForm from "@/components/contact/ContactForm";
 import { companyInfo } from "@/data/site";
-import { getPageContent, resolveImageUrl } from "@/lib/cms";
+import { getExportContent, getPageContent, resolveImageUrl } from "@/lib/cms";
 import type { ContactPageContent } from "@/types/cms";
 
 export const metadata: Metadata = {
@@ -43,8 +43,17 @@ const DEFAULT_CONTACT_CONTENT: ContactPageContent = {
   },
 };
 
-export default async function ContactPage() {
-  const content = await getPageContent<ContactPageContent>("contact", DEFAULT_CONTACT_CONTENT);
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { product: productSlug } = await searchParams;
+  const [content, exportContent] = await Promise.all([
+    getPageContent<ContactPageContent>("contact", DEFAULT_CONTACT_CONTENT),
+    typeof productSlug === "string" ? getExportContent() : Promise.resolve(null),
+  ]);
+  const product = exportContent?.products.find((p) => p.slug === productSlug);
 
   const infoBlocks = [
     { label: "Head Office", value: content.coordinates.address },
@@ -106,6 +115,7 @@ export default async function ContactPage() {
             <ContactForm
               inquirySectors={content.formSettings.inquirySectors}
               successMessage={content.formSettings.successMessage}
+              product={product ? { name: product.name, slug: product.slug } : null}
             />
           </Reveal>
         </div>

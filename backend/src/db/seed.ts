@@ -760,6 +760,7 @@ const INITIAL_SITEGLOBAL = {
         { label: 'Business', href: '/business' },
         { label: 'Projects', href: '/projects' },
         { label: 'Partners', href: '/partners' },
+        { label: 'Insights & News', href: '/insights' },
       ],
     },
     {
@@ -976,5 +977,119 @@ export async function seedInitialData(): Promise<void> {
     console.log('[MySQL Seed] Seeded sample clients.');
   }
 
+  // 6. Seed sample insights so the homepage section isn't empty on first run
+  const [insightRows]: any = await pool.query('SELECT id FROM insights LIMIT 1');
+  if (!insightRows || insightRows.length === 0) {
+    for (const insight of INITIAL_INSIGHTS) {
+      await pool.query(
+        `INSERT INTO insights
+          (id, slug, title, category, excerpt, content, cover_image, related_product_slug, author,
+           status, featured, published_at, meta_title, meta_description, keywords)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'published', ?, ?, ?, ?, ?)`,
+        [
+          insight.id,
+          insight.slug,
+          insight.title,
+          insight.category,
+          insight.excerpt,
+          insight.content,
+          insight.coverImage,
+          insight.relatedProductSlug,
+          insight.author,
+          insight.featured ? 1 : 0,
+          insight.publishedAt,
+          insight.metaTitle,
+          insight.metaDescription,
+          insight.keywords,
+        ]
+      );
+    }
+    console.log('[MySQL Seed] Seeded sample insights.');
+  }
+
   console.log('[MySQL] Seeding complete.');
 }
+
+const INITIAL_INSIGHTS = [
+  {
+    id: 'insight-1',
+    slug: 'bangladesh-shrimp-exports-demand-outlook',
+    title: 'Bangladesh Shrimp Exports: What Buyers Should Expect This Season',
+    category: 'Product News',
+    excerpt:
+      'Demand for Bangladesh-origin black tiger shrimp is climbing in the Gulf and EU. Here is what importers should plan for on grading, cold chain, and lead times.',
+    content: [
+      'Black tiger shrimp from Bangladesh’s coastal belt continues to draw strong interest from importers in the Gulf and the European Union, driven by consistent grading and competitive landed costs.',
+      '## What is driving demand',
+      '- Retail chains are expanding frozen seafood ranges year-round',
+      '- Buyers are diversifying origin away from single-country dependence',
+      '- Improved cold chain capacity at Chittagong and Mongla ports',
+      '## Planning your order',
+      'Most buyers secure allocations four to six weeks ahead of shipment. Confirming count size, glazing percentage, and packaging format early keeps processing on schedule and avoids last-minute substitutions.',
+      'ANIKA works with certified processing partners and can share current availability, specifications, and documentation on request.',
+    ].join('\n\n'),
+    coverImage: '/images/story-seafood-closeup.jpg',
+    relatedProductSlug: 'black-tiger-shrimp',
+    author: 'ANIKA Export Desk',
+    featured: true,
+    publishedAt: '2026-09-02 09:00:00',
+    metaTitle: 'Bangladesh Black Tiger Shrimp Export Outlook | ANIKA TRADING & CO.',
+    metaDescription:
+      'Demand outlook for Bangladesh black tiger shrimp exports — grading, cold chain, lead times, and how importers should plan orders this season.',
+    keywords: 'bangladesh shrimp export, black tiger shrimp supplier, frozen shrimp importer, seafood export bangladesh',
+  },
+  {
+    id: 'insight-2',
+    slug: 'agricultural-export-logistics-chittagong-port',
+    title: 'Moving Fresh Produce Through Chittagong: A Practical Logistics Guide',
+    category: 'Industry News',
+    excerpt:
+      'Reefer availability, phytosanitary paperwork, and transit planning — the practical steps that decide whether fresh produce arrives market-ready.',
+    content: [
+      'Fresh vegetables and agricultural produce are only as valuable as their condition on arrival. For shipments leaving Chittagong, three factors matter most.',
+      '## Reefer capacity',
+      'Reefer container availability tightens during peak harvest months. Booking early and confirming pre-cooling at the packhouse protects shelf life.',
+      '## Documentation',
+      '- Phytosanitary certificate issued before loading',
+      '- Certificate of origin matched to the commercial invoice',
+      '- Importer-specific residue or grading reports where required',
+      '## Transit planning',
+      'Direct sailings reduce handling and temperature excursions. Where transshipment is unavoidable, choosing hubs with reliable reefer plug-in capacity makes a measurable difference.',
+    ].join('\n\n'),
+    coverImage: '/images/story-vegetable-market.jpg',
+    relatedProductSlug: 'fresh-vegetables',
+    author: 'ANIKA Logistics Team',
+    featured: false,
+    publishedAt: '2026-08-24 10:30:00',
+    metaTitle: 'Fresh Produce Export Logistics from Chittagong Port | ANIKA',
+    metaDescription:
+      'A practical guide to exporting fresh vegetables from Chittagong — reefer booking, phytosanitary documentation, and transit planning.',
+    keywords: 'chittagong port export, fresh vegetable export bangladesh, reefer container, phytosanitary certificate',
+  },
+  {
+    id: 'insight-3',
+    slug: 'anika-expands-institutional-supply-capacity',
+    title: 'ANIKA Expands Institutional Supply Capacity Across Construction and Food Grain',
+    category: 'Company News',
+    excerpt:
+      'New supplier partnerships and warehousing capacity let ANIKA take on larger government and institutional supply contracts.',
+    content: [
+      'ANIKA TRADING & CO. has expanded its institutional supply capacity, adding warehousing and new supplier partnerships to support larger government and private-sector contracts.',
+      'The expansion covers construction materials and food grain supply, two areas where specification compliance and delivery reliability are critical.',
+      '## What this means for partners',
+      '- Shorter lead times on recurring institutional orders',
+      '- Larger single-contract volumes',
+      '- Consistent documentation and specification compliance',
+      'Organizations with upcoming supply requirements can contact the ANIKA team to discuss scope, timelines, and specifications.',
+    ].join('\n\n'),
+    coverImage: '/images/story-institutional-supply.jpg',
+    relatedProductSlug: null,
+    author: 'ANIKA Communications',
+    featured: false,
+    publishedAt: '2026-08-12 08:00:00',
+    metaTitle: 'ANIKA Expands Institutional Supply Capacity | ANIKA TRADING & CO.',
+    metaDescription:
+      'ANIKA TRADING & CO. expands warehousing and supplier partnerships to support larger government and institutional supply contracts in Bangladesh.',
+    keywords: 'institutional supply bangladesh, government tender supplier, construction materials supply, food grain supply',
+  },
+];

@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { resolveImageUrl } from "@/lib/cms";
 
 const keywordPositions = [
@@ -43,21 +42,9 @@ export default function HomeHero({
   bgImage = defaultBgImage,
   keywords = defaultKeywords,
 }: HomeHeroProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.18]);
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.55, 0.85]);
-
   return (
-    <section ref={ref} className="relative h-[100svh] w-full overflow-hidden bg-navy-deeper">
-      <motion.div style={{ scale: imageScale, y: imageY }} className="absolute inset-0">
+    <section className="relative h-[100svh] w-full overflow-hidden bg-navy-deeper">
+      <div className="absolute inset-0">
         <Image
           src={resolveImageUrl(bgImage)}
           alt="Cargo, seafood and construction converging at a Bangladesh port — the ANIKA business ecosystem"
@@ -66,12 +53,9 @@ export default function HomeHero({
           sizes="100vw"
           className="object-cover"
         />
-      </motion.div>
+      </div>
 
-      <motion.div
-        style={{ opacity: overlayOpacity }}
-        className="absolute inset-0 bg-gradient-to-t from-navy-deeper via-navy-deeper/40 to-navy-deeper/70"
-      />
+      <div className="absolute inset-0 bg-gradient-to-t from-navy-deeper via-navy-deeper/40 to-navy-deeper/70 opacity-[0.55]" />
       <div className="absolute inset-0 bg-gradient-to-r from-navy-deeper/60 via-transparent to-navy-deeper/40" />
 
       {/* Floating sector keywords */}
@@ -89,10 +73,7 @@ export default function HomeHero({
         ))}
       </div>
 
-      <motion.div
-        style={{ opacity: contentOpacity, y: contentY }}
-        className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center"
-      >
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,7 +105,7 @@ export default function HomeHero({
         >
           {subtitle}
         </motion.p>
-      </motion.div>
+      </div>
 
       <motion.div
         initial={{ opacity: 0 }}

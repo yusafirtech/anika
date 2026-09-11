@@ -1,3 +1,5 @@
+import type { ExportProduct } from "@/types/cms";
+
 export const exportCategories = [
   { id: "seafood", label: "Seafood", image: "/images/story-seafood-closeup.jpg" },
   { id: "frozen-fish", label: "Frozen Fish", image: "/images/story-seafood.jpg" },
@@ -14,18 +16,7 @@ export const exportProcess = [
   { step: "Deliver", description: "Delivery confirmation with the buyer." },
 ];
 
-export type ExportProduct = {
-  slug: string;
-  name: string;
-  category: string;
-  origin: string;
-  availability: string;
-  moq: string;
-  summary: string;
-  image: string;
-  images: string[];
-  specifications: { label: string; value: string }[];
-};
+export type { ExportProduct };
 
 export const exportProducts: ExportProduct[] = [
   {

@@ -17,6 +17,7 @@ export type PermissionAction = 'view' | 'create' | 'edit' | 'delete';
 export type PermissionResource =
   | 'dashboard'
   | 'pages'
+  | 'insights'
   | 'leads'
   | 'clients'
   | 'partners'
@@ -39,18 +40,45 @@ export interface FieldDef {
   description?: string;
 }
 
+export type BuyerType = 'international' | 'bangladesh';
+
 export interface LeadApplication {
   id: string;
   name: string;
   company: string;
   email: string;
   phone: string;
-  sector: 'Export' | 'Seafood' | 'Agriculture' | 'Construction' | 'Government Tender' | 'General';
+  country?: string;
+  subject?: string;
+  sector: string;
+  buyerType: BuyerType;
   status: 'Pending' | 'Reviewing' | 'Approved' | 'Rejected';
   budget?: string;
   message: string;
   notes?: string;
   createdAt: string;
+}
+
+export const INSIGHT_CATEGORIES = ['Industry News', 'Product News', 'Market Insight', 'Company News'] as const;
+
+export interface InsightItem {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  relatedProductSlug: string;
+  author: string;
+  status: 'draft' | 'published';
+  featured: boolean;
+  publishedAt: string | null;
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ClientItem {
@@ -204,6 +232,38 @@ export interface ProjectsPageContent {
   }[];
 }
 
+export interface ProductCertification {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+}
+
+export interface ProductSeo {
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string;
+  ogImage: string;
+  noIndex: boolean;
+}
+
+export interface ExportProduct {
+  slug: string;
+  name: string;
+  category: string;
+  origin: string;
+  availability: string;
+  moq: string;
+  summary: string;
+  image: string;
+  images: string[];
+  specifications: { label: string; value: string }[];
+  certificationsEnabled?: boolean;
+  certifications?: ProductCertification[];
+  insightUrl?: string;
+  seo?: ProductSeo;
+}
+
 export interface ExportPageContent {
   intro: {
     eyebrow: string;
@@ -219,18 +279,7 @@ export interface ExportPageContent {
     step: string;
     description: string;
   }[];
-  products: {
-    slug: string;
-    name: string;
-    category: string;
-    origin: string;
-    availability: string;
-    moq: string;
-    summary: string;
-    image: string;
-    images: string[];
-    specifications: { label: string; value: string }[];
-  }[];
+  products: ExportProduct[];
 }
 
 export interface TeamPageContent {

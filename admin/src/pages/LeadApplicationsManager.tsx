@@ -15,7 +15,19 @@ import {
   Save,
   CheckCircle2,
   Loader2,
+  Globe,
+  Tag,
+  FileText,
 } from 'lucide-react';
+
+const BangladeshiBuyerBadge: React.FC = () => (
+  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-800">
+    <span className="relative inline-block h-2.5 w-3.5 overflow-hidden rounded-[2px] bg-[#006a4e]" aria-hidden>
+      <span className="absolute left-[30%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#f42a41]" />
+    </span>
+    Bangladeshi Buyer
+  </span>
+);
 
 export const LeadApplicationsManager: React.FC = () => {
   const [leads, setLeads] = useState<LeadApplication[]>([]);
@@ -23,6 +35,7 @@ export const LeadApplicationsManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [sectorFilter, setSectorFilter] = useState<string>('All');
+  const [buyerFilter, setBuyerFilter] = useState<string>('All');
   const [selectedLead, setSelectedLead] = useState<LeadApplication | null>(null);
   const [internalNotes, setInternalNotes] = useState('');
   const [saveToast, setSaveToast] = useState(false);
@@ -49,9 +62,16 @@ export const LeadApplicationsManager: React.FC = () => {
         l.message.toLowerCase().includes(searchTerm.toLowerCase());
       const matchStatus = statusFilter === 'All' || l.status === statusFilter;
       const matchSector = sectorFilter === 'All' || l.sector === sectorFilter;
-      return matchSearch && matchStatus && matchSector;
+      const matchBuyer = buyerFilter === 'All' || l.buyerType === buyerFilter;
+      return matchSearch && matchStatus && matchSector && matchBuyer;
     });
-  }, [leads, searchTerm, statusFilter, sectorFilter]);
+  }, [leads, searchTerm, statusFilter, sectorFilter, buyerFilter]);
+
+  const sectorOptions = useMemo(
+    () => Array.from(new Set(leads.map((l) => l.sector).filter(Boolean))).sort(),
+    [leads]
+  );
+  const bangladeshCount = leads.filter((l) => l.buyerType === 'bangladesh').length;
 
   const handleStatusChange = (id: string, newStatus: LeadApplication['status']) => {
     const updated = leads.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
@@ -84,14 +104,17 @@ export const LeadApplicationsManager: React.FC = () => {
   };
 
   const handleExportCSV = () => {
-    const headers = ['ID,Company,Contact Name,Email,Phone,Sector,Status,Budget,Date,Message'];
+    const headers = ['ID,Buyer Type,Company,Contact Name,Email,Phone,Country,Subject,Sector,Status,Budget,Date,Message'];
     const rows = filteredLeads.map((l) =>
       [
         l.id,
+        l.buyerType === 'bangladesh' ? 'Bangladeshi Buyer' : 'International',
         `"${l.company.replace(/"/g, '""')}"`,
         `"${l.name.replace(/"/g, '""')}"`,
         l.email,
         `"${l.phone}"`,
+        `"${(l.country || '').replace(/"/g, '""')}"`,
+        `"${(l.subject || '').replace(/"/g, '""')}"`,
         l.sector,
         l.status,
         `"${l.budget || ''}"`,
@@ -169,13 +192,22 @@ export const LeadApplicationsManager: React.FC = () => {
             onChange={(e) => setSectorFilter(e.target.value)}
             className="rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-700 border border-slate-200 focus:outline-none focus:border-teal-500"
           >
-            <option value="All">All Sectors</option>
-            <option value="Export">Export</option>
-            <option value="Seafood">Seafood</option>
-            <option value="Agriculture">Agriculture</option>
-            <option value="Construction">Construction</option>
-            <option value="Government Tender">Government Tender</option>
-            <option value="General">General</option>
+            <option value="All">All Inquiry Types</option>
+            {sectorOptions.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={buyerFilter}
+            onChange={(e) => setBuyerFilter(e.target.value)}
+            className="rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-700 border border-slate-200 focus:outline-none focus:border-teal-500"
+          >
+            <option value="All">All Buyers</option>
+            <option value="bangladesh">Bangladeshi Buyers ({bangladeshCount})</option>
+            <option value="international">International</option>
           </select>
         </div>
       </div>
@@ -206,11 +238,15 @@ export const LeadApplicationsManager: React.FC = () => {
                   <tr key={lead.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="px-5 py-4">
                       <div>
-                        <span className="font-bold text-slate-900 text-sm">{lead.company}</span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold text-slate-900 text-sm">{lead.company || lead.name}</span>
+                          {lead.buyerType === 'bangladesh' && <BangladeshiBuyerBadge />}
+                        </div>
                         <div className="flex items-center gap-2 text-slate-500 mt-0.5">
                           <span>{lead.name}</span> &middot;{' '}
                           <span className="text-slate-400">{lead.email}</span>
                         </div>
+                        {lead.subject && <div className="mt-0.5 text-slate-600 truncate max-w-xs">{lead.subject}</div>}
                       </div>
                     </td>
                     <td className="px-5 py-4">
@@ -284,7 +320,10 @@ export const LeadApplicationsManager: React.FC = () => {
                 <span className="text-[10px] font-bold uppercase tracking-widest text-teal-600">
                   Lead ID #{selectedLead.id}
                 </span>
-                <h3 className="text-xl font-bold text-slate-900">{selectedLead.company}</h3>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-xl font-bold text-slate-900">{selectedLead.company || selectedLead.name}</h3>
+                  {selectedLead.buyerType === 'bangladesh' && <BangladeshiBuyerBadge />}
+                </div>
               </div>
               <button
                 onClick={() => setSelectedLead(null)}
@@ -313,6 +352,20 @@ export const LeadApplicationsManager: React.FC = () => {
                   <Calendar className="h-4 w-4 text-slate-400" />
                   <span>Date: <strong>{new Date(selectedLead.createdAt).toLocaleString()}</strong></span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-slate-400" />
+                  <span>Country: <strong>{selectedLead.country || '—'}</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-slate-400" />
+                  <span>Inquiry: <strong>{selectedLead.sector}</strong></span>
+                </div>
+                {selectedLead.subject && (
+                  <div className="col-span-2 flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-slate-400" />
+                    <span>Subject: <strong>{selectedLead.subject}</strong></span>
+                  </div>
+                )}
               </div>
 
               {/* Message */}

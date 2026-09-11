@@ -30,7 +30,8 @@ export function authenticateToken(
 
   jwt.verify(token, JWT_SECRET, (err, decodedUser) => {
     if (err) {
-      res.status(403).json({ error: 'Invalid or expired token' });
+      // 401 (not 403) so clients treat it as "sign in again" rather than "forbidden".
+      res.status(401).json({ error: 'Invalid or expired token' });
       return;
     }
     req.user = decodedUser as AuthUser;

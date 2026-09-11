@@ -4,10 +4,12 @@ import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
+const BUYER_TYPES = ['international', 'bangladesh'];
+
 // GET /api/leads - List and filter leads (admin panel only)
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
   try {
-    const { status, sector, search } = req.query;
+    const { status, sector, search, buyerType } = req.query;
     const pool = getPool();
 
     let sql = 'SELECT * FROM leads WHERE 1=1';
@@ -21,6 +23,11 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
     if (sector && sector !== 'All') {
       sql += ' AND sector = ?';
       params.push(sector);
+    }
+
+    if (buyerType && buyerType !== 'All') {
+      sql += ' AND buyer_type = ?';
+      params.push(buyerType);
     }
 
     if (search) {
@@ -42,7 +49,7 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 // this is the endpoint the public site's contact form submits to.
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, company, email, phone, sector, budget, message } = req.body;
+    const { name, company, email, phone, country, subject, sector, budget, message, buyerType } = req.body;
     if (!name || !email) {
       res.status(400).json({ error: 'Name and email are required.' });
       return;
@@ -50,11 +57,24 @@ router.post('/', async (req: Request, res: Response) => {
 
     const pool = getPool();
     const id = `lead-${Date.now()}`;
+    const resolvedBuyerType = BUYER_TYPES.includes(buyerType) ? buyerType : 'international';
 
     await pool.query(
-      `INSERT INTO leads (id, name, company, email, phone, sector, status, budget, message, notes, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?, ?, '', NOW())`,
-      [id, name, company || '', email, phone || '', sector || 'General', budget || '', message || '']
+      `INSERT INTO leads (id, name, company, email, phone, country, subject, sector, buyer_type, status, budget, message, notes, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?, '', NOW())`,
+      [
+        id,
+        name,
+        company || '',
+        email,
+        phone || '',
+        country || null,
+        subject || null,
+        sector || 'General',
+        resolvedBuyerType,
+        budget || '',
+        message || '',
+      ]
     );
 
     res.status(201).json({

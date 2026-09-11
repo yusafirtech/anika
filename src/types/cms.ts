@@ -137,6 +137,38 @@ export interface ProjectsPageContent {
   }[];
 }
 
+export interface ProductCertification {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+}
+
+export interface ProductSeo {
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string;
+  ogImage: string;
+  noIndex: boolean;
+}
+
+export interface ExportProduct {
+  slug: string;
+  name: string;
+  category: string;
+  origin: string;
+  availability: string;
+  moq: string;
+  summary: string;
+  image: string;
+  images: string[];
+  specifications: { label: string; value: string }[];
+  certificationsEnabled?: boolean;
+  certifications?: ProductCertification[];
+  insightUrl?: string;
+  seo?: ProductSeo;
+}
+
 export interface ExportPageContent {
   intro: {
     eyebrow: string;
@@ -152,18 +184,26 @@ export interface ExportPageContent {
     step: string;
     description: string;
   }[];
-  products: {
-    slug: string;
-    name: string;
-    category: string;
-    origin: string;
-    availability: string;
-    moq: string;
-    summary: string;
-    image: string;
-    images: string[];
-    specifications: { label: string; value: string }[];
-  }[];
+  products: ExportProduct[];
+}
+
+// GET /api/insights — a relational record, not a page-content document.
+export interface Insight {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  relatedProductSlug: string;
+  author: string;
+  featured: boolean;
+  publishedAt: string | null;
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string;
+  updatedAt?: string;
 }
 
 export interface TeamPageContent {

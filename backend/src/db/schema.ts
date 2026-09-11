@@ -135,5 +135,50 @@ export async function runMigrations(): Promise<void> {
     console.log('[MySQL] Added `username` column to `users` table (backfilled + unique).');
   }
 
+  // 7. Insights (industry news, product news, company updates)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS \`insights\` (
+      \`id\` VARCHAR(50) NOT NULL PRIMARY KEY,
+      \`slug\` VARCHAR(191) NOT NULL UNIQUE,
+      \`title\` VARCHAR(255) NOT NULL,
+      \`category\` VARCHAR(100) NOT NULL DEFAULT 'Industry News',
+      \`excerpt\` TEXT,
+      \`content\` MEDIUMTEXT,
+      \`cover_image\` VARCHAR(255),
+      \`related_product_slug\` VARCHAR(191) NULL,
+      \`author\` VARCHAR(150),
+      \`status\` VARCHAR(20) NOT NULL DEFAULT 'draft',
+      \`featured\` TINYINT(1) NOT NULL DEFAULT 0,
+      \`published_at\` DATETIME NULL,
+      \`meta_title\` VARCHAR(255),
+      \`meta_description\` VARCHAR(500),
+      \`keywords\` VARCHAR(500),
+      \`created_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      \`updated_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX \`idx_insights_status_published\` (\`status\`, \`published_at\`),
+      INDEX \`idx_insights_product\` (\`related_product_slug\`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `);
+
+  // Migration: quote-form fields on `leads`. `country` and `subject` were
+  // collected by the public form but previously dropped; `buyer_type`
+  // distinguishes Bangladeshi bulk buyers from international inquiries.
+  await addColumnIfMissing('leads', 'buyer_type', "VARCHAR(30) NOT NULL DEFAULT 'international' AFTER `sector`");
+  await addColumnIfMissing('leads', 'country', 'VARCHAR(100) NULL AFTER `phone`');
+  await addColumnIfMissing('leads', 'subject', 'VARCHAR(255) NULL AFTER `country`');
+
   console.log('[MySQL] All tables verified and ready.');
+}
+
+async function addColumnIfMissing(table: string, column: string, definition: string): Promise<void> {
+  const pool = getPool();
+  const [rows]: any = await pool.query(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [table, column]
+  );
+  if (!rows || rows.length === 0) {
+    await pool.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
+    console.log(`[MySQL] Added \`${column}\` column to \`${table}\` table.`);
+  }
 }
