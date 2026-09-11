@@ -14,6 +14,7 @@ import leadsRouter from './routes/leads.js';
 import usersRouter from './routes/users.js';
 import collectionsRouter from './routes/collections.js';
 import clientsRouter from './routes/clients.js';
+import insightsRouter from './routes/insights.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api/leads', leadsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/collections', collectionsRouter);
 app.use('/api/clients', clientsRouter);
+app.use('/api/insights', insightsRouter);
 
 // Health Check Endpoint
 app.get('/api/health', async (_req: Request, res: Response) => {
@@ -94,6 +96,7 @@ app.get('/', (_req: Request, res: Response) => {
       '/api/users',
       '/api/collections/:key',
       '/api/clients',
+      '/api/insights',
     ],
   });
 });

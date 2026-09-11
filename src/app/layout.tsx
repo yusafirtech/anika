@@ -4,7 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MaintenanceBanner from "@/components/layout/MaintenanceBanner";
-import { getPageContent } from "@/lib/cms";
+import { SITE_URL, getPageContent, jsonLd } from "@/lib/cms";
 import type { SiteGlobalContent } from "@/types/cms";
 import { navLinks, footerColumns, companyInfo } from "@/data/site";
 
@@ -21,7 +21,7 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.anikatradingco.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "ANIKA TRADING & CO. | Building. Supplying. Exporting. Connecting.",
     template: "%s | ANIKA TRADING & CO.",
@@ -53,6 +53,27 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${bricolage.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: jsonLd({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: site.companyInfo.name,
+              url: SITE_URL,
+              logo: `${SITE_URL}/images/anika-official-logo.png`,
+              slogan: site.companyInfo.tagline,
+              address: { "@type": "PostalAddress", streetAddress: site.companyInfo.address, addressCountry: "BD" },
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "sales",
+                telephone: site.companyInfo.phone,
+                email: site.companyInfo.email,
+                availableLanguage: ["English", "Bengali"],
+              },
+            }),
+          }}
+        />
         <Navbar navLinks={site.navLinks} />
         <main className="flex-1">{children}</main>
         <Footer footerColumns={site.footerColumns} companyInfo={site.companyInfo} />

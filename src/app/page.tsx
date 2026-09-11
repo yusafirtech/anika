@@ -4,8 +4,8 @@ import BusinessShowcase from "@/components/home/BusinessShowcase";
 import ProjectStory from "@/components/home/ProjectStory";
 import WhyAnika from "@/components/home/WhyAnika";
 import HomeCTA from "@/components/home/HomeCTA";
-import ScrollProgress from "@/components/home/ScrollProgress";
-import { getPageContent } from "@/lib/cms";
+import HomeInsights from "@/components/home/HomeInsights";
+import { getInsights, getPageContent } from "@/lib/cms";
 import type { HomePageContent } from "@/types/cms";
 import { sectorStories, businessShowcase, whyReasons } from "@/data/home";
 
@@ -44,16 +44,19 @@ const DEFAULT_HOME_CONTENT: HomePageContent = {
 };
 
 export default async function Home() {
-  const content = await getPageContent<HomePageContent>("home", DEFAULT_HOME_CONTENT);
+  const [content, insights] = await Promise.all([
+    getPageContent<HomePageContent>("home", DEFAULT_HOME_CONTENT),
+    getInsights({ limit: 4 }),
+  ]);
 
   return (
     <>
-      <ScrollProgress />
       <HomeHero {...content.hero} />
       <SectorStory sectorStories={content.sectorStories} />
       <BusinessShowcase businessShowcase={content.businessShowcase} />
       <ProjectStory />
       <WhyAnika whyReasons={content.whyReasons} />
+      <HomeInsights insights={insights} />
       <HomeCTA {...content.cta} />
     </>
   );

@@ -18,6 +18,7 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   admin: {
     dashboard: ['view', 'create', 'edit', 'delete'],
     pages: ['view', 'create', 'edit', 'delete'],
+    insights: ['view', 'create', 'edit', 'delete'],
     leads: ['view', 'create', 'edit', 'delete'],
     clients: ['view', 'create', 'edit', 'delete'],
     partners: ['view', 'create', 'edit', 'delete'],
@@ -27,6 +28,7 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   manager: {
     dashboard: ['view'],
     pages: ['view', 'create', 'edit', 'delete'],
+    insights: ['view', 'create', 'edit', 'delete'],
     leads: ['view', 'edit', 'delete'],
     clients: ['view', 'create', 'edit', 'delete'],
     partners: ['view', 'create', 'edit', 'delete'],
@@ -36,6 +38,7 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   editor: {
     dashboard: ['view'],
     pages: ['view', 'create', 'edit'],
+    insights: ['view', 'create', 'edit'],
     leads: ['view'],
     clients: ['view', 'edit'],
     partners: ['view', 'edit'],
@@ -45,6 +48,7 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
   viewer: {
     dashboard: ['view'],
     pages: ['view'],
+    insights: ['view'],
     leads: ['view'],
     clients: ['view'],
     partners: ['view'],

@@ -2,6 +2,7 @@ import axios from 'axios';
 import {
   LeadApplication,
   ClientItem,
+  InsightItem,
   User,
   HomePageContent,
   AboutPageContent,
@@ -731,6 +732,7 @@ const INITIAL_LEADS: LeadApplication[] = [
     email: 'tariq@gulfhorizon.ae',
     phone: '+971 4 882 1920',
     sector: 'Seafood',
+    buyerType: 'international',
     status: 'Pending',
     budget: '$150,000 - $300,000',
     message: 'Seeking bulk supply contracts for Black Tiger shrimp and freshwater prawn for Q4 retail distribution in Dubai and Qatar.',
@@ -744,6 +746,7 @@ const INITIAL_LEADS: LeadApplication[] = [
     email: 'm.vance@euroasialog.nl',
     phone: '+31 20 592 3311',
     sector: 'Agriculture',
+    buyerType: 'international',
     status: 'Reviewing',
     budget: '$80,000 - $120,000',
     message: 'Inquiring about organic potato and fresh vegetable cargo freight schedules from Chittagong port to Rotterdam.',
@@ -757,6 +760,7 @@ const INITIAL_LEADS: LeadApplication[] = [
     email: 'rafiqul.project@padmarail.gov.bd',
     phone: '+880 1711 902341',
     sector: 'Government Tender',
+    buyerType: 'bangladesh',
     status: 'Approved',
     budget: '$1,200,000',
     message: 'Specification submission for high-grade structural reinforcement steel and aggregate grading tender package 04.',
@@ -894,10 +898,11 @@ export const backendApi = {
       try {
         const res = await apiClient.get('/leads', { params });
         if (res.data && res.data.leads) {
-          // Normalize raw MySQL snake_case rows (created_at) to the frontend's camelCase shape
+          // Normalize raw MySQL snake_case rows to the frontend's camelCase shape
           const normalized: LeadApplication[] = res.data.leads.map((row: any) => ({
             ...row,
             createdAt: row.createdAt || row.created_at,
+            buyerType: row.buyerType || row.buyer_type || 'international',
           }));
           setStored('leads', normalized);
           return normalized;
@@ -1019,6 +1024,26 @@ export const backendApi = {
     },
     delete: async (id: string): Promise<any> => {
       const res = await apiClient.delete(`/clients/${id}`);
+      return res.data;
+    },
+  },
+
+  // 7. Insights (MySQL `insights`) — industry news, product news, company updates
+  insights: {
+    getAll: async (): Promise<InsightItem[]> => {
+      const res = await apiClient.get('/insights/manage/all');
+      return (res.data && res.data.insights) || [];
+    },
+    create: async (data: Partial<InsightItem>): Promise<{ success: boolean; insight: InsightItem }> => {
+      const res = await apiClient.post('/insights', data);
+      return res.data;
+    },
+    update: async (id: string, updates: Partial<InsightItem>): Promise<{ success: boolean; insight: InsightItem }> => {
+      const res = await apiClient.patch(`/insights/${id}`, updates);
+      return res.data;
+    },
+    delete: async (id: string): Promise<any> => {
+      const res = await apiClient.delete(`/insights/${id}`);
       return res.data;
     },
   },

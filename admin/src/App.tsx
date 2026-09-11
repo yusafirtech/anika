@@ -12,6 +12,7 @@ import { LeadApplicationsManager } from './pages/LeadApplicationsManager';
 import { UserManager } from './pages/UserManager';
 import { PartnersPage } from './pages/EntityCrudPages';
 import { ClientManager } from './pages/ClientManager';
+import { InsightsManager } from './pages/InsightsManager';
 import { SettingsPage } from './pages/SettingsPage';
 
 // Page Content Managers (Full CMS)
@@ -118,6 +119,14 @@ export const App: React.FC = () => {
             />
 
             {/* Content Management Modules */}
+            <Route
+              path="insights"
+              element={
+                <PermissionGuard resource="insights" action="view">
+                  <InsightsManager />
+                </PermissionGuard>
+              }
+            />
             <Route
               path="partners"
               element={

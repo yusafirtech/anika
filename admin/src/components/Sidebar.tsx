@@ -21,6 +21,7 @@ import {
   Globe2,
   PhoneCall,
   Compass,
+  Newspaper,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -116,6 +117,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       label: 'Content Management',
       items: [
+        {
+          label: 'Insights & News',
+          to: '/insights',
+          icon: Newspaper,
+        },
         {
           label: 'Global Partners',
           to: '/partners',
