@@ -21,6 +21,8 @@ export const ContactPageManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'coordinates' | 'form' | 'hero'>('coordinates');
   const [newSector, setNewSector] = useState('');
   const [toast, setToast] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   // Fetch latest content from MySQL on mount
   useEffect(() => {
@@ -29,11 +31,18 @@ export const ContactPageManager: React.FC = () => {
     });
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    mockDb.saveContactPage(content);
-    setToast(true);
-    setTimeout(() => setToast(false), 2500);
+    setSaving(true);
+    setSaveError(null);
+    const ok = await mockDb.saveContactPage(content);
+    setSaving(false);
+    if (ok) {
+      setToast(true);
+      setTimeout(() => setToast(false), 2500);
+    } else {
+      setSaveError('Could not reach the server — your changes were kept locally but not saved. Try again.');
+    }
   };
 
   // Hero handlers
@@ -84,6 +93,11 @@ export const ContactPageManager: React.FC = () => {
           Contact page & channels saved successfully!
         </div>
       )}
+      {saveError && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-rose-600 text-white rounded-lg shadow-xl text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+          {saveError}
+        </div>
+      )}
 
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200/80 shadow-sm">
@@ -111,10 +125,11 @@ export const ContactPageManager: React.FC = () => {
           </a>
           <button
             onClick={handleSave}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all hover:shadow hover:shadow-teal-600/20 active:scale-[0.98]"
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all hover:shadow hover:shadow-teal-600/20 active:scale-[0.98] disabled:opacity-60"
           >
             <Save className="w-4 h-4" />
-            Save Changes
+            {saving ? 'Saving…' : 'Save Changes'}
           </button>
         </div>
       </div>

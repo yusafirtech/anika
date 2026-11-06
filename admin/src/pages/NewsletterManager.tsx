@@ -7,6 +7,7 @@ export const NewsletterManager: React.FC = () => {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     backendApi.newsletter.getAll().then((data) => {
@@ -26,7 +27,12 @@ export const NewsletterManager: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!confirm('Remove this subscriber?')) return;
     setSubscribers((prev) => prev.filter((s) => s.id !== id));
-    await backendApi.newsletter.delete(id);
+    const ok = await backendApi.newsletter.delete(id);
+    if (!ok) {
+      setActionError('Could not remove this subscriber. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.newsletter.getAll().then(setSubscribers);
+    }
   };
 
   const handleExportCSV = () => {
@@ -53,6 +59,11 @@ export const NewsletterManager: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {actionError && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-rose-600 text-white rounded-lg shadow-xl text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+          {actionError}
+        </div>
+      )}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Newsletter Subscribers</h1>

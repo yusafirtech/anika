@@ -87,6 +87,7 @@ export const QuotationsManager: React.FC = () => {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [viewing, setViewing] = useState<Quotation | null>(null);
   const [saveToast, setSaveToast] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const load = () => {
     setIsLoading(true);
@@ -224,14 +225,24 @@ export const QuotationsManager: React.FC = () => {
 
   const handleStatusChange = async (id: string, status: QuotationStatus) => {
     setQuotations((prev) => prev.map((q) => (q.id === id ? { ...q, status } : q)));
-    await backendApi.quotations.update(id, { status });
+    const result = await backendApi.quotations.update(id, { status });
+    if (!result) {
+      setActionError('Could not save the status change. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.quotations.getAll().then(setQuotations);
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this quotation permanently?')) return;
     setQuotations((prev) => prev.filter((q) => q.id !== id));
     if (viewing?.id === id) setViewing(null);
-    await backendApi.quotations.delete(id);
+    const ok = await backendApi.quotations.delete(id);
+    if (!ok) {
+      setActionError('Could not delete this quotation. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.quotations.getAll().then(setQuotations);
+    }
   };
 
   const handleDownload = async (q: Quotation) => {
@@ -254,6 +265,11 @@ export const QuotationsManager: React.FC = () => {
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-emerald-600 text-white rounded-lg shadow-xl text-sm font-medium">
           <CheckCircle2 className="w-4 h-4" />
           Quotation saved successfully!
+        </div>
+      )}
+      {actionError && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-rose-600 text-white rounded-lg shadow-xl text-sm font-medium">
+          {actionError}
         </div>
       )}
 

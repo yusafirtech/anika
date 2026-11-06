@@ -22,6 +22,7 @@ export const UserManager: React.FC = () => {
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,22 +89,34 @@ export const UserManager: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = (id: string) => {
+  const handleToggleStatus = async (id: string) => {
     const target = users.find((u) => u.id === id);
     if (!target) return;
     const newStatus = target.status === 'active' ? ('inactive' as const) : ('active' as const);
     setUsers(users.map((u) => (u.id === id ? { ...u, status: newStatus } : u)));
-    backendApi.users.update(id, { status: newStatus });
+    try {
+      await backendApi.users.update(id, { status: newStatus });
+    } catch {
+      setActionError('Could not update this account. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.users.getAll().then(setUsers);
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (users.length <= 1) {
       alert('Cannot delete the last remaining administrative account.');
       return;
     }
     if (!confirm('Are you sure you want to revoke this user account?')) return;
     setUsers(users.filter((u) => u.id !== id));
-    backendApi.users.delete(id);
+    try {
+      await backendApi.users.delete(id);
+    } catch {
+      setActionError('Could not delete this account. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.users.getAll().then(setUsers);
+    }
   };
 
   if (isLoading) {
@@ -116,6 +129,11 @@ export const UserManager: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {actionError && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-rose-600 text-white rounded-lg shadow-xl text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+          {actionError}
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

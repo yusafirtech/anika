@@ -1,4 +1,5 @@
 import { getPool } from './connection.js';
+import { INITIAL_HOMEPAGE } from './seed.js';
 
 export async function runMigrations(): Promise<void> {
   const pool = getPool();
@@ -253,7 +254,36 @@ export async function runMigrations(): Promise<void> {
   await addColumnIfMissing('leads', 'target_ship_date', 'VARCHAR(50) NULL AFTER `destination_port`');
   await addColumnIfMissing('leads', 'payment_terms', 'VARCHAR(50) NULL AFTER `target_ship_date`');
 
+  await migrateLegacyHomeContent();
+
   console.log('[MySQL] All tables verified and ready.');
+}
+
+// Migration: the `home` row in `pages_content` was originally seeded with an
+// older content shape (hero.badgeText/headline/subheadline, sectorStories
+// with category/badge/href, businessShowcase without points/cta/href).
+// A later redesign changed the admin UI and the frontend to a different
+// shape (hero.eyebrow/headlineWords/subtitle/ctaText/ctaLink, etc.) but the
+// already-seeded row was never migrated, since seeding only ever runs once.
+// That left it permanently stuck: the admin Homepage editor crashed trying
+// to read fields the old shape doesn't have, and the frontend silently fell
+// back to its own hardcoded defaults instead of showing the saved content —
+// so nothing an admin "saved" ever actually appeared to change. This
+// detects the old shape (no `hero.headlineWords`) and replaces it with the
+// current default content, one time, idempotently.
+async function migrateLegacyHomeContent(): Promise<void> {
+  const pool = getPool();
+  const [rows]: any = await pool.query("SELECT content FROM pages_content WHERE page_key = 'home'");
+  if (!rows || rows.length === 0) return;
+
+  const content = typeof rows[0].content === 'string' ? JSON.parse(rows[0].content) : rows[0].content;
+  const isLegacyShape = !content?.hero || !Array.isArray(content.hero.headlineWords);
+  if (!isLegacyShape) return;
+
+  await pool.query("UPDATE pages_content SET content = ? WHERE page_key = 'home'", [
+    JSON.stringify(INITIAL_HOMEPAGE),
+  ]);
+  console.log('[MySQL] Migrated legacy `home` page content to the current schema.');
 }
 
 async function addColumnIfMissing(table: string, column: string, definition: string): Promise<void> {

@@ -43,6 +43,8 @@ export const ClientManager: React.FC = () => {
   }, []);
 
   const handleSave = async (item: Partial<ClientItem>) => {
+    // Let a thrown error propagate to CrudView, which catches it and shows
+    // the admin a real failure instead of closing the modal as if it saved.
     if (item.id && items.some((c) => c.id === item.id)) {
       const { client } = await backendApi.clients.update(item.id, item);
       setItems(items.map((c) => (c.id === client.id ? { ...c, ...client } : c)));
@@ -53,8 +55,8 @@ export const ClientManager: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    setItems(items.filter((c) => c.id !== id));
     await backendApi.clients.delete(id);
+    setItems(items.filter((c) => c.id !== id));
   };
 
   if (isLoading) {

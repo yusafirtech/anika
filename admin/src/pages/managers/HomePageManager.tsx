@@ -15,26 +15,53 @@ import {
   X,
 } from 'lucide-react';
 
+// The backend can hand back content saved under an older/incompatible shape
+// (e.g. a legacy `home` row, or any future shape drift) — trusting it blindly
+// would crash every field below the first missing one. Only accept it if it
+// looks like a real, complete HomePageContent; otherwise keep the known-good
+// fallback rather than rendering a half-broken object.
+function isValidHomeContent(data: any): data is HomePageContent {
+  return (
+    !!data &&
+    !!data.hero &&
+    Array.isArray(data.hero.headlineWords) &&
+    Array.isArray(data.hero.keywords) &&
+    Array.isArray(data.sectorStories) &&
+    Array.isArray(data.businessShowcase) &&
+    Array.isArray(data.whyReasons) &&
+    !!data.cta
+  );
+}
+
 export const HomePageManager: React.FC = () => {
   const [content, setContent] = useState<HomePageContent>(() => mockDb.getHomePage());
   const [activeTab, setActiveTab] = useState<'hero' | 'sectors' | 'business' | 'why' | 'cta'>('hero');
   const [toast, setToast] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   // Fetch latest content from MySQL on mount
   useEffect(() => {
     backendApi.pages.get<HomePageContent>('home', content).then((data) => {
-      if (data) setContent(data);
+      if (isValidHomeContent(data)) setContent(data);
     });
   }, []);
 
   // Draft keyword input for hero
   const [newKeyword, setNewKeyword] = useState('');
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    mockDb.saveHomePage(content);
-    setToast(true);
-    setTimeout(() => setToast(false), 2500);
+    setSaving(true);
+    setSaveError(null);
+    const ok = await mockDb.saveHomePage(content);
+    setSaving(false);
+    if (ok) {
+      setToast(true);
+      setTimeout(() => setToast(false), 2500);
+    } else {
+      setSaveError('Could not reach the server — your changes were kept locally but not saved. Try again.');
+    }
   };
 
   // Keyword handlers
@@ -121,11 +148,17 @@ export const HomePageManager: React.FC = () => {
               <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Saved to Homepage!
             </span>
           )}
+          {saveError && (
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-rose-50 px-3.5 py-2 text-xs font-semibold text-rose-700 border border-rose-200">
+              {saveError}
+            </span>
+          )}
           <button
             onClick={handleSave}
-            className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500 transition-all active:scale-[0.98]"
+            disabled={saving}
+            className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500 transition-all active:scale-[0.98] disabled:opacity-60"
           >
-            <Save className="h-4 w-4" /> Save Homepage Content
+            <Save className="h-4 w-4" /> {saving ? 'Saving…' : 'Save Homepage Content'}
           </button>
         </div>
       </div>

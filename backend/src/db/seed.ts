@@ -3,156 +3,133 @@ import crypto from 'crypto';
 import { getPool } from './connection.js';
 
 // Default CMS Data for all 8 pages
-const INITIAL_HOMEPAGE = {
+// Kept in sync with admin/src/api.ts's INITIAL_HOMEPAGE and the frontend's
+// HomePageContent type (src/app/page.tsx / src/data/home.ts) — this is the
+// shape the admin editor and the live site actually read/write. An earlier
+// version of this object used different field names (badgeText/headline/
+// subheadline/category/badge instead of eyebrow/headlineWords/subtitle),
+// which left production's seeded `home` row permanently out of sync with
+// both the admin UI (crashed on load) and the frontend (silently fell back
+// to its own hardcoded defaults). See schema.ts's migrateLegacyHomeContent
+// for the one-time fix to rows already seeded with the old shape.
+export const INITIAL_HOMEPAGE = {
   hero: {
-    badgeText: 'One Company · Multiple Sectors · One Connected Business',
-    keywords: ['Building.', 'Supplying.', 'Exporting.', 'Connecting.'],
-    headline: 'Operating Across High-Value Sectors in Bangladesh and Beyond',
-    subheadline:
-      'ANIKA TRADING & CO. operates across high-value sectors — connecting Bangladesh capabilities with projects, supply chains and international markets.',
-    primaryCtaText: 'START A CONVERSATION',
-    primaryCtaLink: '/contact',
-    secondaryCtaText: 'EXPLORE EXPORT PRODUCTS',
-    secondaryCtaLink: '/export',
+    eyebrow: 'One Company · Multiple Sectors · One Connected Business',
+    headlineWords: ['Building.', 'Supplying.', 'Exporting.', 'Connecting.'],
+    subtitle:
+      'ANIKA TRADING & CO. connects Bangladesh’s capabilities with projects, supply chains and international markets.',
     bgImage: '/images/hero-port-supply-route.jpg',
+    ctaText: 'START A CONVERSATION',
+    ctaLink: '/contact',
+    keywords: ['EXPORT', 'SEAFOOD', 'AGRICULTURE', 'CONSTRUCTION', 'GOVERNMENT TENDERS', 'SUPPLY & TRADING'],
   },
   sectorStories: [
     {
-      id: 'seafood',
-      index: '01',
-      category: 'Export Capability',
-      badge: 'Cold-Chain Certified',
-      title: 'Seafood Export',
+      id: 'international-trade',
+      eyebrow: '01 / INTERNATIONAL TRADE',
+      title: 'Connecting Quality Supply with Global Demand',
       description:
-        'Sourcing, processing coordination and export of fresh and frozen seafood from Bangladesh to international buyers with strict temperature monitoring.',
-      image: '/images/story-seafood.jpg',
-      href: '/export',
+        'Moving products from Bangladesh into international markets takes more than a good product — it takes reliability, consistent quality and a partner who understands both sides of the trade.',
+      image: '/images/story-international-trade.jpg',
     },
     {
-      id: 'agriculture',
-      index: '02',
-      category: 'Agri Division',
-      badge: 'Origin Sourced',
-      title: 'Agricultural Products',
+      id: 'seafood',
+      eyebrow: '02 / SEAFOOD',
+      title: 'Reliable Seafood Supply Requires More Than a Product',
       description:
-        'Fresh vegetables, produce and agro commodities from fertile agricultural belts prepared and packaged to international export standards.',
-      image: '/images/story-agriculture-origin.jpg',
-      href: '/export',
+        'From sourcing to processing to export-ready packaging, seafood supply depends on consistency at every stage — cold chain discipline, quality control and the capacity to deliver at scale.',
+      image: '/images/story-seafood.jpg',
+    },
+    {
+      id: 'vegetables',
+      eyebrow: '03 / VEGETABLES & AGRICULTURE',
+      title: 'From Local Production to International Opportunity',
+      description:
+        'Fresh vegetables and agricultural produce carry real export potential when sourcing, grading, packaging and logistics are handled with the same discipline as any other traded commodity.',
+      image: '/images/story-vegetable-market.jpg',
     },
     {
       id: 'construction',
-      index: '03',
-      category: 'Infrastructure',
-      badge: 'Heavy Execution',
-      title: 'Construction & Projects',
+      eyebrow: '04 / CONSTRUCTION',
+      title: 'Projects Demand Capability, Coordination and Execution',
       description:
-        'On-site project execution, structural coordination and materials supply for infrastructure and commercial development.',
+        'Construction and infrastructure work is won or lost on coordination — materials, manpower, timelines and site execution all have to move together.',
       image: '/images/story-construction-site.jpg',
-      href: '/projects',
     },
     {
       id: 'government-supply',
-      index: '04',
-      category: 'Institutional Supply',
-      badge: 'Tender Compliant',
-      title: 'Government Supply',
+      eyebrow: '05 / GOVERNMENT & INSTITUTIONAL SUPPLY',
+      title: 'Supporting Large-Scale Institutional Requirements',
       description:
-        'Structured supply and procurement fulfillment for government and institutional tenders across Bangladesh.',
+        'Government and institutional procurement calls for a supplier who can meet specification, scale and process requirements — and follow through on delivery.',
       image: '/images/story-institutional-supply.jpg',
-      href: '/business',
-    },
-    {
-      id: 'distribution',
-      index: '05',
-      category: 'Commercial Supply',
-      badge: 'B2B Logistics',
-      title: 'Supply & Distribution',
-      description:
-        'Commercial and wholesale distribution connecting producers, distributors and enterprise buyers.',
-      image: '/images/story-business-network.jpg',
-      href: '/business',
-    },
-    {
-      id: 'trade',
-      index: '06',
-      category: 'International Commerce',
-      badge: 'Cross-Border',
-      title: 'Import & Trading',
-      description:
-        'Connecting Bangladesh business capabilities with international trade networks and sourcing routes.',
-      image: '/images/story-international-trade.jpg',
-      href: '/business',
     },
   ],
   businessShowcase: [
     {
-      id: 'infrastructure',
+      id: 'export',
       index: '01',
-      title: 'Infrastructure & Project Delivery',
+      title: 'Export & International Trade',
       description:
-        'From ground-up civil engineering execution to specialized institutional procurement fulfillment.',
-      image: '/images/story-infrastructure.jpg',
+        'Bangladesh-origin seafood and agricultural products, prepared and packaged for international buyers looking for a dependable B2B supply partner.',
+      points: ['Seafood & agricultural exports', 'Bangladesh-origin sourcing', 'B2B buyer relationships'],
+      cta: 'Explore Export',
+      href: '/export',
+      image: '/images/story-global-connection.jpg',
     },
     {
-      id: 'seafood-coldchain',
+      id: 'seafood-supply',
       index: '02',
-      title: 'Seafood & Cold Chain Logistics',
+      title: 'Seafood Supply',
       description:
-        'Continuous temperature monitoring and export packaging designed for wholesale global distributors.',
+        'End-to-end seafood supply built around quality control, cold chain handling and export-ready packaging for both local and international buyers.',
+      points: ['Sourcing & processing', 'Cold chain handling', 'Export-ready packaging'],
+      cta: 'View Seafood Supply',
+      href: '/business',
       image: '/images/story-seafood-closeup.jpg',
     },
     {
-      id: 'agri-produce',
+      id: 'vegetables-agri',
       index: '03',
-      title: 'Agricultural Origin Sourcing',
+      title: 'Vegetable & Agricultural Products',
       description:
-        'Direct partnerships with grower collectives across Rangpur, Jessore and Bogra belts for export-grade yield.',
-      image: '/images/story-vegetable-market.jpg',
+        'Sourcing and supplying fresh vegetables and agricultural produce, with the grading and packaging discipline international markets expect.',
+      points: ['Fresh produce sourcing', 'Grading & packaging', 'Market-ready supply'],
+      cta: 'View Agricultural Supply',
+      href: '/business',
+      image: '/images/story-agriculture-origin.jpg',
     },
     {
-      id: 'supply-network',
+      id: 'construction',
       index: '04',
-      title: 'Institutional Supply Networks',
+      title: 'Construction & Projects',
       description:
-        'High-volume materials logistics for bridges, highways, power plants and government tender packages.',
-      image: '/images/hero-heavy-construction.jpg',
-    },
-  ],
-  projectStories: [
-    {
-      id: 'padma-rail',
-      index: '01',
-      category: 'Infrastructure',
-      title: 'Padma Rail Link Supply',
-      description:
-        'Heavy reinforcement logistics, high-grade aggregate supply and site deliveries along the southern corridor.',
-      image: '/images/story-construction-site.jpg',
+        'Construction and project execution capability covering coordination, materials supply and on-site delivery from start to finish.',
+      points: ['Project execution', 'Materials coordination', 'On-site delivery'],
+      cta: 'View Construction',
+      href: '/business',
+      image: '/images/materials-detail.jpg',
     },
     {
-      id: 'chittagong-cold',
-      index: '02',
-      category: 'Industrial',
-      title: 'Chittagong Cold Storage Facility',
+      id: 'government-tender',
+      index: '05',
+      title: 'Government Tender & Supply',
       description:
-        'Turnkey HVAC, reefer dock staging and -25°C rapid blast freezing installations for marine cargo.',
-      image: '/images/story-seafood.jpg',
+        'Participation in government and institutional tenders, with the supply infrastructure to meet procurement specifications and timelines.',
+      points: ['Tender participation', 'Institutional procurement', 'Large-scale supply'],
+      cta: 'View Government Supply',
+      href: '/business',
+      image: '/images/story-institutional-supply.jpg',
     },
     {
-      id: 'dhaka-elevated',
-      index: '03',
-      category: 'Government Supply',
-      title: 'Dhaka Elevated Expressway Logistics',
+      id: 'trading-distribution',
+      index: '06',
+      title: 'Trading & Distribution',
       description:
-        'Round-the-clock structural cement, pre-cast beam coordination and safety gear bulk distribution.',
-      image: '/images/story-infrastructure.jpg',
-    },
-    {
-      id: 'coastal-embankment',
-      index: '04',
-      category: 'Engineering',
-      title: 'Coastal Embankment Protection',
-      description:
-        'Geotextile bags, rock boulder transport and riverbank stabilization along the Meghna estuary.',
+        'Import, trading and distribution operations that connect suppliers, products and buyers across Bangladesh’s business network.',
+      points: ['Import & trading', 'Distribution network', 'Business partnerships'],
+      cta: 'View Trading',
+      href: '/business',
       image: '/images/story-business-network.jpg',
     },
   ],

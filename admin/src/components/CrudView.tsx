@@ -23,8 +23,10 @@ interface CrudViewProps<T extends { id: string }> {
   subtitle?: string;
   fields: FieldDef[];
   items: T[];
-  onSave: (item: Partial<T>) => void;
-  onDelete: (id: string) => void;
+  // May return `false` (or throw) to signal a failed save/delete — CrudView
+  // keeps the modal open and shows an error instead of assuming success.
+  onSave: (item: Partial<T>) => void | boolean | Promise<void | boolean>;
+  onDelete: (id: string) => void | boolean | Promise<void | boolean>;
   resourceKey?: string;
   canCreate?: boolean;
   canEdit?: boolean;
@@ -56,6 +58,11 @@ export function CrudView<T extends { id: string }>({
   // New item draft state
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [arrayInputValues, setArrayInputValues] = useState<Record<string, string>>({});
+
+  // Save/delete feedback — onSave/onDelete may fail (return false or throw),
+  // and the caller shouldn't be left thinking it worked when it didn't.
+  const [isSaving, setIsSaving] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   // Filter items
   const filteredItems = useMemo(() => {
@@ -93,12 +100,14 @@ export function CrudView<T extends { id: string }>({
     });
     setFormData(initial);
     setEditingItem(null);
+    setActionError(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (item: T) => {
     setEditingItem(item);
     setFormData({ ...item });
+    setActionError(null);
     setIsModalOpen(true);
   };
 
@@ -127,16 +136,33 @@ export function CrudView<T extends { id: string }>({
     }));
   };
 
-  const handleSaveSubmit = (e: React.FormEvent) => {
+  const handleSaveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData as Partial<T>);
-    setIsModalOpen(false);
+    setIsSaving(true);
+    setActionError(null);
+    try {
+      const result = await onSave(formData as Partial<T>);
+      if (result === false) throw new Error('Save failed');
+      setIsModalOpen(false);
+    } catch {
+      setActionError('Could not reach the server — this was not saved. Try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleConfirmDelete = () => {
-    if (itemToDelete) {
-      onDelete(itemToDelete.id);
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    setIsSaving(true);
+    setActionError(null);
+    try {
+      const result = await onDelete(itemToDelete.id);
+      if (result === false) throw new Error('Delete failed');
       setItemToDelete(null);
+    } catch {
+      setActionError('Could not reach the server — this was not deleted. Try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -306,7 +332,10 @@ export function CrudView<T extends { id: string }>({
                         )}
                         {canDelete && (
                           <button
-                            onClick={() => setItemToDelete(item)}
+                            onClick={() => {
+                              setActionError(null);
+                              setItemToDelete(item);
+                            }}
                             className="rounded-lg p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors"
                             title="Delete"
                           >
@@ -512,11 +541,15 @@ export function CrudView<T extends { id: string }>({
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-teal-600 px-5 py-2 text-xs font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500"
+                  disabled={isSaving}
+                  className="rounded-xl bg-teal-600 px-5 py-2 text-xs font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500 disabled:opacity-60"
                 >
-                  Save Changes
+                  {isSaving ? 'Saving…' : 'Save Changes'}
                 </button>
               </div>
+              {actionError && (
+                <p className="text-right text-xs font-semibold text-rose-600">{actionError}</p>
+              )}
             </form>
           </div>
         </div>
@@ -584,6 +617,7 @@ export function CrudView<T extends { id: string }>({
             <p className="mt-2 text-xs text-slate-500 leading-relaxed">
               Are you sure you want to permanently delete this item? This action cannot be undone.
             </p>
+            {actionError && <p className="mt-4 text-xs font-semibold text-rose-600">{actionError}</p>}
             <div className="mt-6 flex items-center justify-end gap-3">
               <button
                 onClick={() => setItemToDelete(null)}
@@ -593,9 +627,10 @@ export function CrudView<T extends { id: string }>({
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-rose-600/20 hover:bg-rose-500"
+                disabled={isSaving}
+                className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-rose-600/20 hover:bg-rose-500 disabled:opacity-60"
               >
-                Yes, Delete Item
+                {isSaving ? 'Deleting…' : 'Yes, Delete Item'}
               </button>
             </div>
           </div>

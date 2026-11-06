@@ -90,21 +90,23 @@ export const TradeShowsPage: React.FC = () => {
     };
   }, []);
 
-  const handleSave = (item: Partial<TradeShowItem>) => {
+  const handleSave = async (item: Partial<TradeShowItem>): Promise<boolean> => {
     let updated: TradeShowItem[];
     if (item.id && items.some((t) => t.id === item.id)) {
       updated = items.map((t) => (t.id === item.id ? ({ ...t, ...item } as TradeShowItem) : t));
     } else {
       updated = [...items, { ...item, id: `show-${Date.now()}` } as TradeShowItem];
     }
-    setItems(updated);
-    backendApi.collections.save('tradeshows', updated);
+    const ok = await backendApi.collections.save('tradeshows', updated);
+    if (ok) setItems(updated);
+    return ok;
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string): Promise<boolean> => {
     const updated = items.filter((t) => t.id !== id);
-    setItems(updated);
-    backendApi.collections.save('tradeshows', updated);
+    const ok = await backendApi.collections.save('tradeshows', updated);
+    if (ok) setItems(updated);
+    return ok;
   };
 
   if (isLoading) return <CollectionLoader />;
@@ -142,21 +144,23 @@ export const PartnersPage: React.FC = () => {
     };
   }, []);
 
-  const handleSave = (item: Partial<PartnerItem>) => {
+  const handleSave = async (item: Partial<PartnerItem>): Promise<boolean> => {
     let updated: PartnerItem[];
     if (item.id && items.some((p) => p.id === item.id)) {
       updated = items.map((p) => (p.id === item.id ? ({ ...p, ...item } as PartnerItem) : p));
     } else {
       updated = [...items, { ...item, id: `part-${Date.now()}` } as PartnerItem];
     }
-    setItems(updated);
-    backendApi.collections.save('partners', updated);
+    const ok = await backendApi.collections.save('partners', updated);
+    if (ok) setItems(updated);
+    return ok;
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string): Promise<boolean> => {
     const updated = items.filter((p) => p.id !== id);
-    setItems(updated);
-    backendApi.collections.save('partners', updated);
+    const ok = await backendApi.collections.save('partners', updated);
+    if (ok) setItems(updated);
+    return ok;
   };
 
   if (isLoading) return <CollectionLoader />;

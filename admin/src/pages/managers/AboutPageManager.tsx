@@ -15,6 +15,8 @@ export const AboutPageManager: React.FC = () => {
   const [content, setContent] = useState<AboutPageContent>(() => mockDb.getAboutPage());
   const [activeTab, setActiveTab] = useState<'intro' | 'timeline' | 'mission' | 'values' | 'philosophy'>('intro');
   const [toast, setToast] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [newPillar, setNewPillar] = useState('');
 
   // Fetch latest content from MySQL on mount
@@ -24,11 +26,18 @@ export const AboutPageManager: React.FC = () => {
     });
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    mockDb.saveAboutPage(content);
-    setToast(true);
-    setTimeout(() => setToast(false), 2500);
+    setSaving(true);
+    setSaveError(null);
+    const ok = await mockDb.saveAboutPage(content);
+    setSaving(false);
+    if (ok) {
+      setToast(true);
+      setTimeout(() => setToast(false), 2500);
+    } else {
+      setSaveError('Could not reach the server — your changes were kept locally but not saved. Try again.');
+    }
   };
 
   // Timeline handlers
@@ -111,11 +120,17 @@ export const AboutPageManager: React.FC = () => {
               <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Saved About Content!
             </span>
           )}
+          {saveError && (
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-rose-50 px-3.5 py-2 text-xs font-semibold text-rose-700 border border-rose-200">
+              {saveError}
+            </span>
+          )}
           <button
             onClick={handleSave}
-            className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500 transition-all active:scale-[0.98]"
+            disabled={saving}
+            className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm shadow-teal-600/20 hover:bg-teal-500 transition-all active:scale-[0.98] disabled:opacity-60"
           >
-            <Save className="h-4 w-4" /> Save About Page
+            <Save className="h-4 w-4" /> {saving ? 'Saving…' : 'Save About Page'}
           </button>
         </div>
       </div>

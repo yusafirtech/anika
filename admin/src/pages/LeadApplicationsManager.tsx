@@ -62,6 +62,7 @@ export const LeadApplicationsManager: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<LeadApplication | null>(null);
   const [internalNotes, setInternalNotes] = useState('');
   const [saveToast, setSaveToast] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,34 +97,46 @@ export const LeadApplicationsManager: React.FC = () => {
   );
   const bangladeshCount = leads.filter((l) => l.buyerType === 'bangladesh').length;
 
-  const handleStatusChange = (id: string, newStatus: LeadApplication['status']) => {
+  const handleStatusChange = async (id: string, newStatus: LeadApplication['status']) => {
     const updated = leads.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
     setLeads(updated);
     if (selectedLead && selectedLead.id === id) {
       setSelectedLead({ ...selectedLead, status: newStatus });
     }
-    backendApi.leads.update(id, { status: newStatus });
+    const ok = await backendApi.leads.update(id, { status: newStatus });
+    if (!ok) {
+      setActionError('Could not save the status change. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.leads.getAll().then(setLeads);
+    }
   };
 
-  const handleSaveNotes = () => {
+  const handleSaveNotes = async () => {
     if (!selectedLead) return;
     const updated = leads.map((l) => (l.id === selectedLead.id ? { ...l, notes: internalNotes } : l));
     setLeads(updated);
     setSelectedLead({ ...selectedLead, notes: internalNotes });
-    backendApi.leads.update(selectedLead.id, { notes: internalNotes }).then((ok) => {
-      if (ok) {
-        setSaveToast(true);
-        setTimeout(() => setSaveToast(false), 2000);
-      }
-    });
+    const ok = await backendApi.leads.update(selectedLead.id, { notes: internalNotes });
+    if (ok) {
+      setSaveToast(true);
+      setTimeout(() => setSaveToast(false), 2000);
+    } else {
+      setActionError('Could not save these notes. Try again.');
+      setTimeout(() => setActionError(null), 3500);
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to remove this lead record?')) return;
     const updated = leads.filter((l) => l.id !== id);
     setLeads(updated);
     if (selectedLead?.id === id) setSelectedLead(null);
-    backendApi.leads.delete(id);
+    const ok = await backendApi.leads.delete(id);
+    if (!ok) {
+      setActionError('Could not delete this lead. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.leads.getAll().then(setLeads);
+    }
   };
 
   const handleExportCSV = () => {
@@ -175,6 +188,11 @@ export const LeadApplicationsManager: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {actionError && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-rose-600 text-white rounded-lg shadow-xl text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+          {actionError}
+        </div>
+      )}
       {/* Top Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

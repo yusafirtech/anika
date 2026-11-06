@@ -9,6 +9,7 @@ export const BuyersManager: React.FC = () => {
   const [buyers, setBuyers] = useState<BuyerAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     backendApi.buyers.getAll().then((data) => {
@@ -31,13 +32,23 @@ export const BuyersManager: React.FC = () => {
   const handleToggleVerified = async (buyer: BuyerAccount) => {
     const next = !buyer.emailVerified;
     setBuyers((prev) => prev.map((b) => (b.id === buyer.id ? { ...b, emailVerified: next } : b)));
-    await backendApi.buyers.setVerified(buyer.id, next);
+    const ok = await backendApi.buyers.setVerified(buyer.id, next);
+    if (!ok) {
+      setActionError('Could not update verification status. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.buyers.getAll().then(setBuyers);
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this buyer account permanently? Their past leads and quotations will remain but will no longer show in any dashboard.')) return;
     setBuyers((prev) => prev.filter((b) => b.id !== id));
-    await backendApi.buyers.delete(id);
+    const ok = await backendApi.buyers.delete(id);
+    if (!ok) {
+      setActionError('Could not delete this buyer account. Reloading current data.');
+      setTimeout(() => setActionError(null), 3500);
+      backendApi.buyers.getAll().then(setBuyers);
+    }
   };
 
   if (isLoading) {
@@ -50,6 +61,11 @@ export const BuyersManager: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {actionError && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-rose-600 text-white rounded-lg shadow-xl text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+          {actionError}
+        </div>
+      )}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Buyer Accounts</h1>
         <p className="mt-1 text-sm text-slate-500">

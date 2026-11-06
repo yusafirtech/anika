@@ -1199,51 +1199,51 @@ export const backendApi = {
 export const mockDb = {
   // Page Content Managers
   getHomePage: (): HomePageContent => getStored('page_home', INITIAL_HOMEPAGE),
-  saveHomePage: (content: HomePageContent) => {
+  saveHomePage: (content: HomePageContent): Promise<boolean> => {
     setStored('page_home', content);
-    backendApi.pages.save('home', content);
+    return backendApi.pages.save('home', content);
   },
 
   getAboutPage: (): AboutPageContent => getStored('page_about', INITIAL_ABOUTPAGE),
-  saveAboutPage: (content: AboutPageContent) => {
+  saveAboutPage: (content: AboutPageContent): Promise<boolean> => {
     setStored('page_about', content);
-    backendApi.pages.save('about', content);
+    return backendApi.pages.save('about', content);
   },
 
   getBusinessPage: (): BusinessPageContent => getStored('page_business', INITIAL_BUSINESSPAGE),
-  saveBusinessPage: (content: BusinessPageContent) => {
+  saveBusinessPage: (content: BusinessPageContent): Promise<boolean> => {
     setStored('page_business', content);
-    backendApi.pages.save('business', content);
+    return backendApi.pages.save('business', content);
   },
 
   getProjectsPage: (): ProjectsPageContent => getStored('page_projects', INITIAL_PROJECTSPAGE),
-  saveProjectsPage: (content: ProjectsPageContent) => {
+  saveProjectsPage: (content: ProjectsPageContent): Promise<boolean> => {
     setStored('page_projects', content);
-    backendApi.pages.save('projects', content);
+    return backendApi.pages.save('projects', content);
   },
 
   getExportPage: (): ExportPageContent => getStored('page_export', INITIAL_EXPORTPAGE),
-  saveExportPage: (content: ExportPageContent) => {
+  saveExportPage: (content: ExportPageContent): Promise<boolean> => {
     setStored('page_export', content);
-    backendApi.pages.save('export', content);
+    return backendApi.pages.save('export', content);
   },
 
   getTeamPage: (): TeamPageContent => getStored('page_team', INITIAL_TEAMPAGE),
-  saveTeamPage: (content: TeamPageContent) => {
+  saveTeamPage: (content: TeamPageContent): Promise<boolean> => {
     setStored('page_team', content);
-    backendApi.pages.save('team', content);
+    return backendApi.pages.save('team', content);
   },
 
   getContactPage: (): ContactPageContent => getStored('page_contact', INITIAL_CONTACTPAGE),
-  saveContactPage: (content: ContactPageContent) => {
+  saveContactPage: (content: ContactPageContent): Promise<boolean> => {
     setStored('page_contact', content);
-    backendApi.pages.save('contact', content);
+    return backendApi.pages.save('contact', content);
   },
 
   getSiteGlobal: (): SiteGlobalContent => getStored('site_global', INITIAL_SITEGLOBAL),
-  saveSiteGlobal: (content: SiteGlobalContent) => {
+  saveSiteGlobal: (content: SiteGlobalContent): Promise<boolean> => {
     setStored('site_global', content);
-    backendApi.pages.save('site', content);
+    return backendApi.pages.save('site', content);
   },
 
   // Operational & Generic
