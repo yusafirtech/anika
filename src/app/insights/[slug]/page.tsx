@@ -13,6 +13,8 @@ import {
   resolveImageUrl,
 } from "@/lib/cms";
 import { formatInsightDate, parseContent, readingMinutes, toIsoDate } from "@/lib/insights";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -55,10 +57,12 @@ export default async function InsightDetailPage({ params }: Props) {
   const insight = await getInsight(slug);
   if (!insight) notFound();
 
-  const [latest, exportContent] = await Promise.all([
+  const [latest, exportContent, locale] = await Promise.all([
     getInsights({ limit: 4 }),
     insight.relatedProductSlug ? getExportContent() : Promise.resolve(null),
+    getLocale(),
   ]);
+  const t = getDictionary(locale).insightsExtra;
 
   const relatedProduct = exportContent?.products.find((p) => p.slug === insight.relatedProductSlug);
   const more = latest.filter((i) => i.slug !== insight.slug).slice(0, 3);
@@ -101,11 +105,11 @@ export default async function InsightDetailPage({ params }: Props) {
       <div className="mx-auto max-w-3xl px-6 md:px-8">
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-ink/45">
           <Link href="/" className="hover:text-navy">
-            Home
+            {t.home}
           </Link>
           <span aria-hidden>/</span>
           <Link href="/insights" className="hover:text-navy">
-            Insights
+            {t.insightsBreadcrumb}
           </Link>
           <span aria-hidden>/</span>
           <Link href={`/insights?category=${encodeURIComponent(insight.category)}`} className="hover:text-navy">
@@ -126,7 +130,7 @@ export default async function InsightDetailPage({ params }: Props) {
           {insight.author && date && <span aria-hidden>&middot;</span>}
           {date && <time dateTime={toIsoDate(insight.publishedAt)}>{date}</time>}
           <span aria-hidden>&middot;</span>
-          <span>{readingMinutes(insight.content)} min read</span>
+          <span>{readingMinutes(insight.content)} {t.minRead}</span>
         </div>
       </div>
 
@@ -189,17 +193,17 @@ export default async function InsightDetailPage({ params }: Props) {
               </div>
               <div className="flex flex-1 flex-col p-6">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-teal">
-                  Product in this article
+                  {t.productInArticle}
                 </span>
                 <h2 className="mt-2 font-display text-xl font-medium text-navy-deeper">{relatedProduct.name}</h2>
                 <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink/60">{relatedProduct.summary}</p>
                 <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-ink/55">
                   <div>
-                    <dt className="inline">MOQ: </dt>
+                    <dt className="inline">{t.moq}: </dt>
                     <dd className="inline font-medium text-ink/75">{relatedProduct.moq}</dd>
                   </div>
                   <div>
-                    <dt className="inline">Origin: </dt>
+                    <dt className="inline">{t.origin}: </dt>
                     <dd className="inline font-medium text-ink/75">{relatedProduct.origin}</dd>
                   </div>
                 </dl>
@@ -208,13 +212,13 @@ export default async function InsightDetailPage({ params }: Props) {
                     href={`/contact?product=${encodeURIComponent(relatedProduct.slug)}`}
                     className="inline-flex items-center rounded-full bg-navy px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-navy-deeper"
                   >
-                    Request a Quote
+                    {t.requestQuote}
                   </Link>
                   <Link
                     href={`/export/products/${relatedProduct.slug}`}
                     className="inline-flex items-center rounded-full border border-navy/20 px-5 py-2.5 text-[13px] font-semibold text-navy transition-colors hover:bg-navy/5"
                   >
-                    View Product
+                    {t.viewProduct}
                   </Link>
                 </div>
               </div>
@@ -227,7 +231,7 @@ export default async function InsightDetailPage({ params }: Props) {
             href="/insights"
             className="inline-flex items-center gap-2 text-sm font-semibold text-navy transition-all hover:gap-3"
           >
-            <span aria-hidden>&larr;</span> All insights
+            <span aria-hidden>&larr;</span> {t.allInsights}
           </Link>
         </div>
       </div>
@@ -235,11 +239,11 @@ export default async function InsightDetailPage({ params }: Props) {
       {more.length > 0 && (
         <section className="mx-auto mt-20 max-w-6xl px-6 md:px-8">
           <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-            More insights
+            {t.moreInsights}
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {more.map((i) => (
-              <InsightCard key={i.id} insight={i} />
+              <InsightCard key={i.id} insight={i} readLabel={t.readInsight} />
             ))}
           </div>
         </section>

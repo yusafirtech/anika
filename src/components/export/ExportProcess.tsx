@@ -1,19 +1,23 @@
 import Reveal from "@/components/ui/Reveal";
 import { exportProcess as defaultExportProcess } from "@/data/export";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 type ProcessStep = { step: string; description: string };
 
 export default function ExportProcess({
   process: exportProcess = defaultExportProcess,
+  dict = en.exportProcess,
 }: {
   process?: ProcessStep[];
+  dict?: Dictionary["exportProcess"];
 }) {
   return (
     <section className="bg-mist py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-8">
         <Reveal>
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-navy/60">
-            How It Moves
+            {dict.eyebrow}
           </p>
         </Reveal>
 

@@ -22,6 +22,10 @@ import {
   PhoneCall,
   Compass,
   Newspaper,
+  Receipt,
+  CalendarDays,
+  Mail,
+  Users2,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -127,6 +131,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           to: '/partners',
           icon: Handshake,
         },
+        {
+          label: 'Trade Show Calendar',
+          to: '/trade-shows',
+          icon: CalendarDays,
+        },
       ],
     },
     {
@@ -138,6 +147,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: FileText,
           badge: pendingLeadsCount > 0 ? `${pendingLeadsCount} new` : undefined,
           badgeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+        },
+        {
+          label: 'Quotations',
+          to: '/quotations',
+          icon: Receipt,
+        },
+        {
+          label: 'Newsletter Subscribers',
+          to: '/newsletter',
+          icon: Mail,
+        },
+        {
+          label: 'Buyer Accounts',
+          to: '/buyers',
+          icon: Users2,
         },
         {
           label: 'Clients',

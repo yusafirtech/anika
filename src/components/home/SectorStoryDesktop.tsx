@@ -5,13 +5,17 @@ import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { sectorStories as defaultSectorStories, type SectorStory } from "@/data/home";
 import { resolveImageUrl } from "@/lib/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 const SLIDE_DURATION = 5000; // 5 seconds per slide
 
 export default function SectorStoryDesktop({
   sectorStories = defaultSectorStories,
+  dict = en.home,
 }: {
   sectorStories?: SectorStory[];
+  dict?: Dictionary["home"];
 }) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -48,7 +52,7 @@ export default function SectorStoryDesktop({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-roledescription="carousel"
-      aria-label="Sector stories carousel"
+      aria-label={dict.sectorsEyebrow}
     >
       <div className="flex h-full w-full flex-row">
         {/* Left: Text & Controls */}
@@ -56,11 +60,11 @@ export default function SectorStoryDesktop({
           <div>
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
-                The Sectors We Move Through
+                {dict.sectorsEyebrow}
               </p>
               {isPaused && (
                 <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] tracking-wider text-white/60">
-                  PAUSED
+                  {dict.paused}
                 </span>
               )}
             </div>
@@ -99,7 +103,7 @@ export default function SectorStoryDesktop({
                     key={s.id}
                     onClick={() => goToSlide(i)}
                     className="group relative h-2 flex-1 overflow-hidden rounded-full bg-white/15 transition-all hover:bg-white/25"
-                    aria-label={`Go to slide ${i + 1}: ${s.title}`}
+                    aria-label={`${dict.goToSlide} ${i + 1}: ${s.title}`}
                   >
                     {isActive && (
                       <motion.span
@@ -130,7 +134,7 @@ export default function SectorStoryDesktop({
                 <button
                   onClick={prevSlide}
                   className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white"
-                  aria-label="Previous slide"
+                  aria-label={dict.previousSlide}
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -139,7 +143,7 @@ export default function SectorStoryDesktop({
                 <button
                   onClick={nextSlide}
                   className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white"
-                  aria-label="Next slide"
+                  aria-label={dict.nextSlide}
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

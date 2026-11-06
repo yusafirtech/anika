@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { initializeDatabase, getPool } from './db/connection.js';
@@ -15,6 +16,11 @@ import usersRouter from './routes/users.js';
 import collectionsRouter from './routes/collections.js';
 import clientsRouter from './routes/clients.js';
 import insightsRouter from './routes/insights.js';
+import quotationsRouter from './routes/quotations.js';
+import newsletterRouter from './routes/newsletter.js';
+import buyerAuthRouter from './routes/buyerAuth.js';
+import buyerRouter from './routes/buyer.js';
+import buyersRouter from './routes/buyers.js';
 
 dotenv.config();
 
@@ -29,16 +35,27 @@ const allowedOrigins = (process.env.CORS_ORIGIN || '')
 // Middleware
 app.use(morgan('dev'));
 app.use(
+  helmet({
+    // This is a JSON/media API with no HTML views of its own, so a
+    // document-oriented CSP has nothing to protect and can only misfire.
+    contentSecurityPolicy: false,
+    // Media/PDFs are intentionally fetched cross-origin by the separate
+    // frontend domain (and sometimes opened directly in a browser tab) —
+    // helmet's default same-origin policy would block exactly that.
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
+const isProduction = process.env.NODE_ENV === 'production';
+app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. server-to-server, curl, mobile apps)
       // plus any origin explicitly whitelisted via CORS_ORIGIN in .env,
-      // and any localhost/127.0.0.1 origin for local development.
+      // and any localhost/127.0.0.1 origin for local development only.
       if (
         !origin ||
         allowedOrigins.includes(origin) ||
-        origin.includes('localhost') ||
-        origin.includes('127.0.0.1')
+        (!isProduction && (origin.includes('localhost') || origin.includes('127.0.0.1')))
       ) {
         callback(null, true);
       } else {
@@ -61,6 +78,11 @@ app.use('/api/users', usersRouter);
 app.use('/api/collections', collectionsRouter);
 app.use('/api/clients', clientsRouter);
 app.use('/api/insights', insightsRouter);
+app.use('/api/quotations', quotationsRouter);
+app.use('/api/newsletter', newsletterRouter);
+app.use('/api/buyer-auth', buyerAuthRouter);
+app.use('/api/buyer', buyerRouter);
+app.use('/api/buyers', buyersRouter);
 
 // Health Check Endpoint
 app.get('/api/health', async (_req: Request, res: Response) => {
@@ -106,7 +128,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   console.error('[Server Unhandled Error]', err);
   res.status(500).json({
     error: 'Internal Server Error',
-    message: err.message || 'An unexpected error occurred',
+    message: isProduction ? 'An unexpected error occurred' : err.message || 'An unexpected error occurred',
   });
 });
 

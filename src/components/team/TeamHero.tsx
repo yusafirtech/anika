@@ -1,9 +1,12 @@
 ﻿import Reveal from "@/components/ui/Reveal";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 type TeamHeroProps = {
   eyebrow?: string;
   heading?: string;
   description?: string;
+  dict?: Dictionary["teamExtra"];
 };
 
 function renderHeading(heading: string) {
@@ -22,6 +25,7 @@ export default function TeamHero({
   eyebrow = "Our People",
   heading = "The Team Behind ANIKA",
   description = "ANIKA TRADING & CO. is built on people who understand their sectors deeply. Each team member brings domain-specific expertise — from construction and government procurement to international trade and finance — contributing to a company that operates with precision across multiple industries.",
+  dict = en.teamExtra,
 }: TeamHeroProps) {
   return (
     <section className="relative bg-navy-deeper overflow-hidden">
@@ -61,9 +65,9 @@ export default function TeamHero({
         <Reveal delay={0.22}>
           <div className="mt-10 flex flex-wrap gap-6">
             {[
-              { value: "6+", label: "Leadership Members" },
-              { value: "15+", label: "Years Combined" },
-              { value: "5", label: "Business Sectors" },
+              { value: "6+", label: dict.statLeadership },
+              { value: "15+", label: dict.statYears },
+              { value: "5", label: dict.statSectors },
             ].map((stat) => (
               <div
                 key={stat.label}

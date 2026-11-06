@@ -19,8 +19,12 @@ export type PermissionResource =
   | 'pages'
   | 'insights'
   | 'leads'
+  | 'quotations'
   | 'clients'
   | 'partners'
+  | 'tradeshows'
+  | 'newsletter'
+  | 'buyers'
   | 'users'
   | 'settings';
 
@@ -41,9 +45,11 @@ export interface FieldDef {
 }
 
 export type BuyerType = 'international' | 'bangladesh';
+export type LeadRequestType = 'quote' | 'sample' | 'general';
 
 export interface LeadApplication {
   id: string;
+  buyerId?: string;
   name: string;
   company: string;
   email: string;
@@ -52,11 +58,85 @@ export interface LeadApplication {
   subject?: string;
   sector: string;
   buyerType: BuyerType;
+  requestType?: LeadRequestType;
+  productSlug?: string;
+  quantity?: string;
+  quantityUnit?: string;
+  incoterm?: string;
+  destinationPort?: string;
+  targetShipDate?: string;
+  paymentTerms?: string;
   status: 'Pending' | 'Reviewing' | 'Approved' | 'Rejected';
   budget?: string;
   message: string;
   notes?: string;
   createdAt: string;
+}
+
+export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'expired';
+
+export interface QuotationLineItem {
+  description: string;
+  hsCode?: string;
+  quantity: string;
+  unit: string;
+  unitPrice: number;
+}
+
+export interface Quotation {
+  id: string;
+  quoteNumber: string;
+  leadId?: string;
+  buyerId?: string;
+  status: QuotationStatus;
+  buyerName: string;
+  buyerCompany?: string;
+  buyerEmail: string;
+  buyerCountry?: string;
+  lineItems: QuotationLineItem[];
+  currency: string;
+  incoterm?: string;
+  destinationPort?: string;
+  paymentTerms?: string;
+  validUntil?: string;
+  notes?: string;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TradeShowItem {
+  id: string;
+  eventName: string;
+  startDate: string;
+  endDate?: string;
+  location: string;
+  boothNumber?: string;
+  website?: string;
+  description?: string;
+  image?: string;
+}
+
+export interface BuyerAccount {
+  id: string;
+  name: string;
+  company?: string;
+  email: string;
+  country?: string;
+  phone?: string;
+  emailVerified: boolean;
+  leadCount: number;
+  quotationCount: number;
+  createdAt: string;
+}
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  name?: string;
+  source?: string;
+  status: 'active' | 'unsubscribed';
+  subscribedAt: string;
 }
 
 export const INSIGHT_CATEGORIES = ['Industry News', 'Product News', 'Market Insight', 'Company News'] as const;
@@ -237,6 +317,7 @@ export interface ProductCertification {
   title: string;
   description: string;
   image: string;
+  documentUrl?: string;
 }
 
 export interface ProductSeo {
@@ -254,6 +335,9 @@ export interface ExportProduct {
   origin: string;
   availability: string;
   moq: string;
+  hsCode?: string;
+  priceBasis?: string;
+  specSheetUrl?: string;
   summary: string;
   image: string;
   images: string[];
@@ -323,6 +407,17 @@ export interface ContactPageContent {
   };
 }
 
+export interface SiteCredentials {
+  exportLicenseNumber?: string;
+  tradeLicenseNumber?: string;
+  binNumber?: string;
+  chamberOfCommerceMembership?: string;
+  bankName?: string;
+  bankBranch?: string;
+  swiftCode?: string;
+  companyProfileUrl?: string;
+}
+
 export interface SiteGlobalContent {
   companyInfo: {
     name: string;
@@ -340,4 +435,5 @@ export interface SiteGlobalContent {
     title: string;
     links: { label: string; href: string }[];
   }[];
+  credentials?: SiteCredentials;
 }

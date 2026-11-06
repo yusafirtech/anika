@@ -3,18 +3,21 @@ import Link from "next/link";
 import { resolveImageUrl } from "@/lib/cms";
 import { cn } from "@/lib/utils";
 import type { ExportProduct } from "@/types/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 export function isCertified(product: ExportProduct): boolean {
   return !!product.certificationsEnabled && (product.certifications?.length ?? 0) > 0;
 }
 
-function CertifiedBadge({ count }: { count: number }) {
+function CertifiedBadge({ count, label }: { count: number; label: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden>
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
       </svg>
-      Certified{count > 1 ? ` ×${count}` : ""}
+      {label}
+      {count > 1 ? ` ×${count}` : ""}
     </span>
   );
 }
@@ -46,18 +49,20 @@ function ProductImage({ product, sizes }: { product: ExportProduct; sizes: strin
 export default function CatalogProductCard({
   product,
   view = "grid",
+  labels = en.product,
 }: {
   product: ExportProduct;
   view?: "grid" | "list";
+  labels?: Dictionary["product"];
 }) {
   const href = `/export/products/${product.slug}`;
-  const quoteHref = `/contact?product=${encodeURIComponent(product.slug)}`;
+  const quoteHref = `/contact?product=${encodeURIComponent(product.slug)}&type=quote`;
   const certified = isCertified(product);
 
   const attributes = [
-    { label: "MOQ", value: product.moq },
-    { label: "Origin", value: product.origin },
-    { label: "Availability", value: product.availability },
+    { label: labels.moq, value: product.moq },
+    { label: labels.origin, value: product.origin },
+    { label: labels.availability, value: product.availability },
   ].filter((a) => a.value);
 
   if (view === "list") {
@@ -67,7 +72,7 @@ export default function CatalogProductCard({
           <ProductImage product={product} sizes="(min-width: 640px) 16rem, 100vw" />
           {certified && (
             <span className="absolute left-3 top-3">
-              <CertifiedBadge count={product.certifications!.length} />
+              <CertifiedBadge count={product.certifications!.length} label={labels.certifiedBadge} />
             </span>
           )}
         </Link>
@@ -108,13 +113,13 @@ export default function CatalogProductCard({
               href={quoteHref}
               className="inline-flex items-center justify-center rounded-full bg-navy px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-navy-deeper"
             >
-              Request a Quote
+              {labels.requestQuoteCard}
             </Link>
             <Link
               href={href}
               className="inline-flex items-center justify-center rounded-full border border-navy/20 px-5 py-2.5 text-[13px] font-semibold text-navy transition-colors hover:bg-navy/5"
             >
-              View Details
+              {labels.viewDetails}
             </Link>
           </div>
         </div>
@@ -131,7 +136,7 @@ export default function CatalogProductCard({
         </span>
         {certified && (
           <span className="absolute right-3 top-3">
-            <CertifiedBadge count={product.certifications!.length} />
+            <CertifiedBadge count={product.certifications!.length} label={labels.certifiedBadge} />
           </span>
         )}
       </Link>
@@ -159,13 +164,13 @@ export default function CatalogProductCard({
             href={quoteHref}
             className="inline-flex items-center justify-center rounded-full bg-navy px-3 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-navy-deeper"
           >
-            Get Quote
+            {labels.getQuote}
           </Link>
           <Link
             href={href}
             className="inline-flex items-center justify-center rounded-full border border-navy/20 px-3 py-2 text-[12px] font-semibold text-navy transition-colors hover:bg-navy/5"
           >
-            Details
+            {labels.details}
           </Link>
         </div>
       </div>

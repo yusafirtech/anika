@@ -5,13 +5,17 @@ import { motion } from "framer-motion";
 import { coreValues as defaultCoreValues } from "@/data/about";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 type CoreValue = { id: string; label: string; description: string };
 
 export default function CoreValues({
   coreValues = defaultCoreValues,
+  dict = en.aboutExtra,
 }: {
   coreValues?: CoreValue[];
+  dict?: Dictionary["aboutExtra"];
 }) {
   const [activeId, setActiveId] = useState(coreValues[0].id);
   const active = coreValues.find((v) => v.id === activeId)!;
@@ -21,7 +25,7 @@ export default function CoreValues({
       <div className="mx-auto max-w-5xl px-6 md:px-8">
         <Reveal>
           <p className="text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-navy/60">
-            Core Values
+            {dict.coreValuesEyebrow}
           </p>
         </Reveal>
 

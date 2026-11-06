@@ -1,19 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
 import { footerColumns as defaultFooterColumns, companyInfo as defaultCompanyInfo } from "@/data/site";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
+import NewsletterForm from "@/components/layout/NewsletterForm";
 
 type FooterColumn = { title: string; links: { label: string; href: string }[] };
 type CompanyInfo = { name: string; address: string; phone: string; email: string };
 
-export default function Footer({
+export default async function Footer({
   footerColumns = defaultFooterColumns,
   companyInfo = defaultCompanyInfo,
 }: {
   footerColumns?: FooterColumn[];
   companyInfo?: CompanyInfo;
 }) {
+  const dict = getDictionary(await getLocale());
+
   const contactColumn: FooterColumn = {
-    title: "Contact",
+    title: dict.footer.contactColumnTitle,
     links: [
       { label: companyInfo.address, href: "/contact" },
       { label: companyInfo.phone, href: "/contact" },
@@ -38,11 +43,11 @@ export default function Footer({
                 ANIKA TRADING&nbsp;&amp;&nbsp;CO.
               </span>
             </Link>
-            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/50">
-              A Bangladesh-based diversified business company across construction,
-              government supply, distribution, trading and international export.
-            </p>
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/50">{dict.footer.tagline}</p>
             <div className="brand-gradient-line mt-6 w-16" />
+            <div className="mt-6">
+              <NewsletterForm dict={dict.newsletter} />
+            </div>
           </div>
 
           {[...footerColumns, contactColumn].map((col) => (
@@ -68,17 +73,17 @@ export default function Footer({
 
         <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-8 text-xs text-white/40 md:flex-row md:items-center md:justify-between">
           <p>
-            &copy; {new Date().getFullYear()} {companyInfo.name} All Rights Reserved.
+            &copy; {new Date().getFullYear()} {companyInfo.name} {dict.footer.allRightsReserved}
           </p>
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="hover:text-white/70">
-              Privacy Policy
+              {dict.footer.privacyPolicy}
             </Link>
             <Link href="/terms" className="hover:text-white/70">
-              Terms &amp; Conditions
+              {dict.footer.terms}
             </Link>
             <Link href="/cookie-policy" className="hover:text-white/70">
-              Cookie Policy
+              {dict.footer.cookiePolicy}
             </Link>
           </div>
         </div>

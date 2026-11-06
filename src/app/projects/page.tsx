@@ -4,6 +4,8 @@ import ProjectsGrid from "@/components/projects/ProjectsGrid";
 import { getPageContent } from "@/lib/cms";
 import type { ProjectsPageContent } from "@/types/cms";
 import { projects } from "@/data/projects";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -22,7 +24,11 @@ const DEFAULT_PROJECTS_CONTENT: ProjectsPageContent = {
 };
 
 export default async function ProjectsPage() {
-  const content = await getPageContent<ProjectsPageContent>("projects", DEFAULT_PROJECTS_CONTENT);
+  const [content, locale] = await Promise.all([
+    getPageContent<ProjectsPageContent>("projects", DEFAULT_PROJECTS_CONTENT),
+    getLocale(),
+  ]);
+  const dict = getDictionary(locale).projectsExtra;
 
   return (
     <>
@@ -31,7 +37,7 @@ export default async function ProjectsPage() {
         title={content.intro.heading}
         description={content.intro.description}
       />
-      <ProjectsGrid projects={content.projects} />
+      <ProjectsGrid projects={content.projects} dict={dict} />
     </>
   );
 }

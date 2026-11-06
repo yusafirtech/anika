@@ -33,6 +33,7 @@ type HomeHeroProps = {
   subtitle?: string;
   bgImage?: string;
   keywords?: string[];
+  scrollLabel?: string;
 };
 
 export default function HomeHero({
@@ -41,6 +42,7 @@ export default function HomeHero({
   subtitle = defaultSubtitle,
   bgImage = defaultBgImage,
   keywords = defaultKeywords,
+  scrollLabel = "Scroll",
 }: HomeHeroProps) {
   return (
     <section className="relative h-[100svh] w-full overflow-hidden bg-navy-deeper">
@@ -113,7 +115,7 @@ export default function HomeHero({
         transition={{ delay: 1.6, duration: 0.8 }}
         className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2"
       >
-        <span className="text-[10px] uppercase tracking-[0.3em] text-white/50">Scroll</span>
+        <span className="text-[10px] uppercase tracking-[0.3em] text-white/50">{scrollLabel}</span>
         <span className="relative h-9 w-[1.5px] overflow-hidden bg-white/20">
           <motion.span
             animate={{ y: ["-100%", "100%"] }}

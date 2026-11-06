@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LeadApplication } from '../types';
 import { backendApi } from '../api';
 import {
@@ -18,6 +19,11 @@ import {
   Globe,
   Tag,
   FileText,
+  Package,
+  Ship,
+  Banknote,
+  CalendarClock,
+  Receipt,
 } from 'lucide-react';
 
 const BangladeshiBuyerBadge: React.FC = () => (
@@ -29,7 +35,24 @@ const BangladeshiBuyerBadge: React.FC = () => (
   </span>
 );
 
+const REQUEST_TYPE_STYLES: Record<string, string> = {
+  quote: 'bg-sky-50 text-sky-700 border-sky-200',
+  sample: 'bg-violet-50 text-violet-700 border-violet-200',
+  general: 'bg-slate-100 text-slate-600 border-slate-200',
+};
+
+const RequestTypeBadge: React.FC<{ type?: string }> = ({ type = 'general' }) => (
+  <span
+    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+      REQUEST_TYPE_STYLES[type] || REQUEST_TYPE_STYLES.general
+    }`}
+  >
+    {type === 'quote' ? 'Quote Request' : type === 'sample' ? 'Sample Request' : 'General Inquiry'}
+  </span>
+);
+
 export const LeadApplicationsManager: React.FC = () => {
+  const navigate = useNavigate();
   const [leads, setLeads] = useState<LeadApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,10 +127,13 @@ export const LeadApplicationsManager: React.FC = () => {
   };
 
   const handleExportCSV = () => {
-    const headers = ['ID,Buyer Type,Company,Contact Name,Email,Phone,Country,Subject,Sector,Status,Budget,Date,Message'];
+    const headers = [
+      'ID,Request Type,Buyer Type,Company,Contact Name,Email,Phone,Country,Subject,Sector,Product Slug,Quantity,Quantity Unit,Incoterm,Destination Port,Target Ship Date,Payment Terms,Status,Budget,Date,Message',
+    ];
     const rows = filteredLeads.map((l) =>
       [
         l.id,
+        l.requestType || 'general',
         l.buyerType === 'bangladesh' ? 'Bangladeshi Buyer' : 'International',
         `"${l.company.replace(/"/g, '""')}"`,
         `"${l.name.replace(/"/g, '""')}"`,
@@ -116,6 +142,13 @@ export const LeadApplicationsManager: React.FC = () => {
         `"${(l.country || '').replace(/"/g, '""')}"`,
         `"${(l.subject || '').replace(/"/g, '""')}"`,
         l.sector,
+        `"${l.productSlug || ''}"`,
+        `"${l.quantity || ''}"`,
+        `"${l.quantityUnit || ''}"`,
+        `"${l.incoterm || ''}"`,
+        `"${(l.destinationPort || '').replace(/"/g, '""')}"`,
+        `"${l.targetShipDate || ''}"`,
+        `"${l.paymentTerms || ''}"`,
         l.status,
         `"${l.budget || ''}"`,
         l.createdAt,
@@ -240,6 +273,7 @@ export const LeadApplicationsManager: React.FC = () => {
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-bold text-slate-900 text-sm">{lead.company || lead.name}</span>
+                          <RequestTypeBadge type={lead.requestType} />
                           {lead.buyerType === 'bangladesh' && <BangladeshiBuyerBadge />}
                         </div>
                         <div className="flex items-center gap-2 text-slate-500 mt-0.5">
@@ -322,6 +356,7 @@ export const LeadApplicationsManager: React.FC = () => {
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-xl font-bold text-slate-900">{selectedLead.company || selectedLead.name}</h3>
+                  <RequestTypeBadge type={selectedLead.requestType} />
                   {selectedLead.buyerType === 'bangladesh' && <BangladeshiBuyerBadge />}
                 </div>
               </div>
@@ -367,6 +402,58 @@ export const LeadApplicationsManager: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* RFQ details (only present when the buyer requested a quote/sample from a product page) */}
+              {(selectedLead.quantity ||
+                selectedLead.incoterm ||
+                selectedLead.destinationPort ||
+                selectedLead.targetShipDate ||
+                selectedLead.paymentTerms ||
+                selectedLead.productSlug) && (
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-slate-700">Export Requirement Details:</label>
+                  <div className="grid grid-cols-2 gap-4 rounded-xl border border-sky-200 bg-sky-50/60 p-4 text-slate-700">
+                    {selectedLead.productSlug && (
+                      <div className="col-span-2 flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-sky-500" />
+                        <span>Product: <strong className="font-mono">{selectedLead.productSlug}</strong></span>
+                      </div>
+                    )}
+                    {selectedLead.quantity && (
+                      <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-sky-500" />
+                        <span>
+                          Quantity: <strong>{selectedLead.quantity} {selectedLead.quantityUnit || ''}</strong>
+                        </span>
+                      </div>
+                    )}
+                    {selectedLead.incoterm && (
+                      <div className="flex items-center gap-2">
+                        <Ship className="h-4 w-4 text-sky-500" />
+                        <span>Incoterm: <strong>{selectedLead.incoterm}</strong></span>
+                      </div>
+                    )}
+                    {selectedLead.destinationPort && (
+                      <div className="col-span-2 flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-sky-500" />
+                        <span>Destination Port: <strong>{selectedLead.destinationPort}</strong></span>
+                      </div>
+                    )}
+                    {selectedLead.targetShipDate && (
+                      <div className="flex items-center gap-2">
+                        <CalendarClock className="h-4 w-4 text-sky-500" />
+                        <span>Target Ship Date: <strong>{selectedLead.targetShipDate}</strong></span>
+                      </div>
+                    )}
+                    {selectedLead.paymentTerms && (
+                      <div className="flex items-center gap-2">
+                        <Banknote className="h-4 w-4 text-sky-500" />
+                        <span>Payment Terms: <strong>{selectedLead.paymentTerms}</strong></span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Message */}
               <div className="space-y-1.5">
@@ -414,6 +501,12 @@ export const LeadApplicationsManager: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => navigate(`/quotations?fromLead=${selectedLead.id}`)}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2 font-semibold text-teal-700 hover:bg-teal-100"
+                  >
+                    <Receipt className="h-3.5 w-3.5" /> Create Quotation
+                  </button>
                   <button
                     onClick={() => setSelectedLead(null)}
                     className="rounded-xl px-4 py-2 text-slate-600 hover:bg-slate-100"

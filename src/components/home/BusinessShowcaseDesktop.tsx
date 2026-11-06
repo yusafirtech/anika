@@ -6,13 +6,17 @@ import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { businessShowcase as defaultBusinessShowcase, type BusinessShowcaseItem } from "@/data/home";
 import { resolveImageUrl } from "@/lib/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 const SLIDE_DURATION = 5500; // 5.5s per slide
 
 export default function BusinessShowcaseDesktop({
   businessShowcase = defaultBusinessShowcase,
+  dict = en.home,
 }: {
   businessShowcase?: BusinessShowcaseItem[];
+  dict?: Dictionary["home"];
 }) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -49,30 +53,30 @@ export default function BusinessShowcaseDesktop({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-roledescription="carousel"
-      aria-label="Connected Business Ecosystem"
+      aria-label={dict.connectedEcosystemHeading}
     >
       <div className="mx-auto max-w-6xl px-8">
         {/* Header with nav controls */}
         <div className="flex items-end justify-between border-b border-navy/10 pb-8">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-navy/60">
-              What We Do
+              {dict.whatWeDoEyebrow}
             </p>
             <h2 className="mt-3 font-display text-[38px] font-medium leading-tight text-navy-deeper lg:text-[44px]">
-              A Connected Business Ecosystem
+              {dict.connectedEcosystemHeading}
             </h2>
           </div>
 
           <div className="flex items-center gap-3">
             {isPaused && (
               <span className="rounded-full bg-navy/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-navy/60">
-                PAUSED
+                {dict.paused}
               </span>
             )}
             <button
               onClick={prevSlide}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-navy/20 text-navy transition-all hover:border-navy hover:bg-navy hover:text-white"
-              aria-label="Previous business"
+              aria-label={dict.previousBusiness}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -81,7 +85,7 @@ export default function BusinessShowcaseDesktop({
             <button
               onClick={nextSlide}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-navy/20 text-navy transition-all hover:border-navy hover:bg-navy hover:text-white"
-              aria-label="Next business"
+              aria-label={dict.nextBusiness}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -138,7 +142,7 @@ export default function BusinessShowcaseDesktop({
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               >
                 <span className="brand-gradient-text font-display text-sm font-semibold tracking-[0.2em]">
-                  BUSINESS {current.index}
+                  {dict.businessPrefix} {current.index}
                 </span>
                 <h3 className="mt-3 font-display text-[32px] font-medium leading-tight text-navy-deeper">
                   {current.title}

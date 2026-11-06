@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { SiteGlobalContent } from '../../types';
+import { SiteGlobalContent, SiteCredentials } from '../../types';
 import { mockDb, backendApi } from '../../api';
+import { ImageUploadButton } from '../../components/ImageUploadButton';
 import {
   Save,
   CheckCircle2,
@@ -14,11 +15,24 @@ import {
   Phone,
   Mail,
   MapPin,
+  ShieldCheck,
+  FileText,
 } from 'lucide-react';
+
+const DEFAULT_CREDENTIALS: SiteCredentials = {
+  exportLicenseNumber: '',
+  tradeLicenseNumber: '',
+  binNumber: '',
+  chamberOfCommerceMembership: '',
+  bankName: '',
+  bankBranch: '',
+  swiftCode: '',
+  companyProfileUrl: '',
+};
 
 export const SiteGlobalManager: React.FC = () => {
   const [content, setContent] = useState<SiteGlobalContent>(() => mockDb.getSiteGlobal());
-  const [activeTab, setActiveTab] = useState<'company' | 'navigation' | 'footer'>('company');
+  const [activeTab, setActiveTab] = useState<'company' | 'credentials' | 'navigation' | 'footer'>('company');
   const [newNavLabel, setNewNavLabel] = useState('');
   const [newNavHref, setNewNavHref] = useState('');
   const [newColTitle, setNewColTitle] = useState('');
@@ -43,6 +57,15 @@ export const SiteGlobalManager: React.FC = () => {
     setContent({
       ...content,
       companyInfo: { ...content.companyInfo, [field]: val },
+    });
+  };
+
+  // Export credentials & compliance handlers
+  const credentials = content.credentials || DEFAULT_CREDENTIALS;
+  const handleCredentialsChange = (field: keyof SiteCredentials, val: string) => {
+    setContent({
+      ...content,
+      credentials: { ...credentials, [field]: val },
     });
   };
 
@@ -172,6 +195,17 @@ export const SiteGlobalManager: React.FC = () => {
           Brand Identity & Coordinates
         </button>
         <button
+          onClick={() => setActiveTab('credentials')}
+          className={`py-3.5 px-4 text-xs font-semibold border-b-2 tracking-wide uppercase transition-colors flex items-center gap-2 ${
+            activeTab === 'credentials'
+              ? 'border-teal-600 text-teal-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4" />
+          Export Credentials & Compliance
+        </button>
+        <button
           onClick={() => setActiveTab('navigation')}
           className={`py-3.5 px-4 text-xs font-semibold border-b-2 tracking-wide uppercase transition-colors flex items-center gap-2 ${
             activeTab === 'navigation'
@@ -282,6 +316,134 @@ export const SiteGlobalManager: React.FC = () => {
               />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Tab: Export Credentials & Compliance */}
+      {activeTab === 'credentials' && (
+        <div className="bg-white p-6 rounded-b-xl border border-slate-200 shadow-sm space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+            <h2 className="text-base font-semibold text-slate-900">Export Credentials & Compliance</h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Trust signals international buyers check before placing an order. Shown on the About page. Leave a
+              field blank to hide it on the website.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Export Registration Certificate (ERC) No.
+              </label>
+              <input
+                type="text"
+                value={credentials.exportLicenseNumber || ''}
+                onChange={(e) => handleCredentialsChange('exportLicenseNumber', e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Trade License Number
+              </label>
+              <input
+                type="text"
+                value={credentials.tradeLicenseNumber || ''}
+                onChange={(e) => handleCredentialsChange('tradeLicenseNumber', e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                BIN (Business Identification Number)
+              </label>
+              <input
+                type="text"
+                value={credentials.binNumber || ''}
+                onChange={(e) => handleCredentialsChange('binNumber', e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Chamber of Commerce Membership
+              </label>
+              <input
+                type="text"
+                value={credentials.chamberOfCommerceMembership || ''}
+                onChange={(e) => handleCredentialsChange('chamberOfCommerceMembership', e.target.value)}
+                placeholder="e.g. DCCI Membership No. 12345"
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Bank Name
+              </label>
+              <input
+                type="text"
+                value={credentials.bankName || ''}
+                onChange={(e) => handleCredentialsChange('bankName', e.target.value)}
+                placeholder="For LC advising — bank/branch/SWIFT only, never account numbers"
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Bank Branch
+              </label>
+              <input
+                type="text"
+                value={credentials.bankBranch || ''}
+                onChange={(e) => handleCredentialsChange('bankBranch', e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                SWIFT / BIC Code
+              </label>
+              <input
+                type="text"
+                value={credentials.swiftCode || ''}
+                onChange={(e) => handleCredentialsChange('swiftCode', e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 font-mono uppercase"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-teal-600" />
+                Company Profile (PDF)
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="text"
+                  value={credentials.companyProfileUrl || ''}
+                  onChange={(e) => handleCredentialsChange('companyProfileUrl', e.target.value)}
+                  placeholder="PDF URL, or upload one"
+                  className="flex-1 min-w-[180px] px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                />
+                <ImageUploadButton
+                  label="Upload PDF"
+                  currentUrl={credentials.companyProfileUrl}
+                  onImageUploaded={(url) => handleCredentialsChange('companyProfileUrl', url)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <p className="text-[11px] leading-relaxed text-slate-400 border-t border-slate-100 pt-4">
+            Bank details on export websites conventionally include only the bank name, branch and SWIFT/BIC code
+            (used by a buyer's bank to advise a Letter of Credit) — never the account number. Use your judgment on
+            what your business is comfortable publishing.
+          </p>
         </div>
       )}
 

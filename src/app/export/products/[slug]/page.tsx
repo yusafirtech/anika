@@ -15,6 +15,8 @@ import {
   resolveImageUrl,
 } from "@/lib/cms";
 import type { ExportProduct, Insight } from "@/types/cms";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -75,16 +77,12 @@ function relatedProducts(product: ExportProduct, all: ExportProduct[]) {
   return [...sameCategory, ...others.filter((p) => p.category !== product.category)].slice(0, 4);
 }
 
-const REASSURANCES = [
-  "Quotes usually within 24 hours",
-  "Bulk buyers in Bangladesh can request local supply",
-  "Specifications and documentation shared on request",
-];
-
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const { product, products } = await findProduct(slug);
+  const [{ product, products }, locale] = await Promise.all([findProduct(slug), getLocale()]);
   if (!product) notFound();
+  const fullDict = getDictionary(locale);
+  const t = fullDict.product;
 
   const insightUrl = product.insightUrl?.trim() || "";
   const linkedSlug = insightUrl ? internalInsightSlug(insightUrl) : null;
@@ -104,7 +102,8 @@ export default async function ProductDetailPage({ params }: Props) {
   );
   const certifications = isCertified(product) ? product.certifications! : [];
   const related = relatedProducts(product, products);
-  const quoteHref = `/contact?product=${encodeURIComponent(product.slug)}`;
+  const quoteHref = `/contact?product=${encodeURIComponent(product.slug)}&type=quote`;
+  const sampleHref = `/contact?product=${encodeURIComponent(product.slug)}&type=sample`;
   const categoryHref = `/export?category=${encodeURIComponent(product.category)}#catalog`;
 
   const structuredData = [
@@ -122,18 +121,25 @@ export default async function ProductDetailPage({ params }: Props) {
       additionalProperty: [
         { "@type": "PropertyValue", name: "Minimum Order Quantity", value: product.moq },
         { "@type": "PropertyValue", name: "Availability", value: product.availability },
+        ...(product.hsCode ? [{ "@type": "PropertyValue", name: "HS Code", value: product.hsCode }] : []),
+        ...(product.priceBasis ? [{ "@type": "PropertyValue", name: "Price Basis", value: product.priceBasis }] : []),
         ...(product.specifications || []).map((s) => ({ "@type": "PropertyValue", name: s.label, value: s.value })),
       ],
       hasCertification: certifications.length
-        ? certifications.map((c) => ({ "@type": "Certification", name: c.title, description: c.description }))
+        ? certifications.map((c) => ({
+            "@type": "Certification",
+            name: c.title,
+            description: c.description,
+            url: c.documentUrl || undefined,
+          }))
         : undefined,
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-        { "@type": "ListItem", position: 2, name: "Export Products", item: `${SITE_URL}/export` },
+        { "@type": "ListItem", position: 1, name: t.home, item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: t.exportProducts, item: `${SITE_URL}/export` },
         {
           "@type": "ListItem",
           position: 3,
@@ -152,11 +158,11 @@ export default async function ProductDetailPage({ params }: Props) {
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-ink/45">
           <Link href="/" className="hover:text-navy">
-            Home
+            {t.home}
           </Link>
           <span aria-hidden>/</span>
           <Link href="/export" className="hover:text-navy">
-            Export Products
+            {t.exportProducts}
           </Link>
           <span aria-hidden>/</span>
           <Link href={categoryHref} className="hover:text-navy">
@@ -168,7 +174,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
         {/* Main */}
         <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-14">
-          <ProductGallery images={gallery} productName={product.name} />
+          <ProductGallery images={gallery} productName={product.name} dict={fullDict.productGallery} />
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -183,7 +189,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  {certifications.length} {certifications.length === 1 ? "Certification" : "Certifications"}
+                  {certifications.length} {certifications.length === 1 ? t.certification : t.certifications}
                 </span>
               )}
             </div>
@@ -195,18 +201,30 @@ export default async function ProductDetailPage({ params }: Props) {
 
             <dl className="mt-7 grid grid-cols-1 overflow-hidden rounded-2xl border border-black/[0.08] bg-white sm:grid-cols-3">
               {[
-                { label: "Minimum Order", value: product.moq },
-                { label: "Origin", value: product.origin },
-                { label: "Availability", value: product.availability },
+                { label: t.minimumOrder, value: product.moq },
+                { label: t.origin, value: product.origin },
+                { label: t.availability, value: product.availability },
               ].map((a, i) => (
                 <div
                   key={a.label}
                   className={`px-5 py-4 ${i > 0 ? "border-t border-black/[0.08] sm:border-l sm:border-t-0" : ""}`}
                 >
                   <dt className="text-[11px] uppercase tracking-[0.15em] text-ink/45">{a.label}</dt>
-                  <dd className="mt-1 text-sm font-semibold text-ink/85">{a.value || "On request"}</dd>
+                  <dd className="mt-1 text-sm font-semibold text-ink/85">{a.value || t.priceOnRequest}</dd>
                 </div>
               ))}
+              {product.hsCode && (
+                <div className="border-t border-black/[0.08] px-5 py-4 sm:col-span-3">
+                  <dt className="text-[11px] uppercase tracking-[0.15em] text-ink/45">{t.hsCode}</dt>
+                  <dd className="mt-1 text-sm font-semibold text-ink/85">{product.hsCode}</dd>
+                </div>
+              )}
+              <div className="border-t border-black/[0.08] px-5 py-4 sm:col-span-3">
+                <dt className="text-[11px] uppercase tracking-[0.15em] text-ink/45">{t.pricing}</dt>
+                <dd className="mt-1 text-sm font-semibold text-ink/85">
+                  {t.priceOnRequest}{product.priceBasis ? ` (${product.priceBasis})` : ""}
+                </dd>
+              </div>
             </dl>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -214,18 +232,40 @@ export default async function ProductDetailPage({ params }: Props) {
                 href={quoteHref}
                 className="inline-flex flex-1 items-center justify-center rounded-full bg-navy px-7 py-4 text-[13px] font-semibold tracking-wide text-white transition-colors hover:bg-navy-deeper"
               >
-                REQUEST A QUOTE
+                {t.requestQuote}
               </Link>
               <Link
-                href={categoryHref}
+                href={sampleHref}
                 className="inline-flex flex-1 items-center justify-center rounded-full border border-navy/20 bg-white px-7 py-4 text-center text-[13px] font-semibold tracking-wide text-navy transition-colors hover:bg-navy/5"
               >
-                MORE IN {product.category.toUpperCase()}
+                {t.requestSample}
               </Link>
             </div>
 
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+              <Link
+                href={categoryHref}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-navy/70 hover:text-navy hover:underline"
+              >
+                {t.moreIn} {product.category} <span aria-hidden>&rarr;</span>
+              </Link>
+              {product.specSheetUrl && (
+                <a
+                  href={product.specSheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-navy/70 hover:text-navy hover:underline"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" />
+                  </svg>
+                  {t.downloadSpecSheet}
+                </a>
+              )}
+            </div>
+
             <ul className="mt-6 space-y-2 text-sm text-ink/60">
-              {REASSURANCES.map((line) => (
+              {t.reassurances.map((line) => (
                 <li key={line} className="flex items-center gap-2.5">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" />
                   {line}
@@ -241,7 +281,7 @@ export default async function ProductDetailPage({ params }: Props) {
             {(product.specifications?.length ?? 0) > 0 && (
               <section>
                 <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-                  Specifications
+                  {t.specifications}
                 </h2>
                 <dl className="mt-5 divide-y divide-black/[0.08] overflow-hidden rounded-2xl border border-black/[0.08] bg-white">
                   {product.specifications.map((spec) => (
@@ -260,7 +300,7 @@ export default async function ProductDetailPage({ params }: Props) {
             {certifications.length > 0 && (
               <section>
                 <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-                  Certifications
+                  {t.certifications}
                 </h2>
                 <ul className="mt-5 space-y-3">
                   {certifications.map((cert) => (
@@ -298,6 +338,19 @@ export default async function ProductDetailPage({ params }: Props) {
                         {cert.description && (
                           <p className="mt-1 text-sm leading-relaxed text-ink/60">{cert.description}</p>
                         )}
+                        {cert.documentUrl && (
+                          <a
+                            href={cert.documentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald-700 hover:underline"
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {t.viewCertificate}
+                          </a>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -311,7 +364,7 @@ export default async function ProductDetailPage({ params }: Props) {
         {(insights.length > 0 || externalInsight) && (
           <section className="mt-16">
             <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-              Insights &amp; News About This Product
+              {t.insightsHeading}
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {insights.map((insight) => (
@@ -325,14 +378,14 @@ export default async function ProductDetailPage({ params }: Props) {
                   className="group flex flex-col justify-between rounded-2xl border border-black/[0.07] bg-white p-6 transition-shadow hover:shadow-xl hover:shadow-navy-deeper/10"
                 >
                   <div>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-teal">Featured article</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-teal">{t.featuredArticle}</span>
                     <p className="mt-3 font-display text-lg font-medium leading-snug text-navy-deeper">
-                      Read more about {product.name}
+                      {t.readMoreAbout} {product.name}
                     </p>
                     <p className="mt-2 break-all text-sm text-ink/50">{externalHost(externalInsight)}</p>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-navy transition-all group-hover:gap-2.5">
-                    Open article <span aria-hidden>&#8599;</span>
+                    {t.openArticle} <span aria-hidden>&#8599;</span>
                   </span>
                 </a>
               )}
@@ -344,14 +397,14 @@ export default async function ProductDetailPage({ params }: Props) {
         {related.length > 0 && (
           <section className="mt-16 border-t border-black/[0.08] pt-12">
             <div className="flex items-end justify-between gap-4">
-              <h2 className="font-display text-[24px] font-medium text-navy-deeper md:text-[28px]">You may also need</h2>
+              <h2 className="font-display text-[24px] font-medium text-navy-deeper md:text-[28px]">{t.relatedHeading}</h2>
               <Link href="/export#catalog" className="shrink-0 text-sm font-semibold text-navy hover:underline">
-                Browse all products &rarr;
+                {t.browseAll} &rarr;
               </Link>
             </div>
             <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((p) => (
-                <CatalogProductCard key={p.slug} product={p} />
+                <CatalogProductCard key={p.slug} product={p} labels={t} />
               ))}
             </div>
           </section>

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { errorDetails } from '../lib/errorDetails.js';
 
 const router = Router();
 
@@ -13,11 +14,17 @@ const upload = multer({
     fileSize: 25 * 1024 * 1024, // 25 MB max
   },
   fileFilter: (_req, file, cb) => {
-    // Allow images and common media formats
-    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+    // Allow raster images and PDFs. SVG is deliberately excluded: it's an
+    // XML/script-capable format, and this endpoint serves uploads back with
+    // their original Content-Type — an uploaded SVG with embedded <script>
+    // would execute when its media URL is opened directly (stored XSS).
+    if (
+      (file.mimetype.startsWith('image/') && file.mimetype !== 'image/svg+xml') ||
+      file.mimetype === 'application/pdf'
+    ) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files (JPEG, PNG, WebP, SVG, GIF) and PDF are allowed.'));
+      cb(new Error('Only image files (JPEG, PNG, WebP, GIF) and PDF are allowed.'));
     }
   },
 });
@@ -61,7 +68,7 @@ router.post('/upload', authenticateToken, requireRole(['admin', 'manager', 'edit
     });
   } catch (err: any) {
     console.error('[Upload Error]', err);
-    res.status(500).json({ error: 'Failed to upload and store image in MySQL', details: err.message });
+    res.status(500).json({ error: 'Failed to upload and store image in MySQL', details: errorDetails(err) });
   }
 });
 
@@ -91,7 +98,7 @@ router.get('/media/:filename', async (req: Request, res: Response) => {
     res.end(buffer);
   } catch (err: any) {
     console.error('[Media Stream Error]', err);
-    res.status(500).json({ error: 'Failed to retrieve image from database', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve image from database', details: errorDetails(err) });
   }
 });
 
@@ -106,7 +113,7 @@ router.get('/media', authenticateToken, async (_req: Request, res: Response) => 
     );
     res.json({ media: rows });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to list media from database', details: err.message });
+    res.status(500).json({ error: 'Failed to list media from database', details: errorDetails(err) });
   }
 });
 
@@ -118,7 +125,7 @@ router.delete('/media/:id', authenticateToken, requireRole(['admin', 'manager', 
     await pool.query('DELETE FROM media_uploads WHERE id = ?', [id]);
     res.json({ success: true, message: `Media item #${id} deleted from database.` });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to delete media', details: err.message });
+    res.status(500).json({ error: 'Failed to delete media', details: errorDetails(err) });
   }
 });
 

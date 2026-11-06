@@ -7,10 +7,42 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { navLinks as defaultNavLinks } from "@/data/site";
 import { cn } from "@/lib/utils";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import { useBuyerAuth } from "@/context/BuyerAuthContext";
+import { getDictionary } from "@/i18n/dictionaries";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries";
 
 type NavLink = { label: string; href: string };
 
-export default function Navbar({ navLinks = defaultNavLinks }: { navLinks?: NavLink[] }) {
+const defaultNavDict: Dictionary["nav"] = { requestQuote: "REQUEST A QUOTE" };
+
+function AccountLink({ solid, locale }: { solid: boolean; locale: Locale }) {
+  const { buyer, isLoading } = useBuyerAuth();
+  const dict = getDictionary(locale).account;
+  if (isLoading) return null;
+  return (
+    <Link
+      href={buyer ? "/account/dashboard" : "/account/login"}
+      className={cn(
+        "text-[13px] font-medium tracking-wide transition-colors",
+        solid ? "text-ink/70 hover:text-navy" : "text-white/80 hover:text-white"
+      )}
+    >
+      {buyer ? dict.myAccount : dict.login}
+    </Link>
+  );
+}
+
+export default function Navbar({
+  navLinks = defaultNavLinks,
+  locale = "en",
+  dict = defaultNavDict,
+}: {
+  navLinks?: NavLink[];
+  locale?: Locale;
+  dict?: Dictionary["nav"];
+}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -83,7 +115,9 @@ export default function Navbar({ navLinks = defaultNavLinks }: { navLinks?: NavL
           })}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-5 md:flex">
+          <AccountLink solid={solid} locale={locale} />
+          <LanguageSwitcher locale={locale} dark={!solid} />
           <Link
             href="/contact"
             className={cn(
@@ -93,7 +127,7 @@ export default function Navbar({ navLinks = defaultNavLinks }: { navLinks?: NavL
                 : "border-white/50 text-white hover:bg-white hover:text-navy-deeper"
             )}
           >
-            REQUEST A QUOTE
+            {dict.requestQuote}
           </Link>
         </div>
 
@@ -149,8 +183,12 @@ export default function Navbar({ navLinks = defaultNavLinks }: { navLinks?: NavL
                 href="/contact"
                 className="mt-3 inline-flex items-center justify-center rounded-full bg-navy px-5 py-3 text-[13px] font-semibold text-white"
               >
-                REQUEST A QUOTE
+                {dict.requestQuote}
               </Link>
+              <div className="mt-3 flex items-center justify-center gap-4">
+                <AccountLink solid locale={locale} />
+                <LanguageSwitcher locale={locale} />
+              </div>
             </nav>
           </motion.div>
         )}

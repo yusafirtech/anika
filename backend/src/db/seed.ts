@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { getPool } from './connection.js';
 
 // Default CMS Data for all 8 pages
@@ -867,8 +868,20 @@ export async function seedInitialData(): Promise<void> {
   // 2. Seed default users
   const [userRows]: any = await pool.query('SELECT id FROM users LIMIT 1');
   if (!userRows || userRows.length === 0) {
-    const adminHash = await bcrypt.hash('admin123', 10);
-    const managerHash = await bcrypt.hash('manager123', 10);
+    // In production, don't seed the well-known admin123/manager123 defaults —
+    // they're checked into source and documented publicly, so a fresh
+    // production DB with no admins yet would otherwise be a one-line
+    // takeover. Use ADMIN_SEED_PASSWORD/MANAGER_SEED_PASSWORD if set, else
+    // generate random ones and print them once (only to the server console).
+    const isProd = process.env.NODE_ENV === 'production';
+    const adminPassword = isProd
+      ? process.env.ADMIN_SEED_PASSWORD || crypto.randomBytes(9).toString('base64url')
+      : 'admin123';
+    const managerPassword = isProd
+      ? process.env.MANAGER_SEED_PASSWORD || crypto.randomBytes(9).toString('base64url')
+      : 'manager123';
+    const adminHash = await bcrypt.hash(adminPassword, 10);
+    const managerHash = await bcrypt.hash(managerPassword, 10);
 
     await pool.query(
       `INSERT INTO users (id, username, name, email, password_hash, role, department, status, last_active) VALUES
@@ -896,7 +909,14 @@ export async function seedInitialData(): Promise<void> {
         '2 hours ago',
       ]
     );
-    console.log('[MySQL Seed] Seeded default admin users (admin@anikatrading.com / admin123).');
+    if (isProd) {
+      console.log(
+        '[MySQL Seed] Seeded production admin users. SAVE THESE NOW — they will not be shown again: ' +
+          `admin@anikatrading.com / ${adminPassword}  |  operations@anikatrading.com / ${managerPassword}`
+      );
+    } else {
+      console.log('[MySQL Seed] Seeded default admin users (admin@anikatrading.com / admin123).');
+    }
   }
 
   // 3. Seed initial leads

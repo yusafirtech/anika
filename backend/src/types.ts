@@ -11,18 +11,64 @@ export interface User {
   lastActive?: string;
 }
 
+export type LeadRequestType = 'quote' | 'sample' | 'general';
+
 export interface LeadApplication {
   id: string;
+  buyerId?: string;
   name: string;
   company: string;
   email: string;
   phone: string;
+  country?: string;
+  subject?: string;
   sector: string;
+  buyerType: 'international' | 'bangladesh';
+  requestType?: LeadRequestType;
+  productSlug?: string;
+  quantity?: string;
+  quantityUnit?: string;
+  incoterm?: string;
+  destinationPort?: string;
+  targetShipDate?: string;
+  paymentTerms?: string;
   status: 'Pending' | 'Reviewing' | 'Approved' | 'Archived';
   budget?: string;
   message: string;
   notes?: string;
   createdAt: string;
+}
+
+export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'expired';
+
+export interface QuotationLineItem {
+  description: string;
+  hsCode?: string;
+  quantity: string;
+  unit: string;
+  unitPrice: number;
+}
+
+export interface Quotation {
+  id: string;
+  quoteNumber: string;
+  leadId?: string;
+  buyerId?: string;
+  status: QuotationStatus;
+  buyerName: string;
+  buyerCompany?: string;
+  buyerEmail: string;
+  buyerCountry?: string;
+  lineItems: QuotationLineItem[];
+  currency: string;
+  incoterm?: string;
+  destinationPort?: string;
+  paymentTerms?: string;
+  validUntil?: string;
+  notes?: string;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface HeroSlide {
@@ -201,6 +247,9 @@ export interface ExportPageContent {
     origin: string;
     availability: string;
     moq: string;
+    hsCode?: string;
+    priceBasis?: string;
+    specSheetUrl?: string;
     summary: string;
     image: string;
     images: string[];
@@ -249,6 +298,17 @@ export interface ContactPageContent {
   };
 }
 
+export interface SiteCredentials {
+  exportLicenseNumber?: string;
+  tradeLicenseNumber?: string;
+  binNumber?: string;
+  chamberOfCommerceMembership?: string;
+  bankName?: string;
+  bankBranch?: string;
+  swiftCode?: string;
+  companyProfileUrl?: string;
+}
+
 export interface SiteGlobalContent {
   companyInfo: {
     name: string;
@@ -266,4 +326,5 @@ export interface SiteGlobalContent {
     title: string;
     links: { label: string; href: string }[];
   }[];
+  credentials?: SiteCredentials;
 }

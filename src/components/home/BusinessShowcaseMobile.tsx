@@ -3,19 +3,23 @@ import Link from "next/link";
 import { businessShowcase as defaultBusinessShowcase, type BusinessShowcaseItem } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
 import { resolveImageUrl } from "@/lib/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 export default function BusinessShowcaseMobile({
   businessShowcase = defaultBusinessShowcase,
+  dict = en.home,
 }: {
   businessShowcase?: BusinessShowcaseItem[];
+  dict?: Dictionary["home"];
 }) {
   return (
     <section className="bg-paper px-5 py-16">
       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-navy/60">
-        What We Do
+        {dict.whatWeDoEyebrow}
       </p>
       <h2 className="mt-3 font-display text-[28px] font-medium leading-tight text-navy-deeper">
-        A Connected Business Ecosystem
+        {dict.connectedEcosystemHeading}
       </h2>
 
       <div className="mt-10 flex flex-col gap-10">
@@ -35,7 +39,7 @@ export default function BusinessShowcaseMobile({
               </span>
             </div>
             <span className="brand-gradient-text mt-4 block font-display text-[13px] font-semibold tracking-[0.2em]">
-              BUSINESS {b.index}
+              {dict.businessPrefix} {b.index}
             </span>
             <h3 className="mt-2 font-display text-[21px] font-medium leading-tight text-navy-deeper">
               {b.title}

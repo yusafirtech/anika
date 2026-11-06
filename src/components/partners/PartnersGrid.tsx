@@ -7,11 +7,15 @@ import { partners as defaultPartners } from "@/data/partners";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/cms";
 import type { PartnerItem } from "@/types/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 export default function PartnersGrid({
   partners = defaultPartners,
+  dict = en.partnersExtra,
 }: {
   partners?: PartnerItem[];
+  dict?: Dictionary["partnersExtra"];
 }) {
   const active = useMemo(() => partners.filter((p) => p.status === "Active"), [partners]);
   const categories = ["All", ...Array.from(new Set(active.map((p) => p.category)))];
@@ -42,7 +46,7 @@ export default function PartnersGrid({
         </div>
 
         {filtered.length === 0 ? (
-          <p className="py-16 text-center text-sm text-ink/40">No partners in this category yet.</p>
+          <p className="py-16 text-center text-sm text-ink/40">{dict.noPartners}</p>
         ) : (
           <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
@@ -75,7 +79,7 @@ export default function PartnersGrid({
                     </h3>
                     <div className="mt-2 flex items-center justify-between text-[13px] text-ink/55">
                       <span>{partner.country}</span>
-                      <span>Partner since {partner.partnershipYear}</span>
+                      <span>{dict.partnerSince} {partner.partnershipYear}</span>
                     </div>
                   </div>
                 </motion.div>

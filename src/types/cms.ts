@@ -14,6 +14,20 @@ export interface PartnerItem {
   partnershipYear: number;
 }
 
+// Mirrors admin/src/types.ts's TradeShowItem — a `content_collections`
+// entry (GET /api/collections/tradeshows), not a page-content document.
+export interface TradeShowItem {
+  id: string;
+  eventName: string;
+  startDate: string;
+  endDate?: string;
+  location: string;
+  boothNumber?: string;
+  website?: string;
+  description?: string;
+  image?: string;
+}
+
 export interface HomePageContent {
   hero: {
     eyebrow: string;
@@ -142,6 +156,7 @@ export interface ProductCertification {
   title: string;
   description: string;
   image: string;
+  documentUrl?: string;
 }
 
 export interface ProductSeo {
@@ -159,6 +174,9 @@ export interface ExportProduct {
   origin: string;
   availability: string;
   moq: string;
+  hsCode?: string;
+  priceBasis?: string;
+  specSheetUrl?: string;
   summary: string;
   image: string;
   images: string[];
@@ -247,6 +265,17 @@ export interface ContactPageContent {
   };
 }
 
+export interface SiteCredentials {
+  exportLicenseNumber?: string;
+  tradeLicenseNumber?: string;
+  binNumber?: string;
+  chamberOfCommerceMembership?: string;
+  bankName?: string;
+  bankBranch?: string;
+  swiftCode?: string;
+  companyProfileUrl?: string;
+}
+
 export interface SiteGlobalContent {
   companyInfo: {
     name: string;
@@ -264,4 +293,5 @@ export interface SiteGlobalContent {
     title: string;
     links: { label: string; href: string }[];
   }[];
+  credentials?: SiteCredentials;
 }

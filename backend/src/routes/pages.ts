@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { errorDetails } from '../lib/errorDetails.js';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.get('/', async (_req: Request, res: Response) => {
     );
     res.json({ pages: rows });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve pages list', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve pages list', details: errorDetails(err) });
   }
 });
 
@@ -45,7 +46,7 @@ router.get('/:pageKey', async (req: Request, res: Response) => {
       updatedAt: rows[0].updated_at,
     });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve page content', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve page content', details: errorDetails(err) });
   }
 });
 
@@ -78,7 +79,7 @@ router.put('/:pageKey', authenticateToken, requireRole(['admin', 'manager', 'edi
     });
   } catch (err: any) {
     console.error(`[Pages Error ${req.params.pageKey}]`, err);
-    res.status(500).json({ error: 'Failed to save page content to MySQL', details: err.message });
+    res.status(500).json({ error: 'Failed to save page content to MySQL', details: errorDetails(err) });
   }
 });
 

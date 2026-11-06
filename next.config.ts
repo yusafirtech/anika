@@ -22,6 +22,16 @@ const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
 const isLocalBackend = LOCAL_HOSTNAMES.has(backendOrigin.hostname);
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Every page reads the NEXT_LOCALE cookie (via cookies()), so content
+    // depends on something the client router cache doesn't key on. Without
+    // this, Next.js's default 30s client-side cache can serve a page you
+    // already visited before switching language, showing the old language
+    // again for up to 30s even though the cookie has changed.
+    staleTimes: {
+      dynamic: 0,
+    },
+  },
   images: {
     remotePatterns: [
       {

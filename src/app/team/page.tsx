@@ -5,6 +5,8 @@ import TeamCTA from "@/components/team/TeamCTA";
 import { getPageContent } from "@/lib/cms";
 import type { TeamPageContent } from "@/types/cms";
 import { teamMembers, departments } from "@/data/team";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export const metadata: Metadata = {
   title: "Our Team",
@@ -24,13 +26,17 @@ const DEFAULT_TEAM_CONTENT: TeamPageContent = {
 };
 
 export default async function TeamPage() {
-  const content = await getPageContent<TeamPageContent>("team", DEFAULT_TEAM_CONTENT);
+  const [content, locale] = await Promise.all([
+    getPageContent<TeamPageContent>("team", DEFAULT_TEAM_CONTENT),
+    getLocale(),
+  ]);
+  const dict = getDictionary(locale).teamExtra;
 
   return (
     <>
-      <TeamHero {...content.intro} />
-      <TeamGrid members={content.members} departments={content.departments} />
-      <TeamCTA />
+      <TeamHero {...content.intro} dict={dict} />
+      <TeamGrid members={content.members} departments={content.departments} dict={dict} />
+      <TeamCTA dict={dict} />
     </>
   );
 }

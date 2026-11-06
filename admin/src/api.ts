@@ -1,6 +1,9 @@
 import axios from 'axios';
 import {
   LeadApplication,
+  Quotation,
+  NewsletterSubscriber,
+  BuyerAccount,
   ClientItem,
   InsightItem,
   User,
@@ -722,6 +725,16 @@ const INITIAL_SITEGLOBAL: SiteGlobalContent = {
       ],
     },
   ],
+  credentials: {
+    exportLicenseNumber: '',
+    tradeLicenseNumber: '',
+    binNumber: '',
+    chamberOfCommerceMembership: '',
+    bankName: '',
+    bankBranch: '',
+    swiftCode: '',
+    companyProfileUrl: '',
+  },
 };
 
 const INITIAL_LEADS: LeadApplication[] = [
@@ -903,6 +916,12 @@ export const backendApi = {
             ...row,
             createdAt: row.createdAt || row.created_at,
             buyerType: row.buyerType || row.buyer_type || 'international',
+            requestType: row.requestType || row.request_type || 'general',
+            productSlug: row.productSlug || row.product_slug || undefined,
+            quantityUnit: row.quantityUnit || row.quantity_unit || undefined,
+            destinationPort: row.destinationPort || row.destination_port || undefined,
+            targetShipDate: row.targetShipDate || row.target_ship_date || undefined,
+            paymentTerms: row.paymentTerms || row.payment_terms || undefined,
           }));
           setStored('leads', normalized);
           return normalized;
@@ -927,6 +946,133 @@ export const backendApi = {
         return true;
       } catch (err) {
         console.warn(`[Backend API] Failed to delete lead ${id}:`, err);
+        return false;
+      }
+    },
+  },
+
+  // 3b. Quotations (MySQL `quotations`) — formal PDF quotes built from a lead/RFQ
+  quotations: {
+    getAll: async (params?: { status?: string; leadId?: string; search?: string }): Promise<Quotation[]> => {
+      try {
+        const res = await apiClient.get('/quotations', { params });
+        return res.data?.quotations || [];
+      } catch (err) {
+        console.warn('[Backend API] Failed to list quotations:', err);
+        return [];
+      }
+    },
+    get: async (id: string): Promise<Quotation | null> => {
+      try {
+        const res = await apiClient.get(`/quotations/${id}`);
+        return res.data?.quotation || null;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to fetch quotation ${id}:`, err);
+        return null;
+      }
+    },
+    create: async (payload: Partial<Quotation>): Promise<Quotation | null> => {
+      try {
+        const res = await apiClient.post('/quotations', payload);
+        return res.data?.quotation || null;
+      } catch (err) {
+        console.warn('[Backend API] Failed to create quotation:', err);
+        return null;
+      }
+    },
+    update: async (id: string, updates: Partial<Quotation>): Promise<Quotation | null> => {
+      try {
+        const res = await apiClient.patch(`/quotations/${id}`, updates);
+        return res.data?.quotation || null;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to update quotation ${id}:`, err);
+        return null;
+      }
+    },
+    delete: async (id: string): Promise<boolean> => {
+      try {
+        await apiClient.delete(`/quotations/${id}`);
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to delete quotation ${id}:`, err);
+        return false;
+      }
+    },
+    downloadPdf: async (id: string, quoteNumber: string): Promise<boolean> => {
+      try {
+        const res = await apiClient.get(`/quotations/${id}/pdf`, { responseType: 'blob' });
+        const blobUrl = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `${quoteNumber}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to download PDF for quotation ${id}:`, err);
+        return false;
+      }
+    },
+  },
+
+  // 3c. Newsletter Subscribers (MySQL `newsletter_subscribers`)
+  newsletter: {
+    getAll: async (params?: { status?: string; search?: string }): Promise<NewsletterSubscriber[]> => {
+      try {
+        const res = await apiClient.get('/newsletter', { params });
+        const rows = res.data?.subscribers || [];
+        return rows.map((row: any) => ({
+          id: row.id,
+          email: row.email,
+          name: row.name || undefined,
+          source: row.source || undefined,
+          status: row.status,
+          subscribedAt: row.subscribedAt || row.subscribed_at,
+        }));
+      } catch (err) {
+        console.warn('[Backend API] Failed to list newsletter subscribers:', err);
+        return [];
+      }
+    },
+    delete: async (id: string): Promise<boolean> => {
+      try {
+        await apiClient.delete(`/newsletter/${id}`);
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to delete subscriber ${id}:`, err);
+        return false;
+      }
+    },
+  },
+
+  // 3d. Buyer Accounts (MySQL `buyers`) — admin read-only view + manual verify/delete
+  buyers: {
+    getAll: async (params?: { search?: string }): Promise<BuyerAccount[]> => {
+      try {
+        const res = await apiClient.get('/buyers', { params });
+        return res.data?.buyers || [];
+      } catch (err) {
+        console.warn('[Backend API] Failed to list buyer accounts:', err);
+        return [];
+      }
+    },
+    setVerified: async (id: string, emailVerified: boolean): Promise<boolean> => {
+      try {
+        await apiClient.patch(`/buyers/${id}`, { emailVerified });
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to update buyer ${id}:`, err);
+        return false;
+      }
+    },
+    delete: async (id: string): Promise<boolean> => {
+      try {
+        await apiClient.delete(`/buyers/${id}`);
+        return true;
+      } catch (err) {
+        console.warn(`[Backend API] Failed to delete buyer ${id}:`, err);
         return false;
       }
     },

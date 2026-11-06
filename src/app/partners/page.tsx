@@ -4,6 +4,8 @@ import PartnersGrid from "@/components/partners/PartnersGrid";
 import { getCollectionItems } from "@/lib/cms";
 import type { PartnerItem } from "@/types/cms";
 import { partners } from "@/data/partners";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export const metadata: Metadata = {
   title: "Our Partners",
@@ -12,16 +14,16 @@ export const metadata: Metadata = {
 };
 
 export default async function PartnersPage() {
-  const content = await getCollectionItems<PartnerItem>("partners", partners);
+  const [content, locale] = await Promise.all([
+    getCollectionItems<PartnerItem>("partners", partners),
+    getLocale(),
+  ]);
+  const dict = getDictionary(locale).partnersExtra;
 
   return (
     <>
-      <PageIntro
-        eyebrow="Global Network"
-        title="The Partners We Work With."
-        description="Verified international buyers, suppliers, logistics carriers, and institutional partners connected to ANIKA's supply and export operations."
-      />
-      <PartnersGrid partners={content} />
+      <PageIntro eyebrow={dict.eyebrow} title={dict.heading} description={dict.description} />
+      <PartnersGrid partners={content} dict={dict} />
     </>
   );
 }

@@ -5,6 +5,8 @@ import ContactForm from "@/components/contact/ContactForm";
 import { companyInfo } from "@/data/site";
 import { getExportContent, getPageContent, resolveImageUrl } from "@/lib/cms";
 import type { ContactPageContent } from "@/types/cms";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -48,18 +50,21 @@ export default async function ContactPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { product: productSlug } = await searchParams;
-  const [content, exportContent] = await Promise.all([
+  const { product: productSlug, type: requestTypeParam } = await searchParams;
+  const [content, exportContent, locale] = await Promise.all([
     getPageContent<ContactPageContent>("contact", DEFAULT_CONTACT_CONTENT),
     typeof productSlug === "string" ? getExportContent() : Promise.resolve(null),
+    getLocale(),
   ]);
+  const dict = getDictionary(locale);
   const product = exportContent?.products.find((p) => p.slug === productSlug);
+  const requestType = requestTypeParam === "sample" ? "sample" : "quote";
 
   const infoBlocks = [
-    { label: "Head Office", value: content.coordinates.address },
-    { label: "Phone", value: content.coordinates.phone },
-    { label: "Email", value: content.coordinates.email },
-    { label: "WhatsApp", value: content.coordinates.whatsapp },
+    { label: dict.contactPage.headOffice, value: content.coordinates.address },
+    { label: dict.contactPage.phone, value: content.coordinates.phone },
+    { label: dict.contactPage.email, value: content.coordinates.email },
+    { label: dict.contactPage.whatsapp, value: content.coordinates.whatsapp },
   ];
 
   return (
@@ -116,6 +121,8 @@ export default async function ContactPage({
               inquirySectors={content.formSettings.inquirySectors}
               successMessage={content.formSettings.successMessage}
               product={product ? { name: product.name, slug: product.slug } : null}
+              requestType={product ? requestType : undefined}
+              dict={dict.contactForm}
             />
           </Reveal>
         </div>

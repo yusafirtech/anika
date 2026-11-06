@@ -7,18 +7,22 @@ import { whyReasons as defaultWhyReasons, type WhyReason } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 export default function WhyAnikaMobile({
   whyReasons = defaultWhyReasons,
+  dict = en.home,
 }: {
   whyReasons?: WhyReason[];
+  dict?: Dictionary["home"];
 }) {
   const [openId, setOpenId] = useState(whyReasons[0].id);
 
   return (
     <section className="bg-navy-deeper px-5 py-16">
       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
-        Why ANIKA
+        {dict.whyAnikaEyebrow}
       </p>
 
       <div className="mt-6 flex flex-col">

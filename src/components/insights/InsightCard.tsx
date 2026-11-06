@@ -4,15 +4,18 @@ import { resolveImageUrl } from "@/lib/cms";
 import { formatInsightDate } from "@/lib/insights";
 import { cn } from "@/lib/utils";
 import type { Insight } from "@/types/cms";
+import en from "@/i18n/dictionaries/en";
 
 export default function InsightCard({
   insight,
   variant = "default",
   dark = false,
+  readLabel = en.insightsExtra.readInsight,
 }: {
   insight: Insight;
   variant?: "default" | "featured" | "compact";
   dark?: boolean;
+  readLabel?: string;
 }) {
   const href = `/insights/${insight.slug}`;
   const date = formatInsightDate(insight.publishedAt);
@@ -101,7 +104,7 @@ export default function InsightCard({
             dark ? "text-teal-light" : "text-navy"
           )}
         >
-          Read insight <span aria-hidden>&rarr;</span>
+          {readLabel} <span aria-hidden>&rarr;</span>
         </span>
       </div>
     </Link>

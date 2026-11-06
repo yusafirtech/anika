@@ -3,6 +3,8 @@ import ExportCatalog from "@/components/export/ExportCatalog";
 import ExportProcess from "@/components/export/ExportProcess";
 import BuyerSection from "@/components/export/BuyerSection";
 import { getExportContent } from "@/lib/cms";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export const metadata: Metadata = {
   title: "Export Products From Bangladesh",
@@ -22,7 +24,8 @@ export default async function ExportPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const [content, { q, category }] = await Promise.all([getExportContent(), searchParams]);
+  const [content, { q, category }, locale] = await Promise.all([getExportContent(), searchParams, getLocale()]);
+  const dict = getDictionary(locale);
 
   const initialCategory =
     typeof category === "string" && content.products.some((p) => p.category === category) ? category : "All";
@@ -35,8 +38,10 @@ export default async function ExportPage({
         products={content.products}
         initialQuery={typeof q === "string" ? q : ""}
         initialCategory={initialCategory}
+        dict={dict.exportCatalog}
+        productDict={dict.product}
       />
-      <ExportProcess process={content.process} />
+      <ExportProcess process={content.process} dict={dict.exportProcess} />
       <BuyerSection />
     </>
   );

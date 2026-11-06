@@ -4,10 +4,12 @@ import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { homeProjects } from "@/data/home";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 const SLIDE_DURATION = 5000;
 
-export default function ProjectStoryDesktop() {
+export default function ProjectStoryDesktop({ dict = en.home }: { dict?: Dictionary["home"] }) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -43,7 +45,7 @@ export default function ProjectStoryDesktop() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-roledescription="carousel"
-      aria-label="Projects showcase carousel"
+      aria-label={dict.whatWeWorkedOnHeading}
     >
       {/* Project Card */}
       <div className="relative overflow-hidden rounded-3xl bg-navy-deeper shadow-2xl shadow-navy-deeper/25">
@@ -57,7 +59,7 @@ export default function ProjectStoryDesktop() {
                 </span>
                 {isPaused && (
                   <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] tracking-wider text-white/60">
-                    PAUSED
+                    {dict.paused}
                   </span>
                 )}
               </div>
@@ -81,13 +83,13 @@ export default function ProjectStoryDesktop() {
                     <div className="mt-8 flex flex-wrap gap-x-10 gap-y-3 text-[14px] text-white/60">
                       <div className="rounded-lg bg-white/5 px-4 py-2.5 backdrop-blur-sm border border-white/5">
                         <span className="block text-[10px] uppercase tracking-[0.2em] text-white/40">
-                          Location
+                          {dict.location}
                         </span>
                         <span className="font-medium text-white">{current.location}</span>
                       </div>
                       <div className="rounded-lg bg-white/5 px-4 py-2.5 backdrop-blur-sm border border-white/5">
                         <span className="block text-[10px] uppercase tracking-[0.2em] text-white/40">
-                          Status
+                          {dict.status}
                         </span>
                         <span className="font-medium text-teal-light">{current.status}</span>
                       </div>
@@ -109,7 +111,7 @@ export default function ProjectStoryDesktop() {
                       className={`h-2 rounded-full transition-all ${
                         isActive ? "w-8 brand-gradient-bg" : "w-2 bg-white/20 hover:bg-white/40"
                       }`}
-                      aria-label={`Go to project ${p.name}`}
+                      aria-label={`${dict.goToSlide} ${p.name}`}
                     />
                   );
                 })}
@@ -119,7 +121,7 @@ export default function ProjectStoryDesktop() {
                 <button
                   onClick={prevSlide}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/75 transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white"
-                  aria-label="Previous project"
+                  aria-label={dict.previousProject}
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -128,7 +130,7 @@ export default function ProjectStoryDesktop() {
                 <button
                   onClick={nextSlide}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/75 transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white"
-                  aria-label="Next project"
+                  aria-label={dict.nextProject}
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CrudView } from '../components/CrudView';
-import { FieldDef, PartnerItem } from '../types';
+import { FieldDef, PartnerItem, TradeShowItem } from '../types';
 import { backendApi } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -55,6 +55,74 @@ const INITIAL_PARTNERS: PartnerItem[] = [
     logo: '/images/story-global-connection.jpg',
   },
 ];
+
+// ==========================================
+// Trade Show Calendar
+// ==========================================
+const tradeShowFields: FieldDef[] = [
+  { key: 'eventName', label: 'Event / Exhibition Name', type: 'text', required: true },
+  { key: 'startDate', label: 'Start Date', type: 'date', required: true },
+  { key: 'endDate', label: 'End Date', type: 'date' },
+  { key: 'location', label: 'Location (City, Country / Venue)', type: 'text', required: true },
+  { key: 'boothNumber', label: 'Booth / Stand Number', type: 'text' },
+  { key: 'website', label: 'Official Event Website', type: 'text' },
+  { key: 'description', label: 'Description', type: 'textarea' },
+  { key: 'image', label: 'Banner Image', type: 'image' },
+];
+
+const INITIAL_TRADESHOWS: TradeShowItem[] = [];
+
+export const TradeShowsPage: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const [items, setItems] = useState<TradeShowItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    backendApi.collections.get<TradeShowItem>('tradeshows', INITIAL_TRADESHOWS).then((data) => {
+      if (!cancelled) {
+        setItems(data);
+        setIsLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSave = (item: Partial<TradeShowItem>) => {
+    let updated: TradeShowItem[];
+    if (item.id && items.some((t) => t.id === item.id)) {
+      updated = items.map((t) => (t.id === item.id ? ({ ...t, ...item } as TradeShowItem) : t));
+    } else {
+      updated = [...items, { ...item, id: `show-${Date.now()}` } as TradeShowItem];
+    }
+    setItems(updated);
+    backendApi.collections.save('tradeshows', updated);
+  };
+
+  const handleDelete = (id: string) => {
+    const updated = items.filter((t) => t.id !== id);
+    setItems(updated);
+    backendApi.collections.save('tradeshows', updated);
+  };
+
+  if (isLoading) return <CollectionLoader />;
+
+  return (
+    <CrudView
+      title="Trade Show Calendar"
+      subtitle="Exhibitions and trade shows ANIKA attends — shown on the public Trade Shows page so buyers know where to meet in person."
+      fields={tradeShowFields}
+      items={items}
+      onSave={handleSave}
+      onDelete={handleDelete}
+      canCreate={hasPermission('tradeshows', 'create')}
+      canEdit={hasPermission('tradeshows', 'edit')}
+      canDelete={hasPermission('tradeshows', 'delete')}
+    />
+  );
+};
 
 export const PartnersPage: React.FC = () => {
   const { hasPermission } = useAuth();

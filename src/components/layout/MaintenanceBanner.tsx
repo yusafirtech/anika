@@ -8,11 +8,19 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import type { Dictionary } from "@/i18n/dictionaries";
 
 const DISMISS_KEY = "anika_maintenance_banner_dismissed";
 const SHRINK_AFTER_MS = 5000;
 
-export default function MaintenanceBanner() {
+const defaultDict: Dictionary["maintenance"] = {
+  title: "This website is under development.",
+  text: "Some content and features may be incomplete or change without notice while we finish building things out.",
+  shortText: "Site under development",
+  dismiss: "Dismiss notice",
+};
+
+export default function MaintenanceBanner({ dict = defaultDict }: { dict?: Dictionary["maintenance"] }) {
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(true);
 
@@ -94,18 +102,11 @@ export default function MaintenanceBanner() {
             <motion.div layout="position" className="flex-1">
               {expanded ? (
                 <>
-                  <p className="text-[15px] font-semibold text-white sm:text-base">
-                    This website is under development.
-                  </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-white/70 sm:text-sm">
-                    Some content and features may be incomplete or change without notice while we finish
-                    building things out.
-                  </p>
+                  <p className="text-[15px] font-semibold text-white sm:text-base">{dict.title}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-white/70 sm:text-sm">{dict.text}</p>
                 </>
               ) : (
-                <p className="whitespace-nowrap text-[12px] font-semibold text-white/85">
-                  Site under development
-                </p>
+                <p className="whitespace-nowrap text-[12px] font-semibold text-white/85">{dict.shortText}</p>
               )}
             </motion.div>
 
@@ -115,7 +116,7 @@ export default function MaintenanceBanner() {
                 e.stopPropagation();
                 dismiss();
               }}
-              aria-label="Dismiss notice"
+              aria-label={dict.dismiss}
               className="shrink-0 rounded-full p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

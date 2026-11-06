@@ -3,13 +3,16 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 interface ProductGalleryProps {
   images: string[];
   productName: string;
+  dict?: Dictionary["productGallery"];
 }
 
-export default function ProductGallery({ images, productName }: ProductGalleryProps) {
+export default function ProductGallery({ images, productName, dict = en.productGallery }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -83,8 +86,8 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
         <button
           onClick={() => setIsLightboxOpen(true)}
           className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-navy-deeper/70 text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-navy-deeper"
-          aria-label="View fullscreen gallery"
-          title="Fullscreen Gallery"
+          aria-label={dict.fullscreenGallery}
+          title={dict.fullscreenGallery}
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -105,7 +108,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                 prevImage();
               }}
               className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-navy-deeper/65 text-white backdrop-blur-md opacity-80 hover:opacity-100 transition-all hover:scale-105"
-              aria-label="Previous image"
+              aria-label={dict.previousImage}
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
@@ -117,7 +120,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                 nextImage();
               }}
               className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-navy-deeper/65 text-white backdrop-blur-md opacity-80 hover:opacity-100 transition-all hover:scale-105"
-              aria-label="Next image"
+              aria-label={dict.nextImage}
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
@@ -141,7 +144,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                     ? "ring-2 ring-navy ring-offset-2 scale-[1.03] shadow-md opacity-100"
                     : "opacity-60 hover:opacity-100 hover:scale-[1.01]"
                 }`}
-                aria-label={`View photo ${idx + 1}`}
+                aria-label={`${dict.viewPhoto} ${idx + 1}`}
               >
                 <Image
                   src={img}
@@ -166,7 +169,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
           <button
             onClick={() => setIsLightboxOpen(false)}
             className="absolute right-5 top-5 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 transition-colors"
-            aria-label="Close fullscreen view"
+            aria-label={dict.closeFullscreen}
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -207,7 +210,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                     prevImage();
                   }}
                   className="absolute -left-4 sm:left-2 top-1/2 z-20 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 transition-colors"
-                  aria-label="Previous image"
+                  aria-label={dict.previousImage}
                 >
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
@@ -219,7 +222,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                     nextImage();
                   }}
                   className="absolute -right-4 sm:right-2 top-1/2 z-20 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 transition-colors"
-                  aria-label="Next image"
+                  aria-label={dict.nextImage}
                 >
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />

@@ -6,13 +6,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { whyReasons as defaultWhyReasons, type WhyReason } from "@/data/home";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 const SLIDE_DURATION = 4500; // 4.5 seconds per reason
 
 export default function WhyAnikaDesktop({
   whyReasons = defaultWhyReasons,
+  dict = en.home,
 }: {
   whyReasons?: WhyReason[];
+  dict?: Dictionary["home"];
 }) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -44,7 +48,7 @@ export default function WhyAnikaDesktop({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-roledescription="carousel"
-      aria-label="Why Choose ANIKA"
+      aria-label={dict.whyAnikaEyebrow}
     >
       <div className="flex h-full w-full flex-row">
         {/* Left: Image */}
@@ -81,11 +85,11 @@ export default function WhyAnikaDesktop({
           <div>
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
-                Why ANIKA
+                {dict.whyAnikaEyebrow}
               </p>
               {isPaused && (
                 <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] tracking-wider text-white/60">
-                  PAUSED
+                  {dict.paused}
                 </span>
               )}
             </div>
@@ -104,7 +108,7 @@ export default function WhyAnikaDesktop({
                     <button
                       onClick={() => goToSlide(i)}
                       className="w-full text-left"
-                      aria-label={`Select ${reason.title}`}
+                      aria-label={`${dict.goToSlide} ${reason.title}`}
                     >
                       <div className="flex items-baseline gap-4">
                         <span
@@ -165,7 +169,7 @@ export default function WhyAnikaDesktop({
               <button
                 onClick={prevSlide}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white"
-                aria-label="Previous reason"
+                aria-label={dict.previousSlide}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -174,7 +178,7 @@ export default function WhyAnikaDesktop({
               <button
                 onClick={nextSlide}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white"
-                aria-label="Next reason"
+                aria-label={dict.nextSlide}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

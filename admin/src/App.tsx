@@ -9,8 +9,11 @@ import { Layout } from './components/Layout';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { LoginPage } from './pages/LoginPage';
 import { LeadApplicationsManager } from './pages/LeadApplicationsManager';
+import { QuotationsManager } from './pages/QuotationsManager';
+import { NewsletterManager } from './pages/NewsletterManager';
+import { BuyersManager } from './pages/BuyersManager';
 import { UserManager } from './pages/UserManager';
-import { PartnersPage } from './pages/EntityCrudPages';
+import { PartnersPage, TradeShowsPage } from './pages/EntityCrudPages';
 import { ClientManager } from './pages/ClientManager';
 import { InsightsManager } from './pages/InsightsManager';
 import { SettingsPage } from './pages/SettingsPage';
@@ -135,6 +138,14 @@ export const App: React.FC = () => {
                 </PermissionGuard>
               }
             />
+            <Route
+              path="trade-shows"
+              element={
+                <PermissionGuard resource="tradeshows" action="view">
+                  <TradeShowsPage />
+                </PermissionGuard>
+              }
+            />
 
             {/* Operations Modules */}
             <Route
@@ -142,6 +153,30 @@ export const App: React.FC = () => {
               element={
                 <PermissionGuard resource="leads" action="view">
                   <LeadApplicationsManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="quotations"
+              element={
+                <PermissionGuard resource="quotations" action="view">
+                  <QuotationsManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="newsletter"
+              element={
+                <PermissionGuard resource="newsletter" action="view">
+                  <NewsletterManager />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="buyers"
+              element={
+                <PermissionGuard resource="buyers" action="view">
+                  <BuyersManager />
                 </PermissionGuard>
               }
             />

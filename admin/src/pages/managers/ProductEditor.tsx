@@ -32,6 +32,19 @@ const inputClass =
 
 const labelClass = 'block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5';
 
+// Standard export packaging labels — keeping these consistent across products
+// (rather than letting each one be typed freehand) is what lets buyers compare
+// products side by side and lets a future "packaging" filter work reliably.
+const PACKAGING_SPEC_PRESETS = [
+  'Net Weight',
+  'Gross Weight',
+  'Carton Dimensions',
+  'Carton Quantity per Container',
+  'Pallets per Container',
+  'Shelf Life',
+  'Storage Temperature',
+];
+
 interface ProductEditorProps {
   product: ExportProduct;
   categories: string[];
@@ -224,6 +237,35 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
               />
             </div>
 
+            <div>
+              <label className={labelClass}>HS Code</label>
+              <input
+                type="text"
+                value={product.hsCode || ''}
+                onChange={(e) => set('hsCode', e.target.value)}
+                placeholder="e.g. 0306.17"
+                className={`${inputClass} font-mono`}
+              />
+              <p className="mt-1 text-[11px] text-slate-400">
+                Harmonized System code for customs classification. Buyers and brokers search by this.
+              </p>
+            </div>
+
+            <div>
+              <label className={labelClass}>Price Basis</label>
+              <input
+                type="text"
+                value={product.priceBasis || ''}
+                onChange={(e) => set('priceBasis', e.target.value)}
+                placeholder="e.g. FOB Chittagong Port"
+                className={inputClass}
+              />
+              <p className="mt-1 text-[11px] text-slate-400">
+                The Incoterm and location your quote will be based on. Shown as "Price on request (FOB
+                Chittagong Port)" — no price is ever published, just the basis it'll be quoted against.
+              </p>
+            </div>
+
             <div className="md:col-span-2">
               <label className={labelClass}>Cover Image</label>
               <div className="flex flex-wrap items-center gap-2">
@@ -328,6 +370,34 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                 <p className="text-xs text-slate-500">Rendered as a table on the product page.</p>
               </div>
 
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500 mb-1.5">
+                  Standard packaging fields — click to fill the label, then add the value
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {PACKAGING_SPEC_PRESETS.map((preset) => {
+                    const already = (product.specifications || []).some((s) => s.label === preset);
+                    return (
+                      <button
+                        key={preset}
+                        type="button"
+                        disabled={already}
+                        onClick={() => setNewSpecLabel(preset)}
+                        className={`px-2.5 py-1 text-[11px] font-medium rounded-full border transition-colors ${
+                          already
+                            ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
+                            : newSpecLabel === preset
+                            ? 'bg-teal-600 text-white border-teal-600'
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-teal-300 hover:text-teal-700'
+                        }`}
+                      >
+                        {already ? `✓ ${preset}` : preset}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
@@ -397,6 +467,41 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 pt-5 space-y-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Spec Sheet (PDF)</h3>
+                <p className="text-xs text-slate-500">
+                  A downloadable datasheet buyers can pull up during due diligence. Shown as a "Download Spec
+                  Sheet" link on the product page.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="text"
+                  value={product.specSheetUrl || ''}
+                  onChange={(e) => set('specSheetUrl', e.target.value)}
+                  placeholder="PDF URL, or upload one"
+                  className={`${inputClass} flex-1 min-w-[200px]`}
+                />
+                <ImageUploadButton
+                  label="Upload PDF"
+                  currentUrl={product.specSheetUrl}
+                  onImageUploaded={(url) => set('specSheetUrl', url)}
+                />
+                {product.specSheetUrl && (
+                  <a
+                    href={product.specSheetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View
+                  </a>
+                )}
               </div>
             </div>
           </>
@@ -512,19 +617,41 @@ const CertificationsSection: React.FC<{
                   placeholder="What this certifies, issuing body, validity..."
                   className={inputClass}
                 />
-                <div className="flex flex-wrap items-center gap-2">
-                  <input
-                    type="text"
-                    value={cert.image}
-                    onChange={(e) => update(idx, { image: e.target.value })}
-                    placeholder="Certificate or logo image URL"
-                    className={`${inputClass} flex-1 min-w-[180px]`}
-                  />
-                  <ImageUploadButton
-                    label="Upload Image"
-                    currentUrl={cert.image}
-                    onImageUploaded={(url) => update(idx, { image: url })}
-                  />
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-500 mb-1">Badge / Logo Image</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="text"
+                      value={cert.image}
+                      onChange={(e) => update(idx, { image: e.target.value })}
+                      placeholder="Badge or logo image URL"
+                      className={`${inputClass} flex-1 min-w-[180px]`}
+                    />
+                    <ImageUploadButton
+                      label="Upload Image"
+                      currentUrl={cert.image}
+                      onImageUploaded={(url) => update(idx, { image: url })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                    Certificate Document (PDF/scan) — lets buyers verify this is real
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="text"
+                      value={cert.documentUrl || ''}
+                      onChange={(e) => update(idx, { documentUrl: e.target.value })}
+                      placeholder="PDF or scanned certificate URL"
+                      className={`${inputClass} flex-1 min-w-[180px]`}
+                    />
+                    <ImageUploadButton
+                      label="Upload Document"
+                      currentUrl={cert.documentUrl}
+                      onImageUploaded={(url) => update(idx, { documentUrl: url })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

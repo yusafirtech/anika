@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { errorDetails } from '../lib/errorDetails.js';
 
 const router = Router();
 
@@ -38,7 +39,7 @@ router.get('/', async (req: Request, res: Response) => {
     const [rows]: any = await pool.query(sql, params);
     res.json({ clients: rows });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve clients', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve clients', details: errorDetails(err) });
   }
 });
 
@@ -80,7 +81,7 @@ router.post('/', requireRole(['admin', 'manager']), async (req: Request, res: Re
       client: rows[0],
     });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to create client', details: err.message });
+    res.status(500).json({ error: 'Failed to create client', details: errorDetails(err) });
   }
 });
 
@@ -151,7 +152,7 @@ router.patch('/:id', requireRole(['admin', 'manager', 'editor']), async (req: Re
 
     res.json({ success: true, message: `Client ${id} updated successfully.`, client: rows[0] });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to update client', details: err.message });
+    res.status(500).json({ error: 'Failed to update client', details: errorDetails(err) });
   }
 });
 
@@ -163,7 +164,7 @@ router.delete('/:id', requireRole(['admin', 'manager']), async (req: Request, re
     await pool.query('DELETE FROM clients WHERE id = ?', [id]);
     res.json({ success: true, message: `Client ${id} deleted.` });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to delete client', details: err.message });
+    res.status(500).json({ error: 'Failed to delete client', details: errorDetails(err) });
   }
 });
 

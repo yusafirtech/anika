@@ -8,13 +8,17 @@ import { projects as defaultProjects } from "@/data/projects";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/cms";
 import type { ProjectsPageContent } from "@/types/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 type ProjectItem = ProjectsPageContent["projects"][number];
 
 export default function ProjectsGrid({
   projects = defaultProjects,
+  dict = en.projectsExtra,
 }: {
   projects?: ProjectItem[];
+  dict?: Dictionary["projectsExtra"];
 }) {
   const categories = ["All", ...Array.from(new Set(projects.map((p) => p.category)))];
   const [filter, setFilter] = useState("All");
@@ -90,7 +94,7 @@ export default function ProjectsGrid({
                       href={`/projects/${project.slug}`}
                       className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-navy transition-all hover:gap-3"
                     >
-                      View Case Study <span aria-hidden>&rarr;</span>
+                      {dict.viewCaseStudy} <span aria-hidden>&rarr;</span>
                     </Link>
                   </div>
                 </motion.div>

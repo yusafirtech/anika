@@ -1,13 +1,16 @@
 import HomeHero from "@/components/home/HomeHero";
+import HomeFeaturedExports from "@/components/home/HomeFeaturedExports";
 import SectorStory from "@/components/home/SectorStory";
 import BusinessShowcase from "@/components/home/BusinessShowcase";
 import ProjectStory from "@/components/home/ProjectStory";
 import WhyAnika from "@/components/home/WhyAnika";
 import HomeCTA from "@/components/home/HomeCTA";
 import HomeInsights from "@/components/home/HomeInsights";
-import { getInsights, getPageContent } from "@/lib/cms";
+import { getInsights, getPageContent, getExportContent } from "@/lib/cms";
 import type { HomePageContent } from "@/types/cms";
 import { sectorStories, businessShowcase, whyReasons } from "@/data/home";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 const DEFAULT_HOME_CONTENT: HomePageContent = {
   hero: {
@@ -44,19 +47,24 @@ const DEFAULT_HOME_CONTENT: HomePageContent = {
 };
 
 export default async function Home() {
-  const [content, insights] = await Promise.all([
+  const [content, insights, exportContent, locale] = await Promise.all([
     getPageContent<HomePageContent>("home", DEFAULT_HOME_CONTENT),
     getInsights({ limit: 4 }),
+    getExportContent(),
+    getLocale(),
   ]);
+  const fullDict = getDictionary(locale);
+  const dict = fullDict.home;
 
   return (
     <>
-      <HomeHero {...content.hero} />
-      <SectorStory sectorStories={content.sectorStories} />
-      <BusinessShowcase businessShowcase={content.businessShowcase} />
-      <ProjectStory />
-      <WhyAnika whyReasons={content.whyReasons} />
-      <HomeInsights insights={insights} />
+      <HomeHero {...content.hero} scrollLabel={dict.scroll} />
+      <HomeFeaturedExports products={exportContent.products} dict={dict} productDict={fullDict.product} />
+      <SectorStory sectorStories={content.sectorStories} dict={dict} />
+      <BusinessShowcase businessShowcase={content.businessShowcase} dict={dict} />
+      <ProjectStory dict={dict} />
+      <WhyAnika whyReasons={content.whyReasons} dict={dict} />
+      <HomeInsights insights={insights} dict={dict} readLabel={fullDict.insightsExtra.readInsight} />
       <HomeCTA {...content.cta} />
     </>
   );

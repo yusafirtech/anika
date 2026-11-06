@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { errorDetails } from '../lib/errorDetails.js';
 
 const router = Router();
 
@@ -8,7 +9,7 @@ const router = Router();
 // 'hero', 'products', 'projects', and 'team' were an earlier, unused
 // duplicate catalogue system and have been retired — page content for
 // export products/projects/team is managed through /api/pages instead.
-const ALLOWED_COLLECTIONS = ['partners'];
+const ALLOWED_COLLECTIONS = ['partners', 'tradeshows'];
 
 // GET /api/collections/:key - Fetch a full collection (array) as JSON.
 // Intentionally public/unauthenticated — needed by the live website.
@@ -34,7 +35,7 @@ router.get('/:key', async (req: Request, res: Response) => {
     const items = typeof rows[0].items === 'string' ? JSON.parse(rows[0].items) : rows[0].items;
     res.json({ collectionKey: key, items, updatedAt: rows[0].updated_at });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve collection', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve collection', details: errorDetails(err) });
   }
 });
 
@@ -71,7 +72,7 @@ router.put('/:key', authenticateToken, requireRole(['admin', 'manager', 'editor'
     });
   } catch (err: any) {
     console.error(`[Collections Error ${req.params.key}]`, err);
-    res.status(500).json({ error: 'Failed to save collection to MySQL', details: err.message });
+    res.status(500).json({ error: 'Failed to save collection to MySQL', details: errorDetails(err) });
   }
 });
 

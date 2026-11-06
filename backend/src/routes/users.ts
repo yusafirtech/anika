@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
+import { errorDetails } from '../lib/errorDetails.js';
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.get('/', requireRole(['admin', 'manager']), async (_req: AuthenticatedReq
     );
     res.json({ users: rows });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve users', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve users', details: errorDetails(err) });
   }
 });
 
@@ -89,7 +90,7 @@ router.patch('/me', async (req: AuthenticatedRequest, res: Response) => {
       res.status(409).json({ error: `That ${duplicateFieldFromError(err)} is already taken` });
       return;
     }
-    res.status(500).json({ error: 'Failed to update account', details: err.message });
+    res.status(500).json({ error: 'Failed to update account', details: errorDetails(err) });
   }
 });
 
@@ -131,7 +132,7 @@ router.post('/', requireRole(['admin']), async (req: AuthenticatedRequest, res: 
       res.status(409).json({ error: `A user with this ${duplicateFieldFromError(err)} already exists` });
       return;
     }
-    res.status(500).json({ error: 'Failed to create user', details: err.message });
+    res.status(500).json({ error: 'Failed to create user', details: errorDetails(err) });
   }
 });
 
@@ -194,7 +195,7 @@ router.patch('/:id', requireRole(['admin']), async (req: AuthenticatedRequest, r
       res.status(409).json({ error: `A user with this ${duplicateFieldFromError(err)} already exists` });
       return;
     }
-    res.status(500).json({ error: 'Failed to update user', details: err.message });
+    res.status(500).json({ error: 'Failed to update user', details: errorDetails(err) });
   }
 });
 
@@ -206,7 +207,7 @@ router.delete('/:id', requireRole(['admin']), async (req: AuthenticatedRequest, 
     await pool.query('DELETE FROM users WHERE id = ?', [id]);
     res.json({ success: true, message: `User ${id} deleted.` });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to delete user', details: err.message });
+    res.status(500).json({ error: 'Failed to delete user', details: errorDetails(err) });
   }
 });
 

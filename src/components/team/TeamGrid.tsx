@@ -8,6 +8,8 @@ import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
 import { resolveImageUrl } from "@/lib/cms";
 import type { TeamPageContent } from "@/types/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 type TeamMember = TeamPageContent["members"][number] & { gradient: string };
 
@@ -23,9 +25,11 @@ const AVATAR_GRADIENTS = [
 function MemberModal({
   member,
   onClose,
+  dict,
 }: {
   member: TeamMember;
   onClose: () => void;
+  dict: Dictionary["teamExtra"];
 }) {
   return (
     <AnimatePresence>
@@ -78,7 +82,7 @@ function MemberModal({
             <div className="flex flex-1 flex-col p-7 md:overflow-y-auto md:max-h-[80vh]">
               <button
                 onClick={onClose}
-                aria-label="Close"
+                aria-label={dict.closeModal}
                 className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-ink/40 transition hover:bg-black/10 hover:text-ink"
               >
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -102,7 +106,7 @@ function MemberModal({
 
               <div className="mt-6">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-navy/50">
-                  Areas of Expertise
+                  {dict.areasOfExpertise}
                 </p>
                 <ul className="mt-3 flex flex-wrap gap-2">
                   {member.expertise.map((item) => (
@@ -127,10 +131,12 @@ function MemberCard({
   member,
   onClick,
   index,
+  dict,
 }: {
   member: TeamMember;
   onClick: () => void;
   index: number;
+  dict: Dictionary["teamExtra"];
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -179,7 +185,7 @@ function MemberCard({
             transition={{ duration: 0.25 }}
             className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-4 py-2 text-[12px] font-semibold tracking-wide text-white backdrop-blur-sm"
           >
-            VIEW PROFILE
+            {dict.viewProfile}
           </motion.div>
 
           {/* Dept label */}
@@ -208,7 +214,7 @@ function MemberCard({
             ))}
             {member.expertise.length > 2 && (
               <span className="rounded-full bg-navy/5 px-2.5 py-1 text-[11px] font-medium text-navy/40">
-                +{member.expertise.length - 2} more
+                +{member.expertise.length - 2} {dict.moreSuffix}
               </span>
             )}
           </div>
@@ -221,9 +227,11 @@ function MemberCard({
 export default function TeamGrid({
   members,
   departments = defaultDepartments,
+  dict = en.teamExtra,
 }: {
   members?: TeamPageContent["members"];
   departments?: string[];
+  dict?: Dictionary["teamExtra"];
 }) {
   const teamMembers: TeamMember[] = (members ?? defaultTeamMembers).map((m, i) => ({
     ...m,
@@ -244,14 +252,14 @@ export default function TeamGrid({
           <div className="flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-navy/60">
-                Leadership & Management
+                {dict.leadershipEyebrow}
               </p>
               <h2 className="mt-4 font-display text-[30px] font-medium leading-tight text-navy-deeper md:text-[40px]">
-                Meet the People Who Run ANIKA
+                {dict.meetTeamHeading}
               </h2>
             </div>
             <p className="max-w-sm text-[14px] leading-relaxed text-ink/55">
-              Click any card to learn more about their background, role, and areas of expertise.
+              {dict.clickCardHint}
             </p>
           </div>
         </Reveal>
@@ -292,6 +300,7 @@ export default function TeamGrid({
                   member={member}
                   onClick={() => setActive(member)}
                   index={i}
+                  dict={dict}
                 />
               </motion.div>
             ))}
@@ -300,7 +309,7 @@ export default function TeamGrid({
       </div>
 
       {/* Modal */}
-      {active && <MemberModal member={active} onClose={() => setActive(null)} />}
+      {active && <MemberModal member={active} onClose={() => setActive(null)} dict={dict} />}
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { errorDetails } from '../lib/errorDetails.js';
 
 const router = Router();
 
@@ -98,7 +99,7 @@ router.get('/', async (req: Request, res: Response) => {
     const [rows]: any = await pool.query(sql, params);
     res.json({ insights: rows.map(toInsight) });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve insights', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve insights', details: errorDetails(err) });
   }
 });
 
@@ -111,7 +112,7 @@ router.get('/manage/all', authenticateToken, async (_req: Request, res: Response
     );
     res.json({ insights: rows.map(toInsight) });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve insights', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve insights', details: errorDetails(err) });
   }
 });
 
@@ -129,7 +130,7 @@ router.get('/:slug', async (req: Request, res: Response) => {
     }
     res.json({ insight: toInsight(rows[0]) });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve insight', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve insight', details: errorDetails(err) });
   }
 });
 
@@ -175,7 +176,7 @@ router.post('/', authenticateToken, requireRole(['admin', 'manager', 'editor']),
     const [rows]: any = await pool.query('SELECT * FROM insights WHERE id = ? LIMIT 1', [id]);
     res.status(201).json({ success: true, insight: toInsight(rows[0]) });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to create insight', details: err.message });
+    res.status(500).json({ error: 'Failed to create insight', details: errorDetails(err) });
   }
 });
 
@@ -249,7 +250,7 @@ router.patch('/:id', authenticateToken, requireRole(['admin', 'manager', 'editor
     const [rows]: any = await pool.query('SELECT * FROM insights WHERE id = ? LIMIT 1', [id]);
     res.json({ success: true, insight: toInsight(rows[0]) });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to update insight', details: err.message });
+    res.status(500).json({ error: 'Failed to update insight', details: errorDetails(err) });
   }
 });
 
@@ -260,7 +261,7 @@ router.delete('/:id', authenticateToken, requireRole(['admin', 'manager']), asyn
     await pool.query('DELETE FROM insights WHERE id = ?', [req.params.id]);
     res.json({ success: true, message: `Insight ${req.params.id} deleted.` });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to delete insight', details: err.message });
+    res.status(500).json({ error: 'Failed to delete insight', details: errorDetails(err) });
   }
 });
 

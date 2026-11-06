@@ -3,12 +3,19 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth.js';
+import { loginLimiter } from '../middleware/rateLimit.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'anika_trading_super_secret_jwt_key_2026';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  console.error(
+    '[SECURITY WARNING] JWT_SECRET is not set in production — falling back to the publicly-known ' +
+      'default secret. Anyone can forge valid admin tokens until you set JWT_SECRET in your .env.'
+  );
+}
 
 // POST /api/auth/login
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {

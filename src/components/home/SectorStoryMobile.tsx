@@ -2,16 +2,20 @@ import Image from "next/image";
 import { sectorStories as defaultSectorStories, type SectorStory } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
 import { resolveImageUrl } from "@/lib/cms";
+import type { Dictionary } from "@/i18n/dictionaries";
+import en from "@/i18n/dictionaries/en";
 
 export default function SectorStoryMobile({
   sectorStories = defaultSectorStories,
+  dict = en.home,
 }: {
   sectorStories?: SectorStory[];
+  dict?: Dictionary["home"];
 }) {
   return (
     <section className="bg-navy-deeper px-5 py-16">
       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-teal-light">
-        The Sectors We Move Through
+        {dict.sectorsEyebrow}
       </p>
 
       <div className="mt-8 flex flex-col gap-12">

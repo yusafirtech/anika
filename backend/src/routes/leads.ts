@@ -1,10 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { getPool } from '../db/connection.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { optionalBuyerToken, BuyerAuthenticatedRequest } from '../middleware/buyerAuth.js';
+import { errorDetails } from '../lib/errorDetails.js';
 
 const router = Router();
 
 const BUYER_TYPES = ['international', 'bangladesh'];
+const REQUEST_TYPES = ['quote', 'sample', 'general'];
 
 // GET /api/leads - List and filter leads (admin panel only)
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
@@ -41,15 +44,36 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
     const [rows]: any = await pool.query(sql, params);
     res.json({ leads: rows });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to retrieve leads', details: err.message });
+    res.status(500).json({ error: 'Failed to retrieve leads', details: errorDetails(err) });
   }
 });
 
 // POST /api/leads - Create new lead. Intentionally public/unauthenticated —
-// this is the endpoint the public site's contact form submits to.
-router.post('/', async (req: Request, res: Response) => {
+// this is the endpoint the public site's contact form submits to. A buyer
+// portal token is optional: if the submitter happens to be logged in, the
+// lead gets tagged to their account so it shows up in their dashboard.
+router.post('/', optionalBuyerToken, async (req: BuyerAuthenticatedRequest, res: Response) => {
   try {
-    const { name, company, email, phone, country, subject, sector, budget, message, buyerType } = req.body;
+    const {
+      name,
+      company,
+      email,
+      phone,
+      country,
+      subject,
+      sector,
+      budget,
+      message,
+      buyerType,
+      requestType,
+      productSlug,
+      quantity,
+      quantityUnit,
+      incoterm,
+      destinationPort,
+      targetShipDate,
+      paymentTerms,
+    } = req.body;
     if (!name || !email) {
       res.status(400).json({ error: 'Name and email are required.' });
       return;
@@ -58,12 +82,17 @@ router.post('/', async (req: Request, res: Response) => {
     const pool = getPool();
     const id = `lead-${Date.now()}`;
     const resolvedBuyerType = BUYER_TYPES.includes(buyerType) ? buyerType : 'international';
+    const resolvedRequestType = REQUEST_TYPES.includes(requestType) ? requestType : 'general';
 
     await pool.query(
-      `INSERT INTO leads (id, name, company, email, phone, country, subject, sector, buyer_type, status, budget, message, notes, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?, '', NOW())`,
+      `INSERT INTO leads (
+        id, buyer_id, name, company, email, phone, country, subject, sector, buyer_type,
+        request_type, product_slug, quantity, quantity_unit, incoterm, destination_port, target_ship_date, payment_terms,
+        status, budget, message, notes, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?, '', NOW())`,
       [
         id,
+        req.buyer?.id || null,
         name,
         company || '',
         email,
@@ -72,6 +101,14 @@ router.post('/', async (req: Request, res: Response) => {
         subject || null,
         sector || 'General',
         resolvedBuyerType,
+        resolvedRequestType,
+        productSlug || null,
+        quantity || null,
+        quantityUnit || null,
+        incoterm || null,
+        destinationPort || null,
+        targetShipDate || null,
+        paymentTerms || null,
         budget || '',
         message || '',
       ]
@@ -83,7 +120,7 @@ router.post('/', async (req: Request, res: Response) => {
       leadId: id,
     });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to submit inquiry', details: err.message });
+    res.status(500).json({ error: 'Failed to submit inquiry', details: errorDetails(err) });
   }
 });
 
@@ -116,7 +153,7 @@ router.patch('/:id', authenticateToken, requireRole(['admin', 'manager']), async
 
     res.json({ success: true, message: `Lead ${id} updated successfully.` });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to update lead', details: err.message });
+    res.status(500).json({ error: 'Failed to update lead', details: errorDetails(err) });
   }
 });
 
@@ -128,7 +165,7 @@ router.delete('/:id', authenticateToken, requireRole(['admin', 'manager']), asyn
     await pool.query('DELETE FROM leads WHERE id = ?', [id]);
     res.json({ success: true, message: `Lead ${id} deleted.` });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to delete lead', details: err.message });
+    res.status(500).json({ error: 'Failed to delete lead', details: errorDetails(err) });
   }
 });
 

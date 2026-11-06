@@ -6,6 +6,8 @@ import { projects as defaultProjects } from "@/data/projects";
 import Reveal from "@/components/ui/Reveal";
 import { getPageContent, resolveImageUrl } from "@/lib/cms";
 import type { ProjectsPageContent } from "@/types/cms";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 async function getAllProjects() {
   const content = await getPageContent<ProjectsPageContent>("projects", {
@@ -40,9 +42,10 @@ export default async function ProjectDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const projects = await getAllProjects();
+  const [projects, locale] = await Promise.all([getAllProjects(), getLocale()]);
   const project = projects.find((p) => p.slug === slug);
   if (!project) notFound();
+  const t = getDictionary(locale).projectsExtra;
 
   const related =
     projects.filter((p) => p.slug !== slug && p.category === project.category).slice(0, 2).length > 0
@@ -80,26 +83,26 @@ export default async function ProjectDetailPage({
           <Reveal>
             <div className="static flex flex-col gap-6 md:sticky md:top-28">
               <div>
-                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">Year</span>
+                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">{t.year}</span>
                 <span className="text-sm text-ink/70">{project.year}</span>
               </div>
               <div>
-                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">Status</span>
+                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">{t.status}</span>
                 <span className="text-sm text-ink/70">{project.status}</span>
               </div>
               <div>
-                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">Location</span>
+                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">{t.location}</span>
                 <span className="text-sm text-ink/70">{project.location}</span>
               </div>
               <div>
-                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">Category</span>
+                <span className="block text-[11px] uppercase tracking-[0.2em] text-ink/40">{t.category}</span>
                 <span className="text-sm text-ink/70">{project.category}</span>
               </div>
               <Link
                 href="/contact"
                 className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-navy px-6 py-3 text-[13px] font-semibold tracking-wide text-white transition-transform hover:scale-[1.03]"
               >
-                DISCUSS A PROJECT
+                {t.discussProject}
               </Link>
             </div>
           </Reveal>
@@ -107,7 +110,7 @@ export default async function ProjectDetailPage({
           <div className="flex flex-col gap-14">
             <Reveal>
               <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-                Project Overview
+                {t.overview}
               </h2>
               <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-ink/70">
                 {project.overview}
@@ -116,7 +119,7 @@ export default async function ProjectDetailPage({
 
             <Reveal delay={0.05}>
               <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-                Scope
+                {t.scope}
               </h2>
               <ul className="mt-4 flex flex-col gap-3">
                 {project.scope.map((item) => (
@@ -130,7 +133,7 @@ export default async function ProjectDetailPage({
 
             <Reveal delay={0.1}>
               <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-                Execution
+                {t.execution}
               </h2>
               <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-ink/70">
                 {project.execution}
@@ -139,7 +142,7 @@ export default async function ProjectDetailPage({
 
             <Reveal delay={0.15}>
               <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-                Visual Documentation
+                {t.visualDocs}
               </h2>
               <div className="relative mt-4 h-[42vh] w-full overflow-hidden rounded-2xl">
                 <Image
@@ -151,7 +154,7 @@ export default async function ProjectDetailPage({
                 />
               </div>
               <p className="mt-3 text-xs text-ink/40">
-                Additional site documentation to be added as it becomes available.
+                {t.visualDocsNote}
               </p>
             </Reveal>
           </div>
@@ -162,7 +165,7 @@ export default async function ProjectDetailPage({
         <section className="border-t border-black/5 bg-mist py-16 md:py-20">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
             <h2 className="font-display text-[13px] font-semibold uppercase tracking-[0.25em] text-navy/60">
-              Related Projects
+              {t.relatedProjects}
             </h2>
             <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
               {related.map((p) => (

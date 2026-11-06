@@ -4,9 +4,15 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MaintenanceBanner from "@/components/layout/MaintenanceBanner";
+import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { SITE_URL, getPageContent, jsonLd } from "@/lib/cms";
 import type { SiteGlobalContent } from "@/types/cms";
 import { navLinks, footerColumns, companyInfo } from "@/data/site";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
+import { rtlLocales } from "@/i18n/config";
+import { BuyerAuthProvider } from "@/context/BuyerAuthContext";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -41,18 +47,26 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const site = await getPageContent<SiteGlobalContent>("site", {
-    companyInfo,
-    navLinks,
-    footerColumns,
-  });
+  const [site, locale] = await Promise.all([
+    getPageContent<SiteGlobalContent>("site", {
+      companyInfo,
+      navLinks,
+      footerColumns,
+    }),
+    getLocale(),
+  ]);
+  const dict = getDictionary(locale);
+  const dir = rtlLocales.includes(locale) ? "rtl" : "ltr";
 
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={dir}
       className={`${inter.variable} ${bricolage.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        <BuyerAuthProvider>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -74,10 +88,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             }),
           }}
         />
-        <Navbar navLinks={site.navLinks} />
+        <Navbar navLinks={site.navLinks} locale={locale} dict={dict.nav} />
         <main className="flex-1">{children}</main>
         <Footer footerColumns={site.footerColumns} companyInfo={site.companyInfo} />
-        <MaintenanceBanner />
+        <MaintenanceBanner dict={dict.maintenance} />
+        <WhatsAppButton phone={site.companyInfo.whatsapp} dict={dict.whatsapp} />
+        </BuyerAuthProvider>
       </body>
     </html>
   );

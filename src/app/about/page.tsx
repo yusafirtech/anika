@@ -3,10 +3,14 @@ import AboutIntro from "@/components/about/AboutIntro";
 import CompanyTimeline from "@/components/about/CompanyTimeline";
 import MissionVision from "@/components/about/MissionVision";
 import CoreValues from "@/components/about/CoreValues";
+import ExportCredentials from "@/components/about/ExportCredentials";
 import BusinessPhilosophy from "@/components/about/BusinessPhilosophy";
 import { getPageContent } from "@/lib/cms";
-import type { AboutPageContent } from "@/types/cms";
+import type { AboutPageContent, SiteGlobalContent } from "@/types/cms";
 import { timelineStages, coreValues } from "@/data/about";
+import { companyInfo, navLinks, footerColumns } from "@/data/site";
+import { getLocale } from "@/i18n/getLocale";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -45,15 +49,21 @@ const DEFAULT_ABOUT_CONTENT: AboutPageContent = {
 };
 
 export default async function AboutPage() {
-  const content = await getPageContent<AboutPageContent>("about", DEFAULT_ABOUT_CONTENT);
+  const [content, site, locale] = await Promise.all([
+    getPageContent<AboutPageContent>("about", DEFAULT_ABOUT_CONTENT),
+    getPageContent<SiteGlobalContent>("site", { companyInfo, navLinks, footerColumns }),
+    getLocale(),
+  ]);
+  const dict = getDictionary(locale).aboutExtra;
 
   return (
     <>
       <AboutIntro {...content.intro} />
       <CompanyTimeline timeline={content.timeline} />
       <MissionVision {...content.missionVision} />
-      <CoreValues coreValues={content.coreValues} />
-      <BusinessPhilosophy image={content.philosophy.image} />
+      <CoreValues coreValues={content.coreValues} dict={dict} />
+      <ExportCredentials credentials={site.credentials} />
+      <BusinessPhilosophy image={content.philosophy.image} dict={dict} />
     </>
   );
 }
