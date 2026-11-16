@@ -1,10 +1,9 @@
-import Image from "next/image";
 import { timelineStages as defaultTimelineStages } from "@/data/about";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 
-type TimelineStage = { id: string; label: string; title: string; description: string; image: string };
+type TimelineStage = { id: string; label: string; title: string; description: string; image: string; images?: string[] };
 
 export default function CompanyTimelineMobile({
   timeline: timelineStages = defaultTimelineStages,
@@ -30,12 +29,11 @@ export default function CompanyTimelineMobile({
               {s.title}
             </h3>
             <div className="relative mt-3 h-[26vh] w-full overflow-hidden rounded-2xl">
-              <Image
-                src={resolveImageUrl(s.image)}
+              <AutoImageSwiper
+                images={s.images?.length ? s.images : [s.image]}
                 alt={s.title}
-                fill
                 sizes="100vw"
-                loading={i === 0 ? "eager" : "lazy"}
+                priority={i === 0}
                 className="object-cover"
               />
             </div>

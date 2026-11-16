@@ -14,13 +14,12 @@ import {
   Package,
   Layers,
   ExternalLink,
-  ListOrdered,
   BadgeCheck,
 } from 'lucide-react';
 
 export const ExportPageManager: React.FC = () => {
   const [content, setContent] = useState<ExportPageContent>(() => mockDb.getExportPage());
-  const [activeTab, setActiveTab] = useState<'intro' | 'categories' | 'process' | 'products'>('products');
+  const [activeTab, setActiveTab] = useState<'intro' | 'categories' | 'products'>('products');
   const [selectedProductIdx, setSelectedProductIdx] = useState<number>(0);
   const [insights, setInsights] = useState<InsightItem[]>([]);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -89,28 +88,6 @@ export const ExportPageManager: React.FC = () => {
     setContent({ ...content, categories: content.categories.filter((_, i) => i !== index) });
   };
 
-  // Process step handlers
-  const handleProcessChange = (index: number, field: string, val: string) => {
-    const updated = [...content.process];
-    updated[index] = { ...updated[index], [field]: val };
-    setContent({ ...content, process: updated });
-  };
-
-  const handleAddProcess = () => {
-    const newStepNum = (content.process.length + 1).toString().padStart(2, '0');
-    setContent({
-      ...content,
-      process: [
-        ...content.process,
-        { step: `Step ${newStepNum} — New Phase`, description: 'Standard operational protocol and inspection step.' },
-      ],
-    });
-  };
-
-  const handleDeleteProcess = (index: number) => {
-    setContent({ ...content, process: content.process.filter((_, i) => i !== index) });
-  };
-
   // Product handlers
   const handleProductReplace = (index: number, product: ExportProduct) => {
     const updated = [...content.products];
@@ -138,6 +115,7 @@ export const ExportPageManager: React.FC = () => {
       certifications: [],
       insightUrl: '',
       seo: { metaTitle: '', metaDescription: '', keywords: '', ogImage: '', noIndex: false },
+      process: [],
     };
     setContent({ ...content, products: [newProd, ...content.products] });
     setSelectedProductIdx(0);
@@ -188,7 +166,7 @@ export const ExportPageManager: React.FC = () => {
           </div>
           <h1 className="text-2xl font-bold text-slate-900 mt-1">Export Division & Products Manager</h1>
           <p className="text-sm text-slate-500">
-            Products, certifications, linked insights, SEO, categories, and the export process.
+            Products, certifications, linked insights, SEO, categories, and each product's fulfillment process.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -223,10 +201,6 @@ export const ExportPageManager: React.FC = () => {
         <button onClick={() => setActiveTab('categories')} className={tabClass('categories')}>
           <Layers className="w-4 h-4" />
           Product Categories ({content.categories.length})
-        </button>
-        <button onClick={() => setActiveTab('process')} className={tabClass('process')}>
-          <ListOrdered className="w-4 h-4" />
-          Export Process ({content.process.length})
         </button>
         <button onClick={() => setActiveTab('intro')} className={tabClass('intro')}>
           <Globe2 className="w-4 h-4" />
@@ -394,63 +368,6 @@ export const ExportPageManager: React.FC = () => {
                 </div>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {/* Tab: Process Steps */}
-      {activeTab === 'process' && (
-        <div className="bg-white p-6 rounded-b-xl border border-slate-200 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">Export Fulfillment Process</h2>
-              <p className="text-xs text-slate-500">The step-by-step process shown on the export page.</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleAddProcess}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg border border-teal-200 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Process Step
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {content.process.map((step, idx) => (
-              <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-start gap-4">
-                <span className="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1">
-                  {idx + 1}
-                </span>
-                <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="sm:col-span-1">
-                    <label className="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Step Title</label>
-                    <input
-                      type="text"
-                      value={step.step}
-                      onChange={(e) => handleProcessChange(idx, 'step', e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 font-medium"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Description</label>
-                    <input
-                      type="text"
-                      value={step.description}
-                      onChange={(e) => handleProcessChange(idx, 'description', e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteProcess(idx)}
-                  className="text-slate-400 hover:text-rose-600 p-2 transition-colors shrink-0"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BusinessPageContent } from '../../types';
 import { mockDb, backendApi } from '../../api';
 import { ImageUploadButton } from '../../components/ImageUploadButton';
+import { MultiImageUploadField } from '../../components/MultiImageUploadField';
 import {
   Save,
   CheckCircle2,
@@ -395,6 +396,14 @@ export const BusinessPageManager: React.FC = () => {
                         label="Upload Image"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <MultiImageUploadField
+                      label="Additional Images (auto-rotating slideshow on this card)"
+                      images={activeVertical.images || []}
+                      onChange={(images) => handleVerticalChange(selectedVerticalIdx, 'images', images)}
+                    />
                   </div>
 
                   <div>

@@ -44,16 +44,7 @@ export interface HomePageContent {
     title: string;
     description: string;
     image: string;
-  }[];
-  businessShowcase: {
-    id: string;
-    index: string;
-    title: string;
-    description: string;
-    points: string[];
-    cta: string;
-    href: string;
-    image: string;
+    images?: string[];
   }[];
   whyReasons: {
     id: string;
@@ -61,6 +52,7 @@ export interface HomePageContent {
     title: string;
     description: string;
     image: string;
+    images?: string[];
   }[];
   cta: {
     eyebrow: string;
@@ -81,6 +73,7 @@ export interface AboutPageContent {
     leadText: string;
     bodyText: string;
     image: string;
+    images?: string[];
     stats: { value: string; label: string }[];
   };
   timeline: {
@@ -89,6 +82,7 @@ export interface AboutPageContent {
     title: string;
     description: string;
     image: string;
+    images?: string[];
   }[];
   missionVision: {
     missionTitle: string;
@@ -108,7 +102,26 @@ export interface AboutPageContent {
     authorName: string;
     authorTitle: string;
     image: string;
+    images?: string[];
   };
+  gallery: {
+    eyebrow: string;
+    heading: string;
+    description: string;
+    images: { id: string; image: string; caption?: string }[];
+  };
+}
+
+// Mirrors admin/src/types.ts's BrandClientItem — a `content_collections`
+// entry (GET /api/collections/brandclients), not a page-content document.
+// Deliberately separate from the internal CRM `ClientItem` (admin-only,
+// holds contact emails/phone) — this is the public, logo-only "who we work
+// with" showcase for the homepage Our Brand marquee.
+export interface BrandClientItem {
+  id: string;
+  name: string;
+  logo: string;
+  website?: string;
 }
 
 export interface BusinessPageContent {
@@ -126,6 +139,7 @@ export interface BusinessPageContent {
     capabilities: string[];
     cta: string;
     image: string;
+    images?: string[];
     layout: "side" | "banner" | "reverse";
   }[];
 }
@@ -148,6 +162,7 @@ export interface ProjectsPageContent {
     scope: string[];
     execution: string;
     image: string;
+    images?: string[];
   }[];
 }
 
@@ -185,6 +200,7 @@ export interface ExportProduct {
   certifications?: ProductCertification[];
   insightUrl?: string;
   seo?: ProductSeo;
+  process?: { step: string; description: string }[];
 }
 
 export interface ExportPageContent {
@@ -197,10 +213,6 @@ export interface ExportPageContent {
     id: string;
     label: string;
     image: string;
-  }[];
-  process: {
-    step: string;
-    description: string;
   }[];
   products: ExportProduct[];
 }
@@ -236,6 +248,7 @@ export interface TeamPageContent {
     title: string;
     department: string;
     image: string | null;
+    images?: string[];
     initials: string;
     bio: string;
     expertise: string[];

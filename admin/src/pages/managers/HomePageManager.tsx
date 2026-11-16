@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HomePageContent } from '../../types';
 import { mockDb, backendApi } from '../../api';
 import { ImageUploadButton } from '../../components/ImageUploadButton';
+import { MultiImageUploadField } from '../../components/MultiImageUploadField';
 import {
   Save,
   CheckCircle2,
@@ -27,7 +28,6 @@ function isValidHomeContent(data: any): data is HomePageContent {
     Array.isArray(data.hero.headlineWords) &&
     Array.isArray(data.hero.keywords) &&
     Array.isArray(data.sectorStories) &&
-    Array.isArray(data.businessShowcase) &&
     Array.isArray(data.whyReasons) &&
     !!data.cta
   );
@@ -35,7 +35,7 @@ function isValidHomeContent(data: any): data is HomePageContent {
 
 export const HomePageManager: React.FC = () => {
   const [content, setContent] = useState<HomePageContent>(() => mockDb.getHomePage());
-  const [activeTab, setActiveTab] = useState<'hero' | 'sectors' | 'business' | 'why' | 'cta'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'sectors' | 'why' | 'cta'>('hero');
   const [toast, setToast] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -88,7 +88,7 @@ export const HomePageManager: React.FC = () => {
   };
 
   // Sector stories handlers
-  const handleSectorChange = (index: number, field: string, val: string) => {
+  const handleSectorChange = (index: number, field: string, val: string | string[]) => {
     const updated = [...content.sectorStories];
     updated[index] = { ...updated[index], [field]: val };
     setContent({ ...content, sectorStories: updated });
@@ -115,15 +115,8 @@ export const HomePageManager: React.FC = () => {
     });
   };
 
-  // Business showcase handlers
-  const handleBusinessChange = (index: number, field: string, val: any) => {
-    const updated = [...content.businessShowcase];
-    updated[index] = { ...updated[index], [field]: val };
-    setContent({ ...content, businessShowcase: updated });
-  };
-
   // Why reasons handlers
-  const handleWhyChange = (index: number, field: string, val: string) => {
+  const handleWhyChange = (index: number, field: string, val: string | string[]) => {
     const updated = [...content.whyReasons];
     updated[index] = { ...updated[index], [field]: val };
     setContent({ ...content, whyReasons: updated });
@@ -168,9 +161,8 @@ export const HomePageManager: React.FC = () => {
         {[
           { id: 'hero', label: '1. Hero Section' },
           { id: 'sectors', label: '2. Sector Stories Carousel' },
-          { id: 'business', label: '3. Business Ecosystem Swiper' },
-          { id: 'why', label: '4. Why ANIKA Reasons' },
-          { id: 'cta', label: '5. Bottom CTA Banner' },
+          { id: 'why', label: '3. Why ANIKA Reasons' },
+          { id: 'cta', label: '4. Bottom CTA Banner' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -443,123 +435,13 @@ export const HomePageManager: React.FC = () => {
                         )}
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* ==========================================
-            TAB 3: BUSINESS SHOWCASE
-            ========================================== */}
-        {activeTab === 'business' && (
-          <div className="space-y-4">
-            <h3 className="text-base font-bold text-slate-900">
-              Connected Business Showcase Items ({content.businessShowcase.length})
-            </h3>
-
-            <div className="space-y-4">
-              {content.businessShowcase.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4"
-                >
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <span className="font-bold text-xs text-teal-700">
-                      Business #{item.index} &middot; {item.title}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-700">Index Tag</label>
-                      <input
-                        type="text"
-                        value={item.index}
-                        onChange={(e) => handleBusinessChange(idx, 'index', e.target.value)}
-                        className="w-full rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                    <div className="space-y-1 md:col-span-2 pt-2 border-t border-slate-100">
+                      <MultiImageUploadField
+                        label="Additional Images (shown as an auto-rotating slideshow on this card)"
+                        images={story.images || []}
+                        onChange={(images) => handleSectorChange(idx, 'images', images)}
                       />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-700">Business Title</label>
-                      <input
-                        type="text"
-                        value={item.title}
-                        onChange={(e) => handleBusinessChange(idx, 'title', e.target.value)}
-                        className="w-full rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1 md:col-span-2">
-                      <label className="text-xs font-semibold text-slate-700">Overview Description</label>
-                      <textarea
-                        rows={2}
-                        value={item.description}
-                        onChange={(e) => handleBusinessChange(idx, 'description', e.target.value)}
-                        className="w-full rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1 md:col-span-2">
-                      <label className="text-xs font-semibold text-slate-700">
-                        Bullet Points (comma-separated)
-                      </label>
-                      <input
-                        type="text"
-                        value={item.points.join(', ')}
-                        onChange={(e) =>
-                          handleBusinessChange(
-                            idx,
-                            'points',
-                            e.target.value.split(',').map((p) => p.trim())
-                          )
-                        }
-                        className="w-full rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-700">CTA Label</label>
-                      <input
-                        type="text"
-                        value={item.cta}
-                        onChange={(e) => handleBusinessChange(idx, 'cta', e.target.value)}
-                        className="w-full rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-700">CTA Link Target</label>
-                      <input
-                        type="text"
-                        value={item.href}
-                        onChange={(e) => handleBusinessChange(idx, 'href', e.target.value)}
-                        className="w-full rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1 md:col-span-2">
-                      <label className="text-xs font-semibold text-slate-700">Image</label>
-                      <div className="flex flex-wrap gap-3 items-center">
-                        <ImageUploadButton
-                          label="Upload from Device"
-                          currentUrl={item.image}
-                          onImageUploaded={(url) => handleBusinessChange(idx, 'image', url)}
-                        />
-                        <input
-                          type="text"
-                          value={item.image}
-                          onChange={(e) => handleBusinessChange(idx, 'image', e.target.value)}
-                          className="flex-1 min-w-[160px] rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
-                        />
-                        {item.image && (
-                          <div className="h-12 w-20 overflow-hidden rounded-lg border border-slate-200 shrink-0 bg-slate-100">
-                            <img src={item.image} alt="Preview" className="h-full w-full object-cover" />
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -569,7 +451,7 @@ export const HomePageManager: React.FC = () => {
         )}
 
         {/* ==========================================
-            TAB 4: WHY ANIKA
+            TAB 3: WHY ANIKA
             ========================================== */}
         {activeTab === 'why' && (
           <div className="space-y-4">
@@ -625,6 +507,13 @@ export const HomePageManager: React.FC = () => {
                         </div>
                       )}
                     </div>
+                    <div className="mt-3 pt-3 border-t border-slate-100">
+                      <MultiImageUploadField
+                        label="Additional Images (auto-rotating slideshow on this card)"
+                        images={reason.images || []}
+                        onChange={(images) => handleWhyChange(idx, 'images', images)}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -633,7 +522,7 @@ export const HomePageManager: React.FC = () => {
         )}
 
         {/* ==========================================
-            TAB 5: BOTTOM CTA
+            TAB 4: BOTTOM CTA
             ========================================== */}
         {activeTab === 'cta' && (
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">

@@ -1,12 +1,11 @@
 ﻿"use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { teamMembers as defaultTeamMembers, departments as defaultDepartments } from "@/data/team";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 import type { TeamPageContent } from "@/types/cms";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
@@ -56,11 +55,10 @@ function MemberModal({
           <div className="flex flex-col md:flex-row">
             {/* Photo / Avatar */}
             <div className="relative h-56 w-full shrink-0 md:h-auto md:w-52">
-              {member.image ? (
-                <Image
-                  src={resolveImageUrl(member.image)}
+              {member.images?.length || member.image ? (
+                <AutoImageSwiper
+                  images={member.images?.length ? member.images : [member.image as string]}
                   alt={member.name}
-                  fill
                   sizes="(min-width: 768px) 208px, 100vw"
                   className="object-cover"
                 />
@@ -151,11 +149,10 @@ function MemberCard({
       >
         {/* Photo or Gradient avatar */}
         <div className="relative h-72 w-full overflow-hidden">
-          {member.image ? (
-            <Image
-              src={resolveImageUrl(member.image)}
+          {member.images?.length || member.image ? (
+            <AutoImageSwiper
+              images={member.images?.length ? member.images : [member.image as string]}
               alt={member.name}
-              fill
               sizes="(min-width: 768px) 33vw, 90vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />

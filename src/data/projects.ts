@@ -10,6 +10,7 @@ export type Project = {
   scope: string[];
   execution: string;
   image: string;
+  images?: string[];
 };
 
 export const projects: Project[] = [

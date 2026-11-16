@@ -146,6 +146,8 @@ const en = {
     fromCapabilityEyebrow: "From Capability to Execution",
     whatWeWorkedOnHeading: "What ANIKA Has Actually Worked On",
     viewAllProjects: "View All Projects",
+    ourBrandEyebrow: "Our Brand",
+    ourBrandHeading: "Partners & Clients Who Trust ANIKA",
   },
   aboutExtra: {
     coreValuesEyebrow: "Core Values",
@@ -154,6 +156,13 @@ const en = {
     philosophyText:
       "ANIKA is focused on creating dependable business relationships across construction, supply, distribution and international trade — the kind that hold up over multiple projects and orders, not just one.",
     philosophyCta: "EXPLORE OUR BUSINESS",
+    galleryEyebrow: "In the Field",
+    teamPreviewEyebrow: "Our People",
+    teamPreviewHeading: "Meet the Team",
+    viewFullTeam: "Meet the Full Team",
+    missionVisionCta: "Read Our Mission & Vision",
+    backToAbout: "Back to About",
+    missionVisionEyebrow: "Mission & Vision",
   },
   projectsExtra: {
     viewCaseStudy: "View Case Study",

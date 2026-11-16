@@ -1,7 +1,7 @@
 import CompanyTimelineDesktop from "./CompanyTimelineDesktop";
 import CompanyTimelineMobile from "./CompanyTimelineMobile";
 
-type TimelineStage = { id: string; label: string; title: string; description: string; image: string };
+type TimelineStage = { id: string; label: string; title: string; description: string; image: string; images?: string[] };
 
 export default function CompanyTimeline({ timeline }: { timeline?: TimelineStage[] }) {
   return (

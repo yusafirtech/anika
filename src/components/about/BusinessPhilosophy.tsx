@@ -1,25 +1,25 @@
-import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
 
 export default function BusinessPhilosophy({
   image = "/images/trade-detail.jpg",
+  images,
   dict = en.aboutExtra,
 }: {
   image?: string;
+  images?: string[];
   dict?: Dictionary["aboutExtra"];
 }) {
   return (
     <section className="bg-mist py-24 md:py-32">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 md:grid-cols-[0.85fr_1.15fr] md:gap-16 md:px-8">
         <Reveal className="relative h-[42vh] overflow-hidden rounded-2xl md:h-auto">
-          <Image
-            src={resolveImageUrl(image)}
+          <AutoImageSwiper
+            images={images?.length ? images : [image]}
             alt="ANIKA business operations detail"
-            fill
             sizes="(min-width: 768px) 38vw, 90vw"
             className="object-cover"
           />

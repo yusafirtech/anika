@@ -131,6 +131,8 @@ export interface Dictionary {
     fromCapabilityEyebrow: string;
     whatWeWorkedOnHeading: string;
     viewAllProjects: string;
+    ourBrandEyebrow: string;
+    ourBrandHeading: string;
   };
   aboutExtra: {
     coreValuesEyebrow: string;
@@ -138,6 +140,13 @@ export interface Dictionary {
     philosophyHeading: string;
     philosophyText: string;
     philosophyCta: string;
+    galleryEyebrow: string;
+    teamPreviewEyebrow: string;
+    teamPreviewHeading: string;
+    viewFullTeam: string;
+    missionVisionCta: string;
+    backToAbout: string;
+    missionVisionEyebrow: string;
   };
   projectsExtra: {
     viewCaseStudy: string;

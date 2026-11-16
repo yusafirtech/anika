@@ -117,68 +117,6 @@ const INITIAL_HOMEPAGE: HomePageContent = {
       image: '/images/story-institutional-supply.jpg',
     },
   ],
-  businessShowcase: [
-    {
-      id: 'export',
-      index: '01',
-      title: 'Export & International Trade',
-      description: 'Bangladesh-origin seafood and agricultural products, prepared and packaged for international buyers looking for a dependable B2B supply partner.',
-      points: ['Seafood & agricultural exports', 'Bangladesh-origin sourcing', 'B2B buyer relationships'],
-      cta: 'Explore Export',
-      href: '/export',
-      image: '/images/story-global-connection.jpg',
-    },
-    {
-      id: 'seafood-supply',
-      index: '02',
-      title: 'Seafood Supply',
-      description: 'End-to-end seafood supply built around quality control, cold chain handling and export-ready packaging for both local and international buyers.',
-      points: ['Sourcing & processing', 'Cold chain handling', 'Export-ready packaging'],
-      cta: 'View Seafood Supply',
-      href: '/business',
-      image: '/images/story-seafood-closeup.jpg',
-    },
-    {
-      id: 'vegetables-agri',
-      index: '03',
-      title: 'Vegetable & Agricultural Products',
-      description: 'Sourcing and supplying fresh vegetables and agricultural produce, with the grading and packaging discipline international markets expect.',
-      points: ['Fresh produce sourcing', 'Grading & packaging', 'Market-ready supply'],
-      cta: 'View Agricultural Supply',
-      href: '/business',
-      image: '/images/story-agriculture-origin.jpg',
-    },
-    {
-      id: 'construction',
-      index: '04',
-      title: 'Construction & Projects',
-      description: 'Construction and project execution capability covering coordination, materials supply and on-site delivery from start to finish.',
-      points: ['Project execution', 'Materials coordination', 'On-site delivery'],
-      cta: 'View Construction',
-      href: '/business',
-      image: '/images/materials-detail.jpg',
-    },
-    {
-      id: 'government-tender',
-      index: '05',
-      title: 'Government Tender & Supply',
-      description: 'Participation in government and institutional tenders, with the supply infrastructure to meet procurement specifications and timelines.',
-      points: ['Tender participation', 'Institutional procurement', 'Large-scale supply'],
-      cta: 'View Government Supply',
-      href: '/business',
-      image: '/images/story-institutional-supply.jpg',
-    },
-    {
-      id: 'trading-distribution',
-      index: '06',
-      title: 'Trading & Distribution',
-      description: 'Import, trading and distribution operations that connect suppliers, products and buyers across Bangladesh’s business network.',
-      points: ['Import & trading', 'Distribution network', 'Business partnerships'],
-      cta: 'View Trading',
-      href: '/business',
-      image: '/images/story-business-network.jpg',
-    },
-  ],
   whyReasons: [
     {
       id: 'multi-sector',
@@ -318,6 +256,19 @@ const INITIAL_ABOUTPAGE: AboutPageContent = {
     authorName: 'Md. Anisur Rahman',
     authorTitle: 'Founder & Managing Director, ANIKA TRADING & CO.',
     image: '/images/why-anika-collaboration.jpg',
+  },
+  gallery: {
+    eyebrow: 'In the Field',
+    heading: 'Our Work, On Site and On the Record',
+    description: 'A look across our construction sites, supply operations and export facilities — the day-to-day work behind the company.',
+    images: [
+      { id: 'gallery-1', image: '/images/story-construction-site.jpg', caption: 'Construction site coordination' },
+      { id: 'gallery-2', image: '/images/story-seafood.jpg', caption: 'Seafood export preparation' },
+      { id: 'gallery-3', image: '/images/story-agriculture-origin.jpg', caption: 'Agricultural sourcing' },
+      { id: 'gallery-4', image: '/images/story-institutional-supply.jpg', caption: 'Institutional supply delivery' },
+      { id: 'gallery-5', image: '/images/materials-detail.jpg', caption: 'Materials quality inspection' },
+      { id: 'gallery-6', image: '/images/story-business-network.jpg', caption: 'Partner & distributor network' },
+    ],
   },
 };
 
@@ -472,6 +423,15 @@ const INITIAL_PROJECTSPAGE: ProjectsPageContent = {
   ],
 };
 
+const DEFAULT_EXPORT_PROCESS = [
+  { step: 'Source', description: 'Identifying reliable Bangladesh-origin supply directly at coastal farms and agricultural belts.' },
+  { step: 'Quality', description: 'Checking product grading, freshness, and microbiological standards against buyer requirements.' },
+  { step: 'Prepare', description: 'Preparing, sorting, and grading product for export in certified processing facilities.' },
+  { step: 'Pack', description: 'Export-appropriate packaging with IQF, block freezing, and custom private label cartons.' },
+  { step: 'Ship', description: 'Coordinating cold-chain container freight from Chittagong or Mongla port.' },
+  { step: 'Deliver', description: 'Clearance documentation confirmation and delivery assurance with the overseas buyer.' },
+];
+
 const INITIAL_EXPORTPAGE: ExportPageContent = {
   intro: {
     eyebrow: 'B2B International Trade',
@@ -483,14 +443,6 @@ const INITIAL_EXPORTPAGE: ExportPageContent = {
     { id: 'frozen-fish', label: 'Frozen Fish', image: '/images/story-seafood.jpg' },
     { id: 'vegetables', label: 'Vegetables', image: '/images/story-vegetable-market.jpg' },
     { id: 'agricultural-products', label: 'Agricultural Products', image: '/images/story-agriculture-origin.jpg' },
-  ],
-  process: [
-    { step: 'Source', description: 'Identifying reliable Bangladesh-origin supply directly at coastal farms and agricultural belts.' },
-    { step: 'Quality', description: 'Checking product grading, freshness, and microbiological standards against buyer requirements.' },
-    { step: 'Prepare', description: 'Preparing, sorting, and grading product for export in certified processing facilities.' },
-    { step: 'Pack', description: 'Export-appropriate packaging with IQF, block freezing, and custom private label cartons.' },
-    { step: 'Ship', description: 'Coordinating cold-chain container freight from Chittagong or Mongla port.' },
-    { step: 'Deliver', description: 'Clearance documentation confirmation and delivery assurance with the overseas buyer.' },
   ],
   products: [
     {
@@ -516,6 +468,7 @@ const INITIAL_EXPORTPAGE: ExportPageContent = {
         { label: 'Storage', value: 'Frozen / -18°C continuous cold chain' },
         { label: 'Documentation', value: 'Health Certificate, Phytosanitary, Certificate of Origin' },
       ],
+      process: DEFAULT_EXPORT_PROCESS,
     },
     {
       slug: 'fresh-frozen-fish',
@@ -539,6 +492,7 @@ const INITIAL_EXPORTPAGE: ExportPageContent = {
         { label: 'Packaging', value: 'Bulk Poly Bag in Corrugated Master Cartons' },
         { label: 'Storage', value: 'Frozen / cold chain' },
       ],
+      process: DEFAULT_EXPORT_PROCESS,
     },
     {
       slug: 'fresh-vegetables',
@@ -561,6 +515,7 @@ const INITIAL_EXPORTPAGE: ExportPageContent = {
         { label: 'Packaging', value: 'Ventilated Corrugated Boxes / Mesh Bags' },
         { label: 'Transit', value: 'Air Freight / Reefer Sea Container' },
       ],
+      process: DEFAULT_EXPORT_PROCESS,
     },
     {
       slug: 'agricultural-produce',
@@ -582,6 +537,7 @@ const INITIAL_EXPORTPAGE: ExportPageContent = {
         { label: 'Origin', value: 'Bangladesh' },
         { label: 'Packaging', value: 'Standard export grade sacks and boxes' },
       ],
+      process: DEFAULT_EXPORT_PROCESS,
     },
   ],
 };
@@ -701,7 +657,7 @@ const INITIAL_SITEGLOBAL: SiteGlobalContent = {
       title: 'Company',
       links: [
         { label: 'About Us', href: '/about' },
-        { label: 'Mission & Vision', href: '/about#mission' },
+        { label: 'Mission & Vision', href: '/about/mission-vision' },
         { label: 'Business', href: '/business' },
         { label: 'Projects', href: '/projects' },
       ],

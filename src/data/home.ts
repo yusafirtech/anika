@@ -4,6 +4,7 @@ export type SectorStory = {
   title: string;
   description: string;
   image: string;
+  images?: string[];
 };
 
 export const sectorStories: SectorStory[] = [
@@ -49,85 +50,6 @@ export const sectorStories: SectorStory[] = [
   },
 ];
 
-export type BusinessShowcaseItem = {
-  id: string;
-  index: string;
-  title: string;
-  description: string;
-  points: string[];
-  cta: string;
-  href: string;
-  image: string;
-};
-
-export const businessShowcase: BusinessShowcaseItem[] = [
-  {
-    id: "export",
-    index: "01",
-    title: "Export & International Trade",
-    description:
-      "Bangladesh-origin seafood and agricultural products, prepared and packaged for international buyers looking for a dependable B2B supply partner.",
-    points: ["Seafood & agricultural exports", "Bangladesh-origin sourcing", "B2B buyer relationships"],
-    cta: "Explore Export",
-    href: "/export",
-    image: "/images/story-global-connection.jpg",
-  },
-  {
-    id: "seafood-supply",
-    index: "02",
-    title: "Seafood Supply",
-    description:
-      "End-to-end seafood supply built around quality control, cold chain handling and export-ready packaging for both local and international buyers.",
-    points: ["Sourcing & processing", "Cold chain handling", "Export-ready packaging"],
-    cta: "View Seafood Supply",
-    href: "/business",
-    image: "/images/story-seafood-closeup.jpg",
-  },
-  {
-    id: "vegetables-agri",
-    index: "03",
-    title: "Vegetable & Agricultural Products",
-    description:
-      "Sourcing and supplying fresh vegetables and agricultural produce, with the grading and packaging discipline international markets expect.",
-    points: ["Fresh produce sourcing", "Grading & packaging", "Market-ready supply"],
-    cta: "View Agricultural Supply",
-    href: "/business",
-    image: "/images/story-agriculture-origin.jpg",
-  },
-  {
-    id: "construction",
-    index: "04",
-    title: "Construction & Projects",
-    description:
-      "Construction and project execution capability covering coordination, materials supply and on-site delivery from start to finish.",
-    points: ["Project execution", "Materials coordination", "On-site delivery"],
-    cta: "View Construction",
-    href: "/business",
-    image: "/images/materials-detail.jpg",
-  },
-  {
-    id: "government-tender",
-    index: "05",
-    title: "Government Tender & Supply",
-    description:
-      "Participation in government and institutional tenders, with the supply infrastructure to meet procurement specifications and timelines.",
-    points: ["Tender participation", "Institutional procurement", "Large-scale supply"],
-    cta: "View Government Supply",
-    href: "/business",
-    image: "/images/story-institutional-supply.jpg",
-  },
-  {
-    id: "trading-distribution",
-    index: "06",
-    title: "Trading & Distribution",
-    description:
-      "Import, trading and distribution operations that connect suppliers, products and buyers across Bangladesh's business network.",
-    points: ["Import & trading", "Distribution network", "Business partnerships"],
-    cta: "View Trading",
-    href: "/business",
-    image: "/images/story-business-network.jpg",
-  },
-];
 
 export type HomeProject = {
   id: string;
@@ -204,6 +126,7 @@ export type WhyReason = {
   title: string;
   description: string;
   image: string;
+  images?: string[];
 };
 
 export const whyReasons: WhyReason[] = [

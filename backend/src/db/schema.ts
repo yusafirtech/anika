@@ -1,5 +1,5 @@
 import { getPool } from './connection.js';
-import { INITIAL_HOMEPAGE } from './seed.js';
+import { INITIAL_HOMEPAGE, INITIAL_ABOUTPAGE, DEFAULT_EXPORT_PROCESS } from './seed.js';
 
 export async function runMigrations(): Promise<void> {
   const pool = getPool();
@@ -255,8 +255,114 @@ export async function runMigrations(): Promise<void> {
   await addColumnIfMissing('leads', 'payment_terms', 'VARCHAR(50) NULL AFTER `target_ship_date`');
 
   await migrateLegacyHomeContent();
+  await migrateRemoveHomeBusinessShowcase();
+  await migrateAboutGallery();
+  await migrateMissionVisionFooterLink();
+  await migrateExportProductProcess();
 
   console.log('[MySQL] All tables verified and ready.');
+}
+
+// Migration: the Homepage's "Business Ecosystem" swiper section was removed
+// (admin tab, frontend component and type field all dropped) in favor of the
+// dedicated /business page, which already carries the full vertical content.
+// Rows saved before this change still carry a stale `businessShowcase` array
+// in their JSON — harmless (nothing reads it) but worth cleaning up so the
+// stored content matches the current schema. One-time, idempotent.
+async function migrateRemoveHomeBusinessShowcase(): Promise<void> {
+  const pool = getPool();
+  const [rows]: any = await pool.query("SELECT content FROM pages_content WHERE page_key = 'home'");
+  if (!rows || rows.length === 0) return;
+
+  const content = typeof rows[0].content === 'string' ? JSON.parse(rows[0].content) : rows[0].content;
+  if (!content || !('businessShowcase' in content)) return;
+
+  delete content.businessShowcase;
+  await pool.query("UPDATE pages_content SET content = ? WHERE page_key = 'home'", [JSON.stringify(content)]);
+  console.log('[MySQL] Removed stale `businessShowcase` field from `home` page content.');
+}
+
+// Migration: the About page gained a new `gallery` section (photo gallery)
+// after the initial seed. A row saved before this change simply won't have
+// that key — add it (without touching any existing, possibly admin-edited,
+// fields) so the admin Gallery tab and the public page have something to
+// read/write instead of crashing on a missing section. One-time, idempotent.
+async function migrateAboutGallery(): Promise<void> {
+  const pool = getPool();
+  const [rows]: any = await pool.query("SELECT content FROM pages_content WHERE page_key = 'about'");
+  if (!rows || rows.length === 0) return;
+
+  const content = typeof rows[0].content === 'string' ? JSON.parse(rows[0].content) : rows[0].content;
+  if (!content || content.gallery) return;
+
+  content.gallery = INITIAL_ABOUTPAGE.gallery;
+  await pool.query("UPDATE pages_content SET content = ? WHERE page_key = 'about'", [JSON.stringify(content)]);
+  console.log('[MySQL] Added missing `gallery` section to `about` page content.');
+}
+
+// Migration: Mission & Vision moved from an anchor on /about to its own
+// page at /about/mission-vision. The footer's "Mission & Vision" link in an
+// already-saved `site` row still points at the old anchor href. One-time,
+// idempotent.
+async function migrateMissionVisionFooterLink(): Promise<void> {
+  const pool = getPool();
+  const [rows]: any = await pool.query("SELECT content FROM pages_content WHERE page_key = 'site'");
+  if (!rows || rows.length === 0) return;
+
+  const content = typeof rows[0].content === 'string' ? JSON.parse(rows[0].content) : rows[0].content;
+  const columns = content?.footerColumns;
+  if (!Array.isArray(columns)) return;
+
+  let changed = false;
+  for (const col of columns) {
+    if (!Array.isArray(col?.links)) continue;
+    for (const link of col.links) {
+      if (link?.href === '/about#mission') {
+        link.href = '/about/mission-vision';
+        changed = true;
+      }
+    }
+  }
+  if (!changed) return;
+
+  await pool.query("UPDATE pages_content SET content = ? WHERE page_key = 'site'", [JSON.stringify(content)]);
+  console.log('[MySQL] Updated footer `Mission & Vision` link to the new dedicated page.');
+}
+
+// Migration: the "How It Moves" fulfillment process used to be a single
+// list shared by every export product on the /export page. It moved to a
+// per-product field shown on each product's own detail page instead, so
+// every buyer sees a process relevant to the exact product they're looking
+// at. A row saved before this change still has the old shared `process`
+// array at the top level and no `process` field on any product — backfill
+// each product with that shared list (or the current default if the row
+// predates even that) and drop the now-unused top-level field. One-time,
+// idempotent.
+async function migrateExportProductProcess(): Promise<void> {
+  const pool = getPool();
+  const [rows]: any = await pool.query("SELECT content FROM pages_content WHERE page_key = 'export'");
+  if (!rows || rows.length === 0) return;
+
+  const content = typeof rows[0].content === 'string' ? JSON.parse(rows[0].content) : rows[0].content;
+  if (!content || !Array.isArray(content.products)) return;
+
+  const sharedProcess = Array.isArray(content.process) && content.process.length > 0 ? content.process : DEFAULT_EXPORT_PROCESS;
+
+  let changed = false;
+  for (const product of content.products) {
+    if (!Array.isArray(product.process)) {
+      product.process = sharedProcess;
+      changed = true;
+    }
+  }
+  if ('process' in content) {
+    delete content.process;
+    changed = true;
+  }
+  if (!changed) return;
+
+  await pool.query("UPDATE pages_content SET content = ? WHERE page_key = 'export'", [JSON.stringify(content)]);
+  console.log('[MySQL] Moved `process` from shared export page content onto each product.');
 }
 
 // Migration: the `home` row in `pages_content` was originally seeded with an

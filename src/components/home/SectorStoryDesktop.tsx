@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { sectorStories as defaultSectorStories, type SectorStory } from "@/data/home";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
 
@@ -168,10 +167,9 @@ export default function SectorStoryDesktop({
                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     className="absolute inset-0"
                   >
-                    <Image
-                      src={resolveImageUrl(s.image)}
+                    <AutoImageSwiper
+                      images={s.images?.length ? s.images : [s.image]}
                       alt={s.title}
-                      fill
                       sizes="55vw"
                       priority={i === 0}
                       className="object-cover"

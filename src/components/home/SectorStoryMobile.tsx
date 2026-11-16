@@ -1,7 +1,6 @@
-import Image from "next/image";
 import { sectorStories as defaultSectorStories, type SectorStory } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
 
@@ -28,12 +27,11 @@ export default function SectorStoryMobile({
               {s.title}
             </h3>
             <div className="relative mt-4 h-[42vh] w-full overflow-hidden rounded-2xl">
-              <Image
-                src={resolveImageUrl(s.image)}
+              <AutoImageSwiper
+                images={s.images?.length ? s.images : [s.image]}
                 alt={s.title}
-                fill
                 sizes="100vw"
-                loading={i === 0 ? "eager" : "lazy"}
+                priority={i === 0}
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-deeper/50 via-transparent to-transparent" />

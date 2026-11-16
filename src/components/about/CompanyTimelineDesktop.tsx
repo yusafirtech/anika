@@ -1,9 +1,8 @@
-import Image from "next/image";
 import { timelineStages as defaultTimelineStages } from "@/data/about";
 import { cn } from "@/lib/utils";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 
-type TimelineStage = { id: string; label: string; title: string; description: string; image: string };
+type TimelineStage = { id: string; label: string; title: string; description: string; image: string; images?: string[] };
 
 export default function CompanyTimelineDesktop({
   timeline: timelineStages = defaultTimelineStages,
@@ -31,10 +30,9 @@ export default function CompanyTimelineDesktop({
                 <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">{s.description}</p>
               </div>
               <div className="relative h-[300px] w-full overflow-hidden rounded-2xl">
-                <Image
-                  src={resolveImageUrl(s.image)}
+                <AutoImageSwiper
+                  images={s.images?.length ? s.images : [s.image]}
                   alt={s.title}
-                  fill
                   sizes="40vw"
                   className="object-cover"
                 />

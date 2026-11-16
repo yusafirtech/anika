@@ -13,7 +13,7 @@ import { QuotationsManager } from './pages/QuotationsManager';
 import { NewsletterManager } from './pages/NewsletterManager';
 import { BuyersManager } from './pages/BuyersManager';
 import { UserManager } from './pages/UserManager';
-import { PartnersPage, TradeShowsPage } from './pages/EntityCrudPages';
+import { PartnersPage, TradeShowsPage, BrandClientsPage } from './pages/EntityCrudPages';
 import { ClientManager } from './pages/ClientManager';
 import { InsightsManager } from './pages/InsightsManager';
 import { SettingsPage } from './pages/SettingsPage';
@@ -143,6 +143,14 @@ export const App: React.FC = () => {
               element={
                 <PermissionGuard resource="tradeshows" action="view">
                   <TradeShowsPage />
+                </PermissionGuard>
+              }
+            />
+            <Route
+              path="brand-clients"
+              element={
+                <PermissionGuard resource="brandclients" action="view">
+                  <BrandClientsPage />
                 </PermissionGuard>
               }
             />

@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { whyReasons as defaultWhyReasons, type WhyReason } from "@/data/home";
 import Reveal from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
 
@@ -71,10 +70,9 @@ export default function WhyAnikaMobile({
                     >
                       <div className="pb-5">
                         <div className="relative h-[30vh] w-full overflow-hidden rounded-2xl">
-                          <Image
-                            src={resolveImageUrl(reason.image)}
+                          <AutoImageSwiper
+                            images={reason.images?.length ? reason.images : [reason.image]}
                             alt={reason.title}
-                            fill
                             sizes="100vw"
                             className="object-cover"
                           />

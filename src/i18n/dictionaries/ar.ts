@@ -145,6 +145,8 @@ const ar = {
     fromCapabilityEyebrow: "من القدرة إلى التنفيذ",
     whatWeWorkedOnHeading: "ما قامت به أنيكا فعلياً",
     viewAllProjects: "عرض جميع المشاريع",
+    ourBrandEyebrow: "علامتنا التجارية",
+    ourBrandHeading: "الشركاء والعملاء الذين يثقون بأنيكا",
   },
   aboutExtra: {
     coreValuesEyebrow: "القيم الأساسية",
@@ -153,6 +155,13 @@ const ar = {
     philosophyText:
       "تركز أنيكا على بناء علاقات عمل موثوقة في مجالات الإنشاءات والتوريد والتوزيع والتجارة الدولية - من النوع الذي يستمر عبر مشاريع وطلبات متعددة، لا طلب واحد فقط.",
     philosophyCta: "اكتشف أعمالنا",
+    galleryEyebrow: "في الميدان",
+    teamPreviewEyebrow: "فريقنا",
+    teamPreviewHeading: "تعرف على الفريق",
+    viewFullTeam: "تعرف على الفريق كاملاً",
+    missionVisionCta: "اقرأ رسالتنا ورؤيتنا",
+    backToAbout: "العودة إلى من نحن",
+    missionVisionEyebrow: "الرسالة والرؤية",
   },
   projectsExtra: {
     viewCaseStudy: "عرض دراسة الحالة",

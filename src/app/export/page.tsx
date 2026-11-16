@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import ExportCatalog from "@/components/export/ExportCatalog";
-import ExportProcess from "@/components/export/ExportProcess";
 import BuyerSection from "@/components/export/BuyerSection";
 import { getExportContent } from "@/lib/cms";
 import { getLocale } from "@/i18n/getLocale";
@@ -41,7 +40,6 @@ export default async function ExportPage({
         dict={dict.exportCatalog}
         productDict={dict.product}
       />
-      <ExportProcess process={content.process} dict={dict.exportProcess} />
       <BuyerSection />
     </>
   );

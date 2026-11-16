@@ -23,7 +23,7 @@ export const footerColumns = [
     title: "Company",
     links: [
       { label: "About Us", href: "/about" },
-      { label: "Mission & Vision", href: "/about#mission" },
+      { label: "Mission & Vision", href: "/about/mission-vision" },
       { label: "Business", href: "/business" },
       { label: "Projects", href: "/projects" },
       { label: "Partners", href: "/partners" },

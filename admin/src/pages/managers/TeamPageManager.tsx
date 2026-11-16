@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TeamPageContent } from '../../types';
 import { mockDb, backendApi } from '../../api';
 import { ImageUploadButton } from '../../components/ImageUploadButton';
+import { MultiImageUploadField } from '../../components/MultiImageUploadField';
 import {
   Save,
   CheckCircle2,
@@ -388,6 +389,14 @@ export const TeamPageManager: React.FC = () => {
                         label="Upload Portrait"
                       />
                     </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <MultiImageUploadField
+                      label="Additional Photos"
+                      images={activeMember.images || []}
+                      onChange={(images) => handleMemberChange(selectedMemberIdx, 'images', images)}
+                    />
                   </div>
 
                   <div className="md:col-span-2">

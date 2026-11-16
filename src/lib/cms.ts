@@ -5,7 +5,7 @@
 // is unreachable or a page hasn't been saved from the admin panel yet.
 
 import type { ExportPageContent, Insight } from "@/types/cms";
-import { exportCategories, exportProcess, exportProducts } from "@/data/export";
+import { exportCategories, exportProducts } from "@/data/export";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const API_ORIGIN =
@@ -43,7 +43,6 @@ export const DEFAULT_EXPORT_CONTENT: ExportPageContent = {
     description: "Connecting Bangladesh-origin products with international buyers.",
   },
   categories: exportCategories,
-  process: exportProcess,
   products: exportProducts,
 };
 

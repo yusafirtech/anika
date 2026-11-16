@@ -80,6 +80,44 @@ body {
   scrollbar-width: none;
 }
 
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.animate-marquee-left {
+  animation: marquee-left 32s linear infinite;
+}
+.animate-marquee-right {
+  animation: marquee-right 32s linear infinite;
+}
+
+@keyframes process-flow {
+  from {
+    background-position: -60% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+.animate-process-flow {
+  background-image: linear-gradient(90deg, transparent, var(--color-teal-light) 45%, var(--color-teal) 55%, transparent);
+  background-size: 45% 100%;
+  background-repeat: no-repeat;
+  animation: process-flow 3.5s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -91,5 +129,18 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Slow continuous brand-wall scroll is low vestibular-risk and looks
+     broken (frozen mid-scroll) rather than "disabled" when forced to a
+     single near-zero-duration frame, so it's exempted here. */
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation-duration: 32s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .animate-process-flow {
+    animation-duration: 3.5s !important;
+    animation-iteration-count: infinite !important;
   }
 }

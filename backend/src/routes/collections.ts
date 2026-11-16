@@ -9,7 +9,7 @@ const router = Router();
 // 'hero', 'products', 'projects', and 'team' were an earlier, unused
 // duplicate catalogue system and have been retired — page content for
 // export products/projects/team is managed through /api/pages instead.
-const ALLOWED_COLLECTIONS = ['partners', 'tradeshows'];
+const ALLOWED_COLLECTIONS = ['partners', 'tradeshows', 'brandclients'];
 
 // GET /api/collections/:key - Fetch a full collection (array) as JSON.
 // Intentionally public/unauthenticated — needed by the live website.

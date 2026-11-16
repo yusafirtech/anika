@@ -28,6 +28,7 @@ const BREADCRUMB_MAP: Record<string, { group: string; title: string }> = {
   '/hero': { group: 'Content Management', title: 'Homepage Hero Slides' },
   '/team': { group: 'Content Management', title: 'Corporate Leadership & Team' },
   '/partners': { group: 'Content Management', title: 'Global Partners' },
+  '/brand-clients': { group: 'Content Management', title: 'Our Brand — Clients' },
   '/leads': { group: 'Operations', title: 'B2B Trade Inquiries & Leads' },
   '/users': { group: 'System & Security', title: 'Access Control & User Provisioning (RBAC)' },
   '/settings': { group: 'System & Security', title: 'Platform Settings' },

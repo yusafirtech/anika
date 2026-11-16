@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ProjectsPageContent } from '../../types';
 import { mockDb, backendApi } from '../../api';
 import { ImageUploadButton } from '../../components/ImageUploadButton';
+import { MultiImageUploadField } from '../../components/MultiImageUploadField';
 import {
   Save,
   CheckCircle2,
@@ -448,6 +449,14 @@ export const ProjectsPageManager: React.FC = () => {
                         label="Upload Image"
                       />
                     </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <MultiImageUploadField
+                      label="Additional Images (auto-rotating slideshow on this project's card)"
+                      images={activeProject.images || []}
+                      onChange={(images) => handleProjectChange(selectedIdx, 'images', images)}
+                    />
                   </div>
 
                   <div className="md:col-span-2">

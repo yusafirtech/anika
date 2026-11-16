@@ -1,6 +1,5 @@
-import Image from "next/image";
 import Reveal from "@/components/ui/Reveal";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 
 type AboutIntroProps = {
   eyebrow?: string;
@@ -8,6 +7,7 @@ type AboutIntroProps = {
   leadText?: string;
   bodyText?: string;
   image?: string;
+  images?: string[];
 };
 
 export default function AboutIntro({
@@ -16,6 +16,7 @@ export default function AboutIntro({
   leadText = "ANIKA TRADING & CO. is a Bangladesh-based diversified business company involved in construction, government projects, government and private supply, distribution, import and trading, and international export. Rather than specializing in a single sector, ANIKA is built to move across several connected ones.",
   bodyText,
   image = "/images/story-agriculture-origin.jpg",
+  images,
 }: AboutIntroProps) {
   return (
     <section className="bg-paper pt-28 pb-20 md:pt-36 md:pb-28">
@@ -48,10 +49,9 @@ export default function AboutIntro({
           </Reveal>
         </div>
         <Reveal delay={0.1} className="relative h-[46vh] w-full overflow-hidden rounded-2xl md:h-auto">
-          <Image
-            src={resolveImageUrl(image)}
+          <AutoImageSwiper
+            images={images?.length ? images : [image]}
             alt="Bangladesh-origin agricultural sourcing"
-            fill
             sizes="(min-width: 768px) 42vw, 90vw"
             className="object-cover"
           />

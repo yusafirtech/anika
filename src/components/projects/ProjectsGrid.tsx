@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { projects as defaultProjects } from "@/data/projects";
 import { cn } from "@/lib/utils";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 import type { ProjectsPageContent } from "@/types/cms";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
@@ -68,10 +67,9 @@ export default function ProjectsGrid({
                       !imageFirst && "md:order-2"
                     )}
                   >
-                    <Image
-                      src={resolveImageUrl(project.image)}
+                    <AutoImageSwiper
+                      images={project.images?.length ? project.images : [project.image]}
                       alt={project.name}
-                      fill
                       sizes="(min-width: 768px) 45vw, 90vw"
                       className="object-cover transition-transform duration-700 hover:scale-105"
                     />

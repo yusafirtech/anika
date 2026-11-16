@@ -57,3 +57,45 @@ export const coreValues = [
   { id: "partnership", label: "PARTNERSHIP", description: "Building relationships that outlast a single transaction." },
   { id: "growth", label: "GROWTH", description: "Growing capability deliberately, sector by sector." },
 ];
+
+// Shared fallback for AboutPageContent — used by both /about and
+// /about/mission-vision so the two pages agree on a single source when the
+// backend/database is unreachable or the page hasn't been saved yet.
+export const DEFAULT_ABOUT_CONTENT = {
+  intro: {
+    eyebrow: "About ANIKA",
+    heading: "A Diversified Business Company Built Around Opportunity.",
+    leadText:
+      "ANIKA TRADING & CO. is a Bangladesh-based diversified business company involved in construction, government projects, government and private supply, distribution, import and trading, and international export. Rather than specializing in a single sector, ANIKA is built to move across several connected ones.",
+    bodyText: "",
+    image: "/images/story-agriculture-origin.jpg",
+    images: [] as string[],
+    stats: [] as { value: string; label: string }[],
+  },
+  timeline: timelineStages,
+  missionVision: {
+    missionTitle: "Our Mission",
+    missionText:
+      "To deliver reliable construction, supply, distribution and trading solutions while building long-term relationships with clients, partners and international buyers.",
+    visionTitle: "Our Vision",
+    visionText:
+      "To grow as a trusted and internationally connected Bangladesh-based business company, creating sustainable opportunities across construction, supply, distribution and global trade.",
+    pillars: [] as string[],
+  },
+  coreValues,
+  philosophy: {
+    quote: "",
+    narrative: "",
+    authorName: "",
+    authorTitle: "",
+    image: "/images/trade-detail.jpg",
+    images: [] as string[],
+  },
+  gallery: {
+    eyebrow: "In the Field",
+    heading: "Our Work, On Site and On the Record",
+    description:
+      "A look across our construction sites, supply operations and export facilities — the day-to-day work behind the company.",
+    images: [] as { id: string; image: string; caption?: string }[],
+  },
+};

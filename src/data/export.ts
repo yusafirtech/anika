@@ -43,6 +43,7 @@ export const exportProducts: ExportProduct[] = [
       { label: "Shelf life", value: "[Details available upon request]" },
       { label: "Export documentation", value: "[Provided upon order confirmation]" },
     ],
+    process: exportProcess,
   },
   {
     slug: "fresh-frozen-fish",
@@ -67,6 +68,7 @@ export const exportProducts: ExportProduct[] = [
       { label: "Storage", value: "Frozen / cold chain" },
       { label: "Export documentation", value: "[Provided upon order confirmation]" },
     ],
+    process: exportProcess,
   },
   {
     slug: "fresh-vegetables",
@@ -91,6 +93,7 @@ export const exportProducts: ExportProduct[] = [
       { label: "Packaging", value: "[Details available upon request]" },
       { label: "Export documentation", value: "[Provided upon order confirmation]" },
     ],
+    process: exportProcess,
   },
   {
     slug: "agricultural-produce",
@@ -115,6 +118,7 @@ export const exportProducts: ExportProduct[] = [
       { label: "Supply capacity", value: "[Details available upon request]" },
       { label: "Export documentation", value: "[Provided upon order confirmation]" },
     ],
+    process: exportProcess,
   },
 ];
 

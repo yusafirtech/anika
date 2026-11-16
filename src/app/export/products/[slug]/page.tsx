@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductGallery from "@/components/export/ProductGallery";
+import ExportProcess from "@/components/export/ExportProcess";
 import CatalogProductCard, { isCertified } from "@/components/export/CatalogProductCard";
 import InsightCard from "@/components/insights/InsightCard";
 import {
@@ -152,6 +153,7 @@ export default async function ProductDetailPage({ params }: Props) {
   ];
 
   return (
+    <>
     <div className="bg-paper pb-24 pt-28 md:pt-32">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
@@ -411,5 +413,7 @@ export default async function ProductDetailPage({ params }: Props) {
         )}
       </div>
     </div>
+    <ExportProcess process={product.process} dict={fullDict.exportProcess} />
+    </>
   );
 }

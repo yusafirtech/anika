@@ -26,6 +26,7 @@ import {
   CalendarDays,
   Mail,
   Users2,
+  BadgeCheck,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -135,6 +136,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Trade Show Calendar',
           to: '/trade-shows',
           icon: CalendarDays,
+        },
+        {
+          label: 'Our Brand (Clients)',
+          to: '/brand-clients',
+          icon: BadgeCheck,
         },
       ],
     },

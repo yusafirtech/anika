@@ -145,6 +145,8 @@ const bn = {
     fromCapabilityEyebrow: "সক্ষমতা থেকে বাস্তবায়ন পর্যন্ত",
     whatWeWorkedOnHeading: "ANIKA প্রকৃতপক্ষে যা নিয়ে কাজ করেছে",
     viewAllProjects: "সব প্রজেক্ট দেখুন",
+    ourBrandEyebrow: "আমাদের ব্র্যান্ড",
+    ourBrandHeading: "যারা ANIKA-কে বিশ্বাস করে — আমাদের পার্টনার ও ক্লায়েন্ট",
   },
   aboutExtra: {
     coreValuesEyebrow: "মূল মূল্যবোধ",
@@ -153,6 +155,13 @@ const bn = {
     philosophyText:
       "ANIKA নির্মাণ, সরবরাহ, বিতরণ ও আন্তর্জাতিক বাণিজ্যে নির্ভরযোগ্য ব্যবসায়িক সম্পর্ক গড়ার উপর মনোযোগী — এমন সম্পর্ক যা একটিমাত্র অর্ডার নয়, বরং একাধিক প্রজেক্ট ও অর্ডার জুড়ে টিকে থাকে।",
     philosophyCta: "আমাদের ব্যবসা দেখুন",
+    galleryEyebrow: "কর্মক্ষেত্রে",
+    teamPreviewEyebrow: "আমাদের মানুষ",
+    teamPreviewHeading: "টিমের সাথে পরিচিত হোন",
+    viewFullTeam: "সম্পূর্ণ টিম দেখুন",
+    missionVisionCta: "আমাদের মিশন ও ভিশন পড়ুন",
+    backToAbout: "অ্যাবাউটে ফিরে যান",
+    missionVisionEyebrow: "মিশন ও ভিশন",
   },
   projectsExtra: {
     viewCaseStudy: "কেস স্টাডি দেখুন",

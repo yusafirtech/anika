@@ -7,6 +7,7 @@ export type BusinessVertical = {
   capabilities: string[];
   cta: string;
   image: string;
+  images?: string[];
   layout: "side" | "banner" | "reverse";
 };
 

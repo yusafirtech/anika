@@ -15,9 +15,10 @@ import {
   CheckCircle2,
   XCircle,
   Wand2,
+  ListOrdered,
 } from 'lucide-react';
 
-type Section = 'details' | 'media' | 'certifications' | 'insight' | 'seo';
+type Section = 'details' | 'media' | 'process' | 'certifications' | 'insight' | 'seo';
 
 const DEFAULT_SEO: ProductSeo = {
   metaTitle: '',
@@ -69,6 +70,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
     onChange({ ...product, [key]: value });
 
   const gallery = product.images && product.images.length > 0 ? product.images : [product.image];
+  const process = product.process || [];
   const certifications = product.certifications || [];
   const seo = { ...DEFAULT_SEO, ...(product.seo || {}) };
   const setSeo = (patch: Partial<ProductSeo>) => set('seo', { ...seo, ...patch });
@@ -82,6 +84,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
   const sections: { id: Section; label: string; icon: React.ElementType; badge?: string }[] = [
     { id: 'details', label: 'Details', icon: FileText },
     { id: 'media', label: 'Media & Specs', icon: ImageIcon, badge: String(gallery.length) },
+    { id: 'process', label: 'How It Moves', icon: ListOrdered, badge: String(process.length) },
     {
       id: 'certifications',
       label: 'Certifications',
@@ -507,6 +510,13 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
           </>
         )}
 
+        {section === 'process' && (
+          <ProcessSection
+            process={process}
+            onChange={(next) => set('process', next)}
+          />
+        )}
+
         {section === 'certifications' && (
           <CertificationsSection
             enabled={!!product.certificationsEnabled}
@@ -556,6 +566,83 @@ const Toggle: React.FC<{ checked: boolean; onChange: (v: boolean) => void; label
     </button>
   </label>
 );
+
+const ProcessSection: React.FC<{
+  process: { step: string; description: string }[];
+  onChange: (process: { step: string; description: string }[]) => void;
+}> = ({ process, onChange }) => {
+  const update = (idx: number, field: 'step' | 'description', val: string) =>
+    onChange(process.map((s, i) => (i === idx ? { ...s, [field]: val } : s)));
+
+  const addStep = () => {
+    const n = (process.length + 1).toString().padStart(2, '0');
+    onChange([...process, { step: `Step ${n} — New Phase`, description: 'Standard operational protocol and inspection step.' }]);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-slate-900">"How It Moves" — this product's fulfillment process</h3>
+          <p className="text-xs text-slate-500">
+            Shown as a step-by-step flow on this product's page. Leave empty to hide the section entirely.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={addStep}
+          className="inline-flex shrink-0 items-center gap-1.5 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg border border-teal-200 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Step
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {process.map((step, idx) => (
+          <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex items-start gap-4">
+            <span className="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1">
+              {idx + 1}
+            </span>
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-1">
+                <label className="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Step Title</label>
+                <input
+                  type="text"
+                  value={step.step}
+                  onChange={(e) => update(idx, 'step', e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 font-medium"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Description</label>
+                <input
+                  type="text"
+                  value={step.description}
+                  onChange={(e) => update(idx, 'description', e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onChange(process.filter((_, i) => i !== idx))}
+              className="text-slate-400 hover:text-rose-600 p-2 transition-colors shrink-0"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+
+        {process.length === 0 && (
+          <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-400">
+            No process steps yet — the section won't show on the product page until you add one.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const CertificationsSection: React.FC<{
   enabled: boolean;

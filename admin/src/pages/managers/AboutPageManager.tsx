@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AboutPageContent } from '../../types';
 import { mockDb, backendApi } from '../../api';
 import { ImageUploadButton } from '../../components/ImageUploadButton';
+import { MultiImageUploadField } from '../../components/MultiImageUploadField';
 import {
   Save,
   CheckCircle2,
@@ -13,7 +14,9 @@ import {
 
 export const AboutPageManager: React.FC = () => {
   const [content, setContent] = useState<AboutPageContent>(() => mockDb.getAboutPage());
-  const [activeTab, setActiveTab] = useState<'intro' | 'timeline' | 'mission' | 'values' | 'philosophy'>('intro');
+  const [activeTab, setActiveTab] = useState<
+    'intro' | 'timeline' | 'gallery' | 'mission' | 'values' | 'philosophy'
+  >('intro');
   const [toast, setToast] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -41,7 +44,7 @@ export const AboutPageManager: React.FC = () => {
   };
 
   // Timeline handlers
-  const handleTimelineChange = (index: number, field: string, val: string) => {
+  const handleTimelineChange = (index: number, field: string, val: string | string[]) => {
     const updated = [...content.timeline];
     updated[index] = { ...updated[index], [field]: val };
     setContent({ ...content, timeline: updated });
@@ -102,6 +105,30 @@ export const AboutPageManager: React.FC = () => {
     });
   };
 
+  // Gallery handlers
+  const handleAddGalleryImage = (url: string) => {
+    setContent({
+      ...content,
+      gallery: {
+        ...content.gallery,
+        images: [...content.gallery.images, { id: `gallery-${Date.now()}`, image: url, caption: '' }],
+      },
+    });
+  };
+
+  const handleGalleryCaptionChange = (index: number, caption: string) => {
+    const updated = [...content.gallery.images];
+    updated[index] = { ...updated[index], caption };
+    setContent({ ...content, gallery: { ...content.gallery, images: updated } });
+  };
+
+  const handleRemoveGalleryImage = (index: number) => {
+    setContent({
+      ...content,
+      gallery: { ...content.gallery, images: content.gallery.images.filter((_, i) => i !== index) },
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-5">
@@ -140,9 +167,10 @@ export const AboutPageManager: React.FC = () => {
         {[
           { id: 'intro', label: '1. Intro & Stats' },
           { id: 'timeline', label: '2. Company Timeline' },
-          { id: 'mission', label: '3. Mission & Vision' },
-          { id: 'values', label: '4. Core Values' },
-          { id: 'philosophy', label: '5. Business Philosophy' },
+          { id: 'gallery', label: '3. Photo Gallery' },
+          { id: 'mission', label: '4. Mission & Vision' },
+          { id: 'values', label: '5. Core Values' },
+          { id: 'philosophy', label: '6. Business Philosophy' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -259,6 +287,14 @@ export const AboutPageManager: React.FC = () => {
                 </div>
               </div>
 
+              <div className="space-y-1 md:col-span-2 pt-2 border-t border-slate-100">
+                <MultiImageUploadField
+                  label="Additional Intro Images"
+                  images={content.intro.images || []}
+                  onChange={(images) => setContent({ ...content, intro: { ...content.intro, images } })}
+                />
+              </div>
+
               {/* Stats Counters */}
               <div className="md:col-span-2 pt-3 border-t border-slate-100 space-y-3">
                 <label className="text-xs font-semibold text-slate-700">Key Statistics Counters</label>
@@ -372,6 +408,14 @@ export const AboutPageManager: React.FC = () => {
                         )}
                       </div>
                     </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <MultiImageUploadField
+                        label="Additional Images"
+                        images={stage.images || []}
+                        onChange={(images) => handleTimelineChange(idx, 'images', images)}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -380,10 +424,86 @@ export const AboutPageManager: React.FC = () => {
         )}
 
         {/* ==========================================
-            TAB 3: MISSION & VISION
+            TAB 3: PHOTO GALLERY
+            ========================================== */}
+        {activeTab === 'gallery' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+              <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
+                Gallery Section Heading
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-700">Eyebrow Label</label>
+                  <input
+                    type="text"
+                    value={content.gallery.eyebrow}
+                    onChange={(e) => setContent({ ...content, gallery: { ...content.gallery, eyebrow: e.target.value } })}
+                    className="w-full rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-700">Heading</label>
+                  <input
+                    type="text"
+                    value={content.gallery.heading}
+                    onChange={(e) => setContent({ ...content, gallery: { ...content.gallery, heading: e.target.value } })}
+                    className="w-full rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="text-xs font-semibold text-slate-700">Description</label>
+                  <textarea
+                    rows={2}
+                    value={content.gallery.description}
+                    onChange={(e) => setContent({ ...content, gallery: { ...content.gallery, description: e.target.value } })}
+                    className="w-full rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-slate-900">
+                Gallery Images ({content.gallery.images.length})
+              </h3>
+              <ImageUploadButton label="Add Gallery Image" onImageUploaded={handleAddGalleryImage} />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {content.gallery.images.map((item, idx) => (
+                <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
+                  <div className="relative h-32 w-full overflow-hidden rounded-xl bg-slate-100">
+                    <img src={item.image} alt="" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveGalleryImage(idx)}
+                      className="absolute right-2 top-2 rounded-lg bg-rose-600/90 p-1.5 text-white hover:bg-rose-600"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={item.caption || ''}
+                    onChange={(e) => handleGalleryCaptionChange(idx, e.target.value)}
+                    placeholder="Caption (optional)"
+                    className="w-full rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-800 border border-slate-200 focus:bg-white focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ==========================================
+            TAB 4: MISSION & VISION
             ========================================== */}
         {activeTab === 'mission' && (
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
+            <p className="rounded-xl bg-sky-50 px-4 py-2.5 text-xs font-medium text-sky-800 border border-sky-200">
+              This content is shown on its own dedicated page at <strong>/about/mission-vision</strong>, not inline on the About page.
+            </p>
             <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
               Mission, Vision &amp; Strategic Pillars
             </h3>
@@ -509,7 +629,7 @@ export const AboutPageManager: React.FC = () => {
         )}
 
         {/* ==========================================
-            TAB 4: CORE VALUES
+            TAB 5: CORE VALUES
             ========================================== */}
         {activeTab === 'values' && (
           <div className="space-y-4">
@@ -548,7 +668,7 @@ export const AboutPageManager: React.FC = () => {
         )}
 
         {/* ==========================================
-            TAB 5: PHILOSOPHY
+            TAB 6: PHILOSOPHY
             ========================================== */}
         {activeTab === 'philosophy' && (
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
@@ -645,6 +765,16 @@ export const AboutPageManager: React.FC = () => {
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className="space-y-1 md:col-span-2 pt-2 border-t border-slate-100">
+                <MultiImageUploadField
+                  label="Additional Images"
+                  images={content.philosophy.images || []}
+                  onChange={(images) =>
+                    setContent({ ...content, philosophy: { ...content.philosophy, images } })
+                  }
+                />
               </div>
             </div>
           </div>

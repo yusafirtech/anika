@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { whyReasons as defaultWhyReasons, type WhyReason } from "@/data/home";
 import { cn } from "@/lib/utils";
-import { resolveImageUrl } from "@/lib/cms";
+import AutoImageSwiper from "@/components/ui/AutoImageSwiper";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
 
@@ -65,10 +64,9 @@ export default function WhyAnikaDesktop({
                     transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                     className="absolute inset-0"
                   >
-                    <Image
-                      src={resolveImageUrl(reason.image)}
+                    <AutoImageSwiper
+                      images={reason.images?.length ? reason.images : [reason.image]}
                       alt={reason.title}
-                      fill
                       sizes="50vw"
                       priority={i === 0}
                       className="object-cover"

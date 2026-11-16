@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CrudView } from '../components/CrudView';
-import { FieldDef, PartnerItem, TradeShowItem } from '../types';
+import { FieldDef, PartnerItem, TradeShowItem, BrandClientItem } from '../types';
 import { backendApi } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -176,6 +176,74 @@ export const PartnersPage: React.FC = () => {
       canCreate={hasPermission('partners', 'create')}
       canEdit={hasPermission('partners', 'edit')}
       canDelete={hasPermission('partners', 'delete')}
+    />
+  );
+};
+
+// ==========================================
+// Our Brand — public Clients showcase
+// ==========================================
+// Deliberately separate from the internal CRM Client Manager (which holds
+// contact emails/phone numbers and must stay admin-only) — this is just a
+// logo + name shown in the homepage "Our Brand" marquee alongside Partners.
+const brandClientFields: FieldDef[] = [
+  { key: 'name', label: 'Client / Company Name', type: 'text', required: true },
+  { key: 'logo', label: 'Logo Image', type: 'image', required: true },
+  { key: 'website', label: 'Website (optional)', type: 'text' },
+];
+
+const INITIAL_BRANDCLIENTS: BrandClientItem[] = [];
+
+export const BrandClientsPage: React.FC = () => {
+  const { hasPermission } = useAuth();
+  const [items, setItems] = useState<BrandClientItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    backendApi.collections.get<BrandClientItem>('brandclients', INITIAL_BRANDCLIENTS).then((data) => {
+      if (!cancelled) {
+        setItems(data);
+        setIsLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSave = async (item: Partial<BrandClientItem>): Promise<boolean> => {
+    let updated: BrandClientItem[];
+    if (item.id && items.some((c) => c.id === item.id)) {
+      updated = items.map((c) => (c.id === item.id ? ({ ...c, ...item } as BrandClientItem) : c));
+    } else {
+      updated = [...items, { ...item, id: `brandclient-${Date.now()}` } as BrandClientItem];
+    }
+    const ok = await backendApi.collections.save('brandclients', updated);
+    if (ok) setItems(updated);
+    return ok;
+  };
+
+  const handleDelete = async (id: string): Promise<boolean> => {
+    const updated = items.filter((c) => c.id !== id);
+    const ok = await backendApi.collections.save('brandclients', updated);
+    if (ok) setItems(updated);
+    return ok;
+  };
+
+  if (isLoading) return <CollectionLoader />;
+
+  return (
+    <CrudView
+      title="Our Brand — Clients"
+      subtitle="Logos shown alongside Partners in the homepage 'Our Brand' scrolling marquee. Keep this to public, logo-only entries — internal client contact details stay in Client Management."
+      fields={brandClientFields}
+      items={items}
+      onSave={handleSave}
+      onDelete={handleDelete}
+      canCreate={hasPermission('brandclients', 'create')}
+      canEdit={hasPermission('brandclients', 'edit')}
+      canDelete={hasPermission('brandclients', 'delete')}
     />
   );
 };

@@ -1,17 +1,20 @@
 import Reveal from "@/components/ui/Reveal";
-import { exportProcess as defaultExportProcess } from "@/data/export";
+import { cn } from "@/lib/utils";
 import type { Dictionary } from "@/i18n/dictionaries";
 import en from "@/i18n/dictionaries/en";
 
 type ProcessStep = { step: string; description: string };
 
 export default function ExportProcess({
-  process: exportProcess = defaultExportProcess,
+  process: exportProcess,
   dict = en.exportProcess,
 }: {
   process?: ProcessStep[];
   dict?: Dictionary["exportProcess"];
 }) {
+  if (!exportProcess || exportProcess.length === 0) return null;
+  const last = exportProcess.length - 1;
+
   return (
     <section className="bg-mist py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-8">
@@ -41,23 +44,32 @@ export default function ExportProcess({
           ))}
         </div>
 
-        {/* Desktop: horizontal process */}
-        <div className="mt-10 hidden md:flex md:items-start md:gap-0">
+        {/* Desktop: full-width horizontal flow, edge to edge */}
+        <div className="relative mt-16 hidden md:flex md:items-start md:justify-between">
+          <div className="absolute left-[18px] right-[18px] top-[18px] h-px bg-navy/15" />
+          <div className="absolute left-[18px] right-[18px] top-[17px] h-[2px] overflow-hidden">
+            <div className="animate-process-flow h-full w-full" />
+          </div>
+
           {exportProcess.map((step, i) => (
-            <Reveal key={step.step} delay={i * 0.06} className="relative flex-1">
-              <div className="flex flex-col items-start gap-4">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-navy/20 font-display text-sm font-medium text-navy">
-                  {i + 1}
-                </span>
-                <div className="-mt-[22px] mb-4 h-px w-full bg-navy/15" />
-                <div>
-                  <h3 className="font-display text-[15px] font-semibold uppercase tracking-wide text-navy-deeper">
-                    {step.step}
-                  </h3>
-                  <p className="mt-1.5 max-w-[180px] text-[13px] leading-relaxed text-ink/55">
-                    {step.description}
-                  </p>
-                </div>
+            <Reveal
+              key={step.step}
+              delay={i * 0.06}
+              className={cn(
+                "relative z-10 flex max-w-[170px] flex-col gap-4",
+                i === 0 && "items-start text-left",
+                i === last && "items-end text-right",
+                i > 0 && i < last && "items-center text-center"
+              )}
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-navy/20 bg-mist font-display text-sm font-medium text-navy">
+                {i + 1}
+              </span>
+              <div>
+                <h3 className="font-display text-[15px] font-semibold uppercase tracking-wide text-navy-deeper">
+                  {step.step}
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-ink/55">{step.description}</p>
               </div>
             </Reveal>
           ))}
